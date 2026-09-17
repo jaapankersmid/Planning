@@ -1,0 +1,64 @@
+# Productie-opzet voor een eigen server/VPS (bv. Hetzner Cloud): database +
+# app + Caddy (reverse proxy met automatische HTTPS) samen. Dit is een apart
+# bestand van docker-compose.yml, dat puur voor lokaal ontwikkelen blijft
+# (alleen een database, terwijl je de app zelf met `npm run dev` draait).
+#
+# Starten:  docker compose -f docker-compose.prod.yml up -d --build
+# Stoppen:  docker compose -f docker-compose.prod.yml down
+# Logs:     docker compose -f docker-compose.prod.yml logs -f app
+#
+# Vereist een .env-bestand (zie .env.example, sectie "Server/VPS-hosting")
+# met o.a. POSTGRES_PASSWORD, DATABASE_URL (host moet "db" zijn, niet
+# "localhost" — dat is de servicenaam hieronder), AUTH_SECRET, AUTH_URL en
+# DOMAIN.
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-rooster}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?zet POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-rooster}
+    volumes:
+      - rooster_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-rooster}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # Bewust GEEN "ports:" hier — de database is alleen bereikbaar vanuit
+    # andere containers in deze compose (via de servicenaam "db"), niet van
+    # buiten de server.
+
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    # Ook hier geen "ports:" — Caddy hieronder praat er intern mee via
+    # "app:3000" en is het enige dat van buitenaf bereikbaar is.
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      # Nog geen domein? Zet DOMAIN=":80" in .env (zie Caddyfile) om nu al
+      # via platte HTTP op het server-IP te testen.
+      DOMAIN: ${DOMAIN:?zet DOMAIN in .env — ":80" als je nog geen domein hebt, anders bv. rooster.jouwbedrijf.nl}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+volumes:
+  rooster_db_data:
+  caddy_data:
+  caddy_config:

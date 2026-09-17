@@ -1,0 +1,26 @@
+# Caddy regelt de reverse proxy én de HTTPS-certificaten (via Let's Encrypt)
+# volledig automatisch, gebaseerd op de waarde van DOMAIN in .env — dit
+# bestand hoef je normaal niet aan te passen, alleen .env.
+#
+# - Nog geen domein? Zet DOMAIN=":80" in .env. Caddy herkent dat als "geen
+#   hostnaam" en serveert dan gewoon platte HTTP op poort 80 — bereikbaar via
+#   http://<server-ip>. Er wordt dan GEEN certificaat aangevraagd (dat kan
+#   ook niet voor een kaal IP-adres). Log tijdens deze fase liever geen
+#   "echte" wachtwoorden in — het wachtwoordverkeer is dan niet versleuteld.
+# - Zodra het domein er is: zet DOMAIN="rooster.jouwbedrijf.nl" (of wat het
+#   ook wordt) in .env, zorg dat het A-record naar dit server-IP wijst, en
+#   herstart met `docker compose -f docker-compose.prod.yml up -d`. Caddy
+#   ziet dan vanzelf dat het een echte hostnaam is en regelt HTTPS.
+
+{$DOMAIN} {
+	reverse_proxy app:3000
+}
+
+# Wanneer het verhuurplatform later op dezelfde server bijkomt, voeg je er
+# hier gewoon een tweede domein/subdomein-blok bij, bv.:
+#
+# verhuur.{$DOMAIN} {
+# 	reverse_proxy verhuur-app:3000
+# }
+#
+# en een bijbehorende "verhuur-app"-service in docker-compose.prod.yml.

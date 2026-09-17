@@ -1,0 +1,19 @@
+# Voor lokaal draaien of zelf hosten op een eigen server/VPS.
+# Start met: docker compose up -d
+# Dit start alleen de database — de app zelf draai je met `npm run dev`
+# (lokaal) of bouw je met `npm run build && npm start` op de server.
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: rooster
+      POSTGRES_PASSWORD: rooster
+      POSTGRES_DB: rooster
+    ports:
+      - "5432:5432"
+    volumes:
+      - rooster_db_data:/var/lib/postgresql/data
+
+volumes:
+  rooster_db_data:

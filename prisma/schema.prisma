@@ -1,0 +1,127 @@
+// Rooster-app datamodel
+// Ontworpen op basis van Planning V2.0.xlsx: medewerkers, diensttypen (shiftcodes) en
+// dagelijkse dienst-toewijzingen.
+//
+// Inloggen gebeurt met zelf aangemaakte accounts (e-mail + wachtwoord, zie
+// src/lib/password.ts en src/auth.ts) — geen Google-login. De Google-velden op
+// User horen bij een aparte, losstaande koppeling: iemand kan ingelogd zijn
+// met zijn eigen wachtwoord én daarnaast toestemming geven om diensten naar
+// zijn eigen Google Calendar te laten pushen (zie src/app/api/google-calendar).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN // leidinggevende / planner: mag rooster en stamgegevens bewerken
+  EMPLOYEE // medewerker: ziet (in elk geval) het eigen rooster, kan agenda-sync aanzetten
+}
+
+model User {
+  id    String  @id @default(cuid())
+  name   String?
+  email  String  @unique
+  role   Role    @default(EMPLOYEE)
+  // Een uitgezet account kan niet meer inloggen, maar blijft (met historie)
+  // bestaan — voor iemand die tijdelijk geen toegang moet hebben.
+  active Boolean @default(true)
+
+  // Formaat "salt:hash" (scrypt, zie src/lib/password.ts) — nooit het
+  // wachtwoord zelf, en geen externe login-provider nodig.
+  passwordHash String
+  // Moet deze gebruiker bij de eerstvolgende login een nieuw wachtwoord
+  // kiezen? Staat aan na aanmaken/resetten door een leidinggevende.
+  mustChangePassword Boolean @default(true)
+
+  // Koppeling naar de "papieren" medewerker uit Personeelslijst. Eén medewerker kan
+  // hooguit één account claimen; niet iedere medewerker hoeft ooit in te loggen.
+  employee   Employee? @relation(fields: [employeeId], references: [id])
+  employeeId String?   @unique
+
+  // --- Google Calendar-koppeling (los van inloggen) ---------------------
+  // Staat de gebruiker toe dat hun diensten automatisch naar hun Google
+  // Calendar worden gepusht? Pas waar als er ook echt tokens zijn verkregen.
+  calendarSyncEnabled Boolean @default(false)
+  googleRefreshToken  String? @db.Text
+  googleAccessToken   String? @db.Text
+  googleTokenExpiresAt Int?
+  // Id van de (aparte) Google-agenda "Werkrooster" die voor deze gebruiker is
+  // aangemaakt, zodat diensten niet tussen hun privé-afspraken belanden.
+  googleCalendarId    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Employee {
+  id         String  @id @default(cuid())
+  // Oorspronkelijke ID uit Planning V2.0 (bv. "P001"), handig bij imports/exports.
+  externalId String? @unique
+  name       String
+  // Kleurgroep zoals in de huidige Personeelslijst (Rood/Oranje/Geel/Groen/...).
+  colorGroup String?
+  active     Boolean @default(true)
+  experience Float?
+
+  user        User?
+  assignments ShiftAssignment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ShiftType {
+  id    String @id @default(cuid())
+  // Korte code zoals in de legenda: O, A, X, CrO, UitO, ...
+  code  String @unique
+  label String
+  // Kleur voor de roostercel, als hex-code (bv. "#2f6e63").
+  color String
+
+  // Eerste (of enige) tijdsblok van de dienst.
+  startTime String?
+  endTime   String?
+  // Tweede tijdsblok, voor gesplitste diensten zoals "Uit" (ochtend + avond uitlaten).
+  secondStartTime String?
+  secondEndTime   String?
+
+  // Telt deze dienst mee in het ochtend- resp. avond-uitlaatoverzicht op /bezetting?
+  countsMorningWalk Boolean @default(false)
+  countsEveningWalk Boolean @default(false)
+
+  active      Boolean           @default(true)
+  assignments ShiftAssignment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ShiftAssignment {
+  id String @id @default(cuid())
+
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId String
+
+  date DateTime @db.Date
+
+  shiftType   ShiftType @relation(fields: [shiftTypeId], references: [id])
+  shiftTypeId String
+
+  note String?
+
+  // Id van het bijbehorende Google Calendar-event, zodat een latere wijziging of
+  // verwijdering het juiste event kan bijwerken i.p.v. dupliceren.
+  googleEventId String?
+  syncedAt      DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([employeeId, date, shiftTypeId])
+  @@index([date])
+}

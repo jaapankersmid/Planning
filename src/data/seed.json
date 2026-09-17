@@ -1,0 +1,2571 @@
+{
+  "shiftTypes": [
+    {
+      "code": "X",
+      "label": "Hele dag",
+      "color": "#7c4dab",
+      "startTime": "08:00",
+      "endTime": "12:30",
+      "secondStartTime": "15:30",
+      "secondEndTime": "19:30",
+      "countsMorningWalk": false,
+      "countsEveningWalk": false
+    },
+    {
+      "code": "O",
+      "label": "8:00-17:00",
+      "color": "#2f6e63",
+      "startTime": "08:00",
+      "endTime": "17:00",
+      "secondStartTime": null,
+      "secondEndTime": null,
+      "countsMorningWalk": false,
+      "countsEveningWalk": false
+    },
+    {
+      "code": "A",
+      "label": "10:30-19.30",
+      "color": "#b5602a",
+      "startTime": "10:30",
+      "endTime": "19:30",
+      "secondStartTime": null,
+      "secondEndTime": null,
+      "countsMorningWalk": false,
+      "countsEveningWalk": false
+    },
+    {
+      "code": "XI",
+      "label": "Ochtend",
+      "color": "#3b7dbf",
+      "startTime": "08:00",
+      "endTime": "12:30",
+      "secondStartTime": null,
+      "secondEndTime": null,
+      "countsMorningWalk": false,
+      "countsEveningWalk": false
+    },
+    {
+      "code": "IX",
+      "label": "Middag",
+      "color": "#c9558f",
+      "startTime": "15:30",
+      "endTime": "19:30",
+      "secondStartTime": null,
+      "secondEndTime": null,
+      "countsMorningWalk": false,
+      "countsEveningWalk": false
+    },
+    {
+      "code": "V",
+      "label": "Vrij",
+      "color": "#9aa39a",
+      "startTime": null,
+      "endTime": null,
+      "secondStartTime": null,
+      "secondEndTime": null,
+      "countsMorningWalk": false,
+      "countsEveningWalk": false
+    },
+    {
+      "code": "Z",
+      "label": "Ziek",
+      "color": "#b5453a",
+      "startTime": null,
+      "endTime": null,
+      "secondStartTime": null,
+      "secondEndTime": null,
+      "countsMorningWalk": false,
+      "countsEveningWalk": false
+    },
+    {
+      "code": "CrO",
+      "label": "Crem 7.00 - 16.30",
+      "color": "#4f9d69",
+      "startTime": "07:00",
+      "endTime": "16:30",
+      "secondStartTime": null,
+      "secondEndTime": null,
+      "countsMorningWalk": false,
+      "countsEveningWalk": false
+    },
+    {
+      "code": "CrA",
+      "label": "Crem 10.30 - 19.00",
+      "color": "#2f8f7a",
+      "startTime": "10:30",
+      "endTime": "19:00",
+      "secondStartTime": null,
+      "secondEndTime": null,
+      "countsMorningWalk": false,
+      "countsEveningWalk": false
+    },
+    {
+      "code": "K",
+      "label": "Kantoor",
+      "color": "#6b6f76",
+      "startTime": "08:00",
+      "endTime": "17:00",
+      "secondStartTime": null,
+      "secondEndTime": null,
+      "countsMorningWalk": false,
+      "countsEveningWalk": false
+    },
+    {
+      "code": "R",
+      "label": "Rijden",
+      "color": "#d19a3d",
+      "startTime": "06:00",
+      "endTime": "15:00",
+      "secondStartTime": null,
+      "secondEndTime": null,
+      "countsMorningWalk": false,
+      "countsEveningWalk": false
+    },
+    {
+      "code": "UitO",
+      "label": "Uitlaten Ochtend",
+      "color": "#4aa3c7",
+      "startTime": "08:00",
+      "endTime": "10:00",
+      "secondStartTime": null,
+      "secondEndTime": null,
+      "countsMorningWalk": true,
+      "countsEveningWalk": false
+    },
+    {
+      "code": "UitA",
+      "label": "Uitlaten Avond",
+      "color": "#2f5fa8",
+      "startTime": "15:30",
+      "endTime": "17:30",
+      "secondStartTime": null,
+      "secondEndTime": null,
+      "countsMorningWalk": false,
+      "countsEveningWalk": true
+    },
+    {
+      "code": "Uit",
+      "label": "Uitlaten Beide",
+      "color": "#356fae",
+      "startTime": "08:00",
+      "endTime": "10:00",
+      "secondStartTime": "15:30",
+      "secondEndTime": "17:30",
+      "countsMorningWalk": true,
+      "countsEveningWalk": true
+    },
+    {
+      "code": "B",
+      "label": "Balie 18u-19u",
+      "color": "#a4763f",
+      "startTime": "18:00",
+      "endTime": "19:00",
+      "secondStartTime": null,
+      "secondEndTime": null,
+      "countsMorningWalk": false,
+      "countsEveningWalk": false
+    },
+    {
+      "code": "T",
+      "label": "Trimsalon",
+      "color": "#d1667e",
+      "startTime": "08:00",
+      "endTime": "17:00",
+      "secondStartTime": null,
+      "secondEndTime": null,
+      "countsMorningWalk": false,
+      "countsEveningWalk": false
+    }
+  ],
+  "employees": [
+    {
+      "externalId": "P001",
+      "name": "Jeroen",
+      "colorGroup": "Rood",
+      "active": true,
+      "experience": 12.0
+    },
+    {
+      "externalId": "P002",
+      "name": "Marlies",
+      "colorGroup": "Rood",
+      "active": true,
+      "experience": 12.0
+    },
+    {
+      "externalId": "P003",
+      "name": "Kelly",
+      "colorGroup": "Rood",
+      "active": true,
+      "experience": 12.0
+    },
+    {
+      "externalId": "P004",
+      "name": "Wesley",
+      "colorGroup": "Rood",
+      "active": true,
+      "experience": 10.0
+    },
+    {
+      "externalId": "P005",
+      "name": "Jaap",
+      "colorGroup": "Oranje",
+      "active": true,
+      "experience": 11.0
+    },
+    {
+      "externalId": "P006",
+      "name": "Koen",
+      "colorGroup": "Oranje",
+      "active": true,
+      "experience": 11.0
+    },
+    {
+      "externalId": "P007",
+      "name": "Douwe",
+      "colorGroup": "Oranje",
+      "active": true,
+      "experience": 11.0
+    },
+    {
+      "externalId": "P008",
+      "name": "Angela",
+      "colorGroup": "Oranje",
+      "active": true,
+      "experience": 10.0
+    },
+    {
+      "externalId": "P010",
+      "name": "Loes",
+      "colorGroup": "Geel",
+      "active": true,
+      "experience": 11.0
+    },
+    {
+      "externalId": "P011",
+      "name": "Alissa",
+      "colorGroup": "Oranje",
+      "active": true,
+      "experience": 8.0
+    },
+    {
+      "externalId": "P012",
+      "name": "Ellen",
+      "colorGroup": "Oranje",
+      "active": true,
+      "experience": 10.0
+    },
+    {
+      "externalId": "P013",
+      "name": "Silke",
+      "colorGroup": "Groen",
+      "active": true,
+      "experience": 1.0
+    },
+    {
+      "externalId": "P014",
+      "name": "Mirte",
+      "colorGroup": "Groen",
+      "active": true,
+      "experience": 1.0
+    },
+    {
+      "externalId": "P015",
+      "name": "Saar",
+      "colorGroup": "Licht Blauw",
+      "active": true,
+      "experience": 1.0
+    },
+    {
+      "externalId": "P016",
+      "name": "Noah",
+      "colorGroup": "Licht Blauw",
+      "active": false,
+      "experience": 1.0
+    },
+    {
+      "externalId": "P017",
+      "name": "Esmee",
+      "colorGroup": "Licht Blauw",
+      "active": false,
+      "experience": 1.0
+    },
+    {
+      "externalId": "P018",
+      "name": "Lenthe",
+      "colorGroup": "Licht Blauw",
+      "active": true,
+      "experience": 1.0
+    },
+    {
+      "externalId": "P019",
+      "name": "Jorrick",
+      "colorGroup": "Licht Blauw",
+      "active": true,
+      "experience": 1.0
+    },
+    {
+      "externalId": "P055",
+      "name": "Hannah",
+      "colorGroup": "Groen",
+      "active": true,
+      "experience": 1.0
+    },
+    {
+      "externalId": "P056",
+      "name": "Lars",
+      "colorGroup": "Groen",
+      "active": true,
+      "experience": 1.0
+    },
+    {
+      "externalId": "P023",
+      "name": "Linnea",
+      "colorGroup": "Groen",
+      "active": true,
+      "experience": 6.0
+    },
+    {
+      "externalId": "P024",
+      "name": "Letteke",
+      "colorGroup": "Groen",
+      "active": true,
+      "experience": 6.0
+    },
+    {
+      "externalId": "P025",
+      "name": "Thessa",
+      "colorGroup": "Groen",
+      "active": true,
+      "experience": 6.0
+    },
+    {
+      "externalId": "P027",
+      "name": "Anne",
+      "colorGroup": "Groen",
+      "active": true,
+      "experience": 6.0
+    },
+    {
+      "externalId": "P028",
+      "name": "Jackie",
+      "colorGroup": "Groen",
+      "active": true,
+      "experience": 5.0
+    },
+    {
+      "externalId": "P029",
+      "name": "Valentina",
+      "colorGroup": "Groen",
+      "active": true,
+      "experience": 5.0
+    },
+    {
+      "externalId": "P030",
+      "name": "Marlein",
+      "colorGroup": "Groen",
+      "active": true,
+      "experience": 5.0
+    },
+    {
+      "externalId": "P031",
+      "name": "Isa",
+      "colorGroup": "Groen",
+      "active": true,
+      "experience": 6.0
+    },
+    {
+      "externalId": "P032",
+      "name": "Anna",
+      "colorGroup": "Groen",
+      "active": true,
+      "experience": 4.0
+    },
+    {
+      "externalId": "P035",
+      "name": "Daan",
+      "colorGroup": "Groen",
+      "active": true,
+      "experience": 3.0
+    },
+    {
+      "externalId": "P036",
+      "name": "Hidde",
+      "colorGroup": "Groen",
+      "active": true,
+      "experience": 3.0
+    },
+    {
+      "externalId": "P037",
+      "name": "Luuk",
+      "colorGroup": "Groen",
+      "active": false,
+      "experience": 3.0
+    },
+    {
+      "externalId": "P038",
+      "name": "Stijn",
+      "colorGroup": "Groen",
+      "active": true,
+      "experience": 3.0
+    },
+    {
+      "externalId": "P026",
+      "name": "Yara H",
+      "colorGroup": "Groen",
+      "active": true,
+      "experience": 7.0
+    },
+    {
+      "externalId": "P033",
+      "name": "Rens",
+      "colorGroup": "Geel",
+      "active": true,
+      "experience": 8.0
+    },
+    {
+      "externalId": "P034",
+      "name": "Cas",
+      "colorGroup": "Geel",
+      "active": true,
+      "experience": 6.0
+    },
+    {
+      "externalId": "P039",
+      "name": "Noor",
+      "colorGroup": "Geel",
+      "active": true,
+      "experience": 10.0
+    },
+    {
+      "externalId": "P040",
+      "name": "Jonne",
+      "colorGroup": "Geel",
+      "active": true,
+      "experience": 11.0
+    },
+    {
+      "externalId": "P041",
+      "name": "Lian",
+      "colorGroup": "Geel",
+      "active": true,
+      "experience": 11.0
+    },
+    {
+      "externalId": "P042",
+      "name": "Maud",
+      "colorGroup": "Geel",
+      "active": true,
+      "experience": 10.0
+    },
+    {
+      "externalId": "P043",
+      "name": "Yara V",
+      "colorGroup": "Geel",
+      "active": true,
+      "experience": 11.0
+    },
+    {
+      "externalId": "P044",
+      "name": "Irene",
+      "colorGroup": "Geel",
+      "active": true,
+      "experience": 11.0
+    },
+    {
+      "externalId": "P045",
+      "name": "Elisa",
+      "colorGroup": "Geel",
+      "active": true,
+      "experience": 10.0
+    },
+    {
+      "externalId": "P046",
+      "name": "Manouk",
+      "colorGroup": "Geel",
+      "active": true,
+      "experience": 10.0
+    },
+    {
+      "externalId": "P047",
+      "name": "Lisa",
+      "colorGroup": "Geel",
+      "active": true,
+      "experience": 9.0
+    },
+    {
+      "externalId": "P048",
+      "name": "Michelle",
+      "colorGroup": "Oranje",
+      "active": true,
+      "experience": 9.0
+    },
+    {
+      "externalId": "P049",
+      "name": "Dries",
+      "colorGroup": "Geel",
+      "active": true,
+      "experience": 9.0
+    },
+    {
+      "externalId": "P050",
+      "name": "Feie",
+      "colorGroup": "Geel",
+      "active": false,
+      "experience": 9.0
+    },
+    {
+      "externalId": "P051",
+      "name": "Guus",
+      "colorGroup": "Geel",
+      "active": true,
+      "experience": 8.0
+    },
+    {
+      "externalId": "P052",
+      "name": "Pien",
+      "colorGroup": "Blauw",
+      "active": false,
+      "experience": 4.0
+    },
+    {
+      "externalId": "P053",
+      "name": "Myrthe",
+      "colorGroup": "Blauw",
+      "active": false,
+      "experience": 3.0
+    },
+    {
+      "externalId": "P054",
+      "name": "Sanne",
+      "colorGroup": "Blauw",
+      "active": true,
+      "experience": 3.0
+    },
+    {
+      "externalId": "P057",
+      "name": "Maura",
+      "colorGroup": "Groen",
+      "active": true,
+      "experience": 1.0
+    },
+    {
+      "externalId": "P058",
+      "name": "Maartje",
+      "colorGroup": "Licht Blauw",
+      "active": true,
+      "experience": 1.0
+    },
+    {
+      "externalId": "P059",
+      "name": "Elin",
+      "colorGroup": "Groen",
+      "active": true,
+      "experience": 1.0
+    },
+    {
+      "externalId": "P060",
+      "name": "Eva",
+      "colorGroup": "Licht Blauw",
+      "active": true,
+      "experience": 1.0
+    },
+    {
+      "externalId": "P061",
+      "name": "Roos",
+      "colorGroup": "Licht Blauw",
+      "active": true,
+      "experience": 1.0
+    },
+    {
+      "externalId": "P062",
+      "name": "Rick",
+      "colorGroup": "Groen",
+      "active": true,
+      "experience": 2.0
+    },
+    {
+      "externalId": "P063",
+      "name": "Sanne N",
+      "colorGroup": "Geel",
+      "active": true,
+      "experience": 4.0
+    },
+    {
+      "externalId": "P064",
+      "name": "Amber",
+      "colorGroup": "Licht Blauw",
+      "active": true,
+      "experience": 1.0
+    },
+    {
+      "externalId": "P065",
+      "name": "Noor B",
+      "colorGroup": "Groen",
+      "active": true,
+      "experience": 1.0
+    }
+  ],
+  "assignments": [
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-01",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-02",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-03",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-04",
+      "code": "A"
+    },
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-07",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-08",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-09",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-10",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-11",
+      "code": "A"
+    },
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-14",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-15",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-16",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-17",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-18",
+      "code": "A"
+    },
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-21",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-22",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-23",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-24",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-25",
+      "code": "A"
+    },
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-28",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-29",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P001",
+      "date": "2026-09-30",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P002",
+      "date": "2026-09-01",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P002",
+      "date": "2026-09-02",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P002",
+      "date": "2026-09-04",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P002",
+      "date": "2026-09-07",
+      "code": "A"
+    },
+    {
+      "employeeExternalId": "P002",
+      "date": "2026-09-08",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P002",
+      "date": "2026-09-09",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P002",
+      "date": "2026-09-11",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P002",
+      "date": "2026-09-14",
+      "code": "A"
+    },
+    {
+      "employeeExternalId": "P002",
+      "date": "2026-09-15",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P002",
+      "date": "2026-09-16",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P002",
+      "date": "2026-09-18",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P002",
+      "date": "2026-09-21",
+      "code": "A"
+    },
+    {
+      "employeeExternalId": "P002",
+      "date": "2026-09-22",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P002",
+      "date": "2026-09-23",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P002",
+      "date": "2026-09-25",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P002",
+      "date": "2026-09-28",
+      "code": "A"
+    },
+    {
+      "employeeExternalId": "P002",
+      "date": "2026-09-29",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P002",
+      "date": "2026-09-30",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P003",
+      "date": "2026-09-01",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P003",
+      "date": "2026-09-03",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P003",
+      "date": "2026-09-07",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P003",
+      "date": "2026-09-08",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P003",
+      "date": "2026-09-10",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P003",
+      "date": "2026-09-14",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P003",
+      "date": "2026-09-15",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P003",
+      "date": "2026-09-17",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P003",
+      "date": "2026-09-21",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P003",
+      "date": "2026-09-22",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P003",
+      "date": "2026-09-24",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P003",
+      "date": "2026-09-28",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P003",
+      "date": "2026-09-29",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-01",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-02",
+      "code": "A"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-04",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-05",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-07",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-08",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-09",
+      "code": "A"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-11",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-12",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-14",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-15",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-16",
+      "code": "A"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-18",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-19",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-21",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-22",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-23",
+      "code": "A"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-25",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-26",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-28",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-29",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P004",
+      "date": "2026-09-30",
+      "code": "A"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-01",
+      "code": "CrA"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-02",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-03",
+      "code": "A"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-04",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-05",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-08",
+      "code": "CrA"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-09",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-10",
+      "code": "A"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-11",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-12",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-13",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-15",
+      "code": "CrA"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-16",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-17",
+      "code": "A"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-18",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-19",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-22",
+      "code": "CrA"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-23",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-24",
+      "code": "A"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-25",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-26",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-29",
+      "code": "CrA"
+    },
+    {
+      "employeeExternalId": "P005",
+      "date": "2026-09-30",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-01",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-02",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-03",
+      "code": "CrA"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-04",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-07",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-08",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-09",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-10",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-11",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-12",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-13",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-14",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-15",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-16",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-17",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-18",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-19",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-20",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-21",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-22",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-23",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-24",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-25",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-26",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-27",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-28",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-29",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P006",
+      "date": "2026-09-30",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-01",
+      "code": "K"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-02",
+      "code": "K"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-03",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-04",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-06",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-07",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-08",
+      "code": "K"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-09",
+      "code": "K"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-10",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-11",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-14",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-15",
+      "code": "K"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-16",
+      "code": "K"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-17",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-18",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-21",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-22",
+      "code": "K"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-23",
+      "code": "K"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-24",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-25",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-28",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-29",
+      "code": "K"
+    },
+    {
+      "employeeExternalId": "P007",
+      "date": "2026-09-30",
+      "code": "K"
+    },
+    {
+      "employeeExternalId": "P008",
+      "date": "2026-09-02",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P008",
+      "date": "2026-09-03",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P008",
+      "date": "2026-09-07",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P008",
+      "date": "2026-09-08",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P008",
+      "date": "2026-09-09",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P008",
+      "date": "2026-09-10",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P008",
+      "date": "2026-09-14",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P008",
+      "date": "2026-09-16",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P008",
+      "date": "2026-09-17",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P008",
+      "date": "2026-09-21",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P008",
+      "date": "2026-09-23",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P008",
+      "date": "2026-09-24",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P008",
+      "date": "2026-09-28",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P008",
+      "date": "2026-09-29",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P008",
+      "date": "2026-09-30",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P012",
+      "date": "2026-09-01",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P012",
+      "date": "2026-09-03",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P012",
+      "date": "2026-09-04",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P012",
+      "date": "2026-09-07",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P012",
+      "date": "2026-09-08",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P012",
+      "date": "2026-09-10",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P012",
+      "date": "2026-09-11",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P012",
+      "date": "2026-09-14",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P012",
+      "date": "2026-09-15",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P012",
+      "date": "2026-09-17",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P012",
+      "date": "2026-09-18",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P012",
+      "date": "2026-09-21",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P012",
+      "date": "2026-09-22",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P012",
+      "date": "2026-09-24",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P012",
+      "date": "2026-09-25",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P012",
+      "date": "2026-09-27",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P012",
+      "date": "2026-09-28",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P012",
+      "date": "2026-09-29",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-01",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-02",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-03",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-04",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-07",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-08",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-09",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-10",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-11",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-14",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-15",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-16",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-17",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-18",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-20",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-21",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-22",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-23",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-24",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-25",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-28",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-29",
+      "code": "O"
+    },
+    {
+      "employeeExternalId": "P048",
+      "date": "2026-09-30",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P010",
+      "date": "2026-09-02",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P010",
+      "date": "2026-09-03",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P010",
+      "date": "2026-09-04",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P010",
+      "date": "2026-09-05",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P010",
+      "date": "2026-09-12",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P010",
+      "date": "2026-09-19",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P010",
+      "date": "2026-09-26",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P040",
+      "date": "2026-09-01",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P040",
+      "date": "2026-09-03",
+      "code": "B"
+    },
+    {
+      "employeeExternalId": "P040",
+      "date": "2026-09-04",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P040",
+      "date": "2026-09-05",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P040",
+      "date": "2026-09-06",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P040",
+      "date": "2026-09-07",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P040",
+      "date": "2026-09-08",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P040",
+      "date": "2026-09-09",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P040",
+      "date": "2026-09-10",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P040",
+      "date": "2026-09-11",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P040",
+      "date": "2026-09-12",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P040",
+      "date": "2026-09-13",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P040",
+      "date": "2026-09-14",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P040",
+      "date": "2026-09-15",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P040",
+      "date": "2026-09-16",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P040",
+      "date": "2026-09-17",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P040",
+      "date": "2026-09-18",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P040",
+      "date": "2026-09-19",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P040",
+      "date": "2026-09-26",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P041",
+      "date": "2026-09-03",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P041",
+      "date": "2026-09-04",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P041",
+      "date": "2026-09-05",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P041",
+      "date": "2026-09-11",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P041",
+      "date": "2026-09-12",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P041",
+      "date": "2026-09-18",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P041",
+      "date": "2026-09-19",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P041",
+      "date": "2026-09-25",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P041",
+      "date": "2026-09-26",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P043",
+      "date": "2026-09-01",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P043",
+      "date": "2026-09-02",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P043",
+      "date": "2026-09-03",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P043",
+      "date": "2026-09-04",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P043",
+      "date": "2026-09-05",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P043",
+      "date": "2026-09-08",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P043",
+      "date": "2026-09-09",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P043",
+      "date": "2026-09-12",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P043",
+      "date": "2026-09-15",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P043",
+      "date": "2026-09-16",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P043",
+      "date": "2026-09-17",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P043",
+      "date": "2026-09-22",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P043",
+      "date": "2026-09-25",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P044",
+      "date": "2026-09-01",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P044",
+      "date": "2026-09-02",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P044",
+      "date": "2026-09-03",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P044",
+      "date": "2026-09-04",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P044",
+      "date": "2026-09-05",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P044",
+      "date": "2026-09-06",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P044",
+      "date": "2026-09-07",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P044",
+      "date": "2026-09-10",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P039",
+      "date": "2026-09-03",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P039",
+      "date": "2026-09-05",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P039",
+      "date": "2026-09-10",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P039",
+      "date": "2026-09-18",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P039",
+      "date": "2026-09-19",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P039",
+      "date": "2026-09-26",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P039",
+      "date": "2026-09-27",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P045",
+      "date": "2026-09-01",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P045",
+      "date": "2026-09-02",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P045",
+      "date": "2026-09-05",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P045",
+      "date": "2026-09-06",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P045",
+      "date": "2026-09-09",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P045",
+      "date": "2026-09-13",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P045",
+      "date": "2026-09-16",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P045",
+      "date": "2026-09-17",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P045",
+      "date": "2026-09-19",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P045",
+      "date": "2026-09-20",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P045",
+      "date": "2026-09-23",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P045",
+      "date": "2026-09-24",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P045",
+      "date": "2026-09-27",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P045",
+      "date": "2026-09-30",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P047",
+      "date": "2026-09-01",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P047",
+      "date": "2026-09-02",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P047",
+      "date": "2026-09-03",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P047",
+      "date": "2026-09-04",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P047",
+      "date": "2026-09-12",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P047",
+      "date": "2026-09-16",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P047",
+      "date": "2026-09-23",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P047",
+      "date": "2026-09-26",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P047",
+      "date": "2026-09-30",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P049",
+      "date": "2026-09-02",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P049",
+      "date": "2026-09-07",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P049",
+      "date": "2026-09-08",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P049",
+      "date": "2026-09-10",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P033",
+      "date": "2026-09-06",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P051",
+      "date": "2026-09-07",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P026",
+      "date": "2026-09-06",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P026",
+      "date": "2026-09-08",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P026",
+      "date": "2026-09-13",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P026",
+      "date": "2026-09-20",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P026",
+      "date": "2026-09-27",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P024",
+      "date": "2026-09-05",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P024",
+      "date": "2026-09-06",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P024",
+      "date": "2026-09-12",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P024",
+      "date": "2026-09-13",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P024",
+      "date": "2026-09-19",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P024",
+      "date": "2026-09-20",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P024",
+      "date": "2026-09-26",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P027",
+      "date": "2026-09-01",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P027",
+      "date": "2026-09-02",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P027",
+      "date": "2026-09-03",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P027",
+      "date": "2026-09-04",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P027",
+      "date": "2026-09-05",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P027",
+      "date": "2026-09-06",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P027",
+      "date": "2026-09-07",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P027",
+      "date": "2026-09-08",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P027",
+      "date": "2026-09-09",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P027",
+      "date": "2026-09-10",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P027",
+      "date": "2026-09-11",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P027",
+      "date": "2026-09-12",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P027",
+      "date": "2026-09-13",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P027",
+      "date": "2026-09-14",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P027",
+      "date": "2026-09-15",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P027",
+      "date": "2026-09-16",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P027",
+      "date": "2026-09-17",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P027",
+      "date": "2026-09-18",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P027",
+      "date": "2026-09-19",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P027",
+      "date": "2026-09-20",
+      "code": "V"
+    },
+    {
+      "employeeExternalId": "P031",
+      "date": "2026-09-04",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P031",
+      "date": "2026-09-05",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P031",
+      "date": "2026-09-07",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P031",
+      "date": "2026-09-12",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P031",
+      "date": "2026-09-19",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P028",
+      "date": "2026-09-06",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P028",
+      "date": "2026-09-13",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P028",
+      "date": "2026-09-20",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P028",
+      "date": "2026-09-27",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P029",
+      "date": "2026-09-13",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P029",
+      "date": "2026-09-20",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P030",
+      "date": "2026-09-06",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P030",
+      "date": "2026-09-13",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P030",
+      "date": "2026-09-20",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P030",
+      "date": "2026-09-27",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P032",
+      "date": "2026-09-05",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P032",
+      "date": "2026-09-12",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P032",
+      "date": "2026-09-26",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P035",
+      "date": "2026-09-08",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P038",
+      "date": "2026-09-06",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P038",
+      "date": "2026-09-13",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P038",
+      "date": "2026-09-20",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P038",
+      "date": "2026-09-27",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P062",
+      "date": "2026-09-05",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P062",
+      "date": "2026-09-12",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P062",
+      "date": "2026-09-19",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P062",
+      "date": "2026-09-26",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P013",
+      "date": "2026-09-01",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P013",
+      "date": "2026-09-02",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P013",
+      "date": "2026-09-07",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P013",
+      "date": "2026-09-08",
+      "code": "Z"
+    },
+    {
+      "employeeExternalId": "P013",
+      "date": "2026-09-09",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P013",
+      "date": "2026-09-12",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P013",
+      "date": "2026-09-15",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P013",
+      "date": "2026-09-16",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P013",
+      "date": "2026-09-22",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P013",
+      "date": "2026-09-23",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P013",
+      "date": "2026-09-26",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P013",
+      "date": "2026-09-29",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P013",
+      "date": "2026-09-30",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P014",
+      "date": "2026-09-04",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P014",
+      "date": "2026-09-11",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P014",
+      "date": "2026-09-18",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P014",
+      "date": "2026-09-25",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P055",
+      "date": "2026-09-06",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P055",
+      "date": "2026-09-11",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P055",
+      "date": "2026-09-18",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P055",
+      "date": "2026-09-25",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P056",
+      "date": "2026-09-06",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P056",
+      "date": "2026-09-11",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P056",
+      "date": "2026-09-13",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P056",
+      "date": "2026-09-20",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P056",
+      "date": "2026-09-25",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P056",
+      "date": "2026-09-27",
+      "code": "XI"
+    },
+    {
+      "employeeExternalId": "P059",
+      "date": "2026-09-06",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P059",
+      "date": "2026-09-11",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P059",
+      "date": "2026-09-13",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P059",
+      "date": "2026-09-18",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P059",
+      "date": "2026-09-20",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P059",
+      "date": "2026-09-25",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P059",
+      "date": "2026-09-27",
+      "code": "X"
+    },
+    {
+      "employeeExternalId": "P065",
+      "date": "2026-09-06",
+      "code": "IX"
+    },
+    {
+      "employeeExternalId": "P065",
+      "date": "2026-09-09",
+      "code": "IX"
+    }
+  ]
+}
