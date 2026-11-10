@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { CALENDAR_SCOPE, calendarCallbackUrl, createOAuthClient } from "@/lib/google-oauth";
+import { CALENDAR_SCOPE, appUrl, calendarCallbackUrl, createOAuthClient } from "@/lib/google-oauth";
 
 const STATE_COOKIE = "google_oauth_state";
 
@@ -15,7 +15,7 @@ const STATE_COOKIE = "google_oauth_state";
 export async function GET(request: NextRequest) {
   const session = await auth();
   if (!session?.user) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(appUrl("/login", request.url));
   }
 
   const state = randomUUID();

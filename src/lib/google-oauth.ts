@@ -27,3 +27,12 @@ export function calendarCallbackUrl(requestUrl: string) {
   const base = process.env.AUTH_URL || requestUrl;
   return new URL("/api/google-calendar/callback", base).toString();
 }
+
+/**
+ * Bouwt een adres binnen de app, voor omleidingen na de Google-koppeling.
+ * Achter de proxy ziet Next het verzoek als https://localhost:3000, dus we
+ * gebruiken het publieke adres uit AUTH_URL zodra dat is ingesteld.
+ */
+export function appUrl(path: string, requestUrl: string) {
+  return new URL(path, process.env.AUTH_URL || requestUrl);
+}

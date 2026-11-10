@@ -2,16 +2,16 @@ import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { calendarCallbackUrl, createOAuthClient } from "@/lib/google-oauth";
+import { appUrl, calendarCallbackUrl, createOAuthClient } from "@/lib/google-oauth";
 
 const STATE_COOKIE = "google_oauth_state";
 
 export async function GET(request: NextRequest) {
   const session = await auth();
-  const redirectTarget = new URL("/rooster/mijn", request.url);
+  const redirectTarget = appUrl("/rooster/mijn", request.url);
 
   if (!session?.user) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(appUrl("/login", request.url));
   }
 
   const params = request.nextUrl.searchParams;
