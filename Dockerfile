@@ -29,6 +29,10 @@ COPY prisma ./prisma
 RUN npm ci
 
 COPY . .
+# Met 2 GB RAM loopt `next build` (vooral de TypeScript-controle) tegen Node's
+# standaard geheugenlimiet (~1 GB) aan. Deze hogere limiet gebruikt desnoods
+# de swap (zie README, stap 4) en geldt alleen voor deze build-stage.
+ENV NODE_OPTIONS=--max-old-space-size=3072
 RUN npm run build
 
 
