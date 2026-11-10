@@ -358,7 +358,7 @@ export default async function RoosterPage({
 
       {holidays.length > 0 && (
         <p className="text-xs text-foreground-muted">
-          Paars is een vakantieperiode.
+          Lichtgroen is een vakantieperiode.
           {anyWish && " Bij een wensaantal is de bezetting groen als dat gehaald is en rood als het eronder blijft."}
         </p>
       )}

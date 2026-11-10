@@ -12,10 +12,10 @@
   --accent-soft: #e3ede9;
   --weekend: #dde5f3;
   --weekend-border: #4f6794;
-  --holiday: #efe6fa;
-  --holiday-strong: #6b4aa8;
-  --good: #cdeacf;
-  --good-text: #17592a;
+  --holiday: #e6f6d8;
+  --holiday-strong: #3b7a2a;
+  --good: #9fd9a8;
+  --good-text: #0b4a1d;
   --bad: #f6cccc;
   --bad-text: #8c1d1d;
 }
@@ -53,10 +53,10 @@
     --accent-soft: #1d2e2a;
     --weekend: #252f45;
     --weekend-border: #8da3d4;
-    --holiday: #2f2742;
-    --holiday-strong: #b9a2f0;
-    --good: #1f3d28;
-    --good-text: #a5dcb3;
+    --holiday: #243a24;
+    --holiday-strong: #a6dc96;
+    --good: #1f5a35;
+    --good-text: #b9f0c8;
     --bad: #4a2323;
     --bad-text: #f2aaaa;
   }
