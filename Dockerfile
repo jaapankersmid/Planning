@@ -54,6 +54,8 @@ RUN npm ci --omit=dev
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/scripts ./scripts
+# prisma/seed.ts en scripts/create-user.ts importeren uit src/ (wachtwoord-hash, seed.json).
+COPY --from=builder /app/src ./src
 COPY --from=builder /app/next.config.ts ./next.config.ts
 
 EXPOSE 3000
