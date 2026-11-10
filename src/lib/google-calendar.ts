@@ -218,10 +218,62 @@ export async function removeAssignmentFromCalendar(
   }
 }
 
+/** Vertaalt een foutmelding van Google naar iets waar je mee verder kunt. */
+export function describeGoogleError(error: unknown) {
+  const e = error as {
+    code?: number | string;
+    status?: number;
+    message?: string;
+    errors?: { reason?: string; message?: string }[];
+    response?: { data?: { error?: string | { message?: string; errors?: { reason?: string }[] } } };
+  };
+  const data = e?.response?.data?.error;
+  const reason =
+    e?.errors?.[0]?.reason ??
+    (typeof data === "object" ? data?.errors?.[0]?.reason : undefined) ??
+    (typeof data === "string" ? data : undefined);
+  const message = (typeof data === "object" ? data?.message : undefined) ?? e?.message ?? String(error);
+  const status = typeof e?.code === "number" ? e.code : e?.status;
+  const text = `${reason ?? ""} ${message}`.toLowerCase();
+
+  let hint: string | null = null;
+  if (text.includes("invalid_grant")) {
+    hint = "De koppeling is verlopen of ingetrokken. Klik op ontkoppelen en verbind opnieuw.";
+  } else if (text.includes("accessnotconfigured") || text.includes("has not been used") || text.includes("is disabled")) {
+    hint = "De Google Calendar API staat nog niet aan in je Google Cloud-project (APIs & Services → Library → Google Calendar API → Enable).";
+  } else if (text.includes("insufficient") || text.includes("scope")) {
+    hint = "De gegeven toestemming is te beperkt. Ontkoppel en verbind opnieuw, en vink bij Google alle toestemmingen aan.";
+  } else if (text.includes("ratelimit") || status === 429) {
+    hint = "Google vindt dat er te snel verzoeken komen. Probeer het over een paar minuten opnieuw.";
+  } else if (status === 401) {
+    hint = "Google accepteert de inlog niet meer. Ontkoppel en verbind opnieuw.";
+  }
+  return { status, reason, message, hint };
+}
+
+function isRateLimit(error: unknown) {
+  const { status, reason } = describeGoogleError(error);
+  return status === 429 || (status === 403 && /ratelimit/i.test(reason ?? ""));
+}
+
+async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
+  let delay = 1000;
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (attempt >= 3 || !isRateLimit(error)) throw error;
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      delay *= 2;
+    }
+  }
+}
+
 /**
  * Duwt alle (huidige en toekomstige) diensten van één medewerker naar hun
  * Google Calendar. Handig als iemand de koppeling voor het eerst aanzet, of
- * na een periode waarin de sync uitstond.
+ * na een periode waarin de sync uitstond. Stopt vroeg als de eerste diensten
+ * allemaal op dezelfde fout stuklopen, en geeft die fout terug.
  */
 export async function syncAllAssignmentsForEmployee(employeeId: string) {
   const today = new Date();
@@ -229,16 +281,25 @@ export async function syncAllAssignmentsForEmployee(employeeId: string) {
 
   const assignments = await prisma.shiftAssignment.findMany({
     where: { employeeId, date: { gte: today } },
+    orderBy: { date: "asc" },
     select: { id: true },
   });
 
-  const results = { gelukt: 0, mislukt: 0 };
+  const results: { gelukt: number; mislukt: number; fout?: string } = { gelukt: 0, mislukt: 0 };
   for (const { id } of assignments) {
     try {
-      await syncAssignmentToCalendar(id);
+      await withRetry(() => syncAssignmentToCalendar(id));
       results.gelukt += 1;
-    } catch {
+    } catch (error) {
       results.mislukt += 1;
+      const info = describeGoogleError(error);
+      console.error("Kalender-sync mislukt:", info.status, info.reason, info.message);
+      results.fout ??= `${info.status ? `[${info.status}] ` : ""}${info.message}${info.hint ? ` — ${info.hint}` : ""}`;
+      // Stuk op de eerste diensten? Dan heeft doorgaan geen zin.
+      if (results.gelukt === 0 && results.mislukt >= 3) {
+        results.mislukt = assignments.length;
+        break;
+      }
     }
   }
   return results;

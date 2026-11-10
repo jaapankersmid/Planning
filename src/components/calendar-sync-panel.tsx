@@ -69,7 +69,7 @@ export function CalendarSyncPanel({
                 setMessage(
                   `Bijgewerkt: ${result.gelukt} diensten gesynchroniseerd${
                     result.mislukt ? `, ${result.mislukt} mislukt` : ""
-                  }.`,
+                  }.${result.fout ? ` Eerste fout: ${result.fout}` : ""}`,
                 );
               });
             }}
