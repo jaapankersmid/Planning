@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth, signOut } from "@/auth";
 import { NavLinks } from "@/components/nav-links";
+import { WidthBox } from "@/components/width-box";
 
 export default async function AppLayout({
   children,
@@ -24,7 +25,7 @@ export default async function AppLayout({
   return (
     <div className="flex min-h-full flex-col">
       <header className="border-b border-border bg-surface">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+        <WidthBox className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-6">
             <span className="text-sm font-semibold tracking-tight">
               Rooster
@@ -47,10 +48,10 @@ export default async function AppLayout({
               </button>
             </form>
           </div>
-        </div>
+        </WidthBox>
       </header>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6">
-        {children}
+      <main className="flex-1">
+        <WidthBox className="px-4 py-6 sm:px-6">{children}</WidthBox>
       </main>
     </div>
   );

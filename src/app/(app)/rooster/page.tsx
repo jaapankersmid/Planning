@@ -2,44 +2,88 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import {
+  addDays,
   addMonths,
   colorGroupSwatch,
+  dateFromISO,
   daysInMonth,
+  formatDayMonth,
+  isoWeek,
   isWeekend,
   monthName,
   readableTextColor,
+  startOfWeek,
   toISODate,
+  weekdayFull,
   weekdayShort,
 } from "@/lib/format";
 import { ShiftCell } from "@/components/shift-cell";
+import { DualScroll } from "@/components/dual-scroll";
 import {
   ensureColorGroups,
-  reconcileMonth,
+  reconcileTemplate,
   sortEmployees,
   todayAmsterdam,
   weekdayNumber,
 } from "@/lib/schedule";
 
+const NAME_COLUMN = 132;
+
 export default async function RoosterPage({
   searchParams,
 }: {
-  searchParams: Promise<{ year?: string; month?: string }>;
+  searchParams: Promise<{ year?: string; month?: string; weergave?: string; datum?: string }>;
 }) {
   const params = await searchParams;
   const session = await auth();
   const isAdmin = session?.user.role === "ADMIN";
 
-  const now = new Date();
-  const year = Number(params.year) || now.getUTCFullYear();
-  const month = Number(params.month) || now.getUTCMonth() + 1;
+  const today = todayAmsterdam();
+  const todayISO = toISODate(today);
+  const weekView = params.weergave === "week";
 
-  const days = daysInMonth(year, month);
+  let days: Date[];
+  let title: string;
+  let subtitle: string;
+  let prevHref: string;
+  let nextHref: string;
+  let monthHref: string;
+  let weekHref: string;
+
+  if (weekView) {
+    const anchor = /^\d{4}-\d{2}-\d{2}$/.test(params.datum ?? "")
+      ? dateFromISO(params.datum!)
+      : today;
+    const monday = startOfWeek(anchor);
+    days = Array.from({ length: 7 }, (_, i) => addDays(monday, i));
+    const sunday = days[6];
+    title = `Week ${isoWeek(monday)}`;
+    subtitle = `${formatDayMonth(monday)} t/m ${formatDayMonth(sunday)} ${sunday.getUTCFullYear()}`;
+    prevHref = `/rooster?weergave=week&datum=${toISODate(addDays(monday, -7))}`;
+    nextHref = `/rooster?weergave=week&datum=${toISODate(addDays(monday, 7))}`;
+    const middle = addDays(monday, 3);
+    monthHref = `/rooster?year=${middle.getUTCFullYear()}&month=${middle.getUTCMonth() + 1}`;
+    weekHref = `/rooster?weergave=week&datum=${toISODate(monday)}`;
+  } else {
+    const year = Number(params.year) || today.getUTCFullYear();
+    const month = Number(params.month) || today.getUTCMonth() + 1;
+    days = daysInMonth(year, month);
+    title = `${monthName(month)} ${year}`;
+    subtitle = "";
+    const prev = addMonths(year, month, -1);
+    const next = addMonths(year, month, 1);
+    prevHref = `/rooster?year=${prev.year}&month=${prev.month}`;
+    nextHref = `/rooster?year=${next.year}&month=${next.month}`;
+    const showsToday = today.getUTCFullYear() === year && today.getUTCMonth() + 1 === month;
+    monthHref = `/rooster?year=${year}&month=${month}`;
+    weekHref = `/rooster?weergave=week&datum=${showsToday ? todayISO : toISODate(days[0])}`;
+  }
+
   const rangeStart = days[0];
-  const rangeEnd = new Date(days[days.length - 1]);
-  rangeEnd.setUTCDate(rangeEnd.getUTCDate() + 1);
+  const rangeEnd = addDays(days[days.length - 1], 1);
 
-  // Vul het vaste rooster aan voor deze maand (alleen vanaf vandaag, nooit over handmatige dagen heen).
-  await reconcileMonth(year, month);
+  // Vul het vaste rooster aan voor dit bereik (alleen vanaf vandaag, nooit over handmatige dagen heen).
+  await reconcileTemplate(toISODate(rangeStart), toISODate(rangeEnd));
   const groups = await ensureColorGroups();
 
   const [employeesRaw, shiftTypes, assignments, templateEntries] = await Promise.all([
@@ -61,66 +105,91 @@ export default async function RoosterPage({
   const templateByKey = new Map(
     templateEntries.map((e) => [`${e.employeeId}_${e.weekday}`, e.shiftTypeId]),
   );
-  const todayISO = toISODate(todayAmsterdam());
   const shiftCodeById = new Map(shiftTypes.map((s) => [s.id, s.code]));
 
-  const prev = addMonths(year, month, -1);
-  const next = addMonths(year, month, 1);
+  const cellMin = weekView ? 96 : 30;
+  const tabLink = (active: boolean) =>
+    `px-3 py-1.5 ${active ? "bg-accent-soft font-medium text-accent" : "hover:bg-surface-muted"}`;
+  const todayHref = weekView
+    ? `/rooster?weergave=week&datum=${todayISO}`
+    : `/rooster?year=${today.getUTCFullYear()}&month=${today.getUTCMonth() + 1}`;
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-lg font-semibold">
-            {monthName(month)} {year}
+            {title}
+            {subtitle && (
+              <span className="ml-2 text-sm font-normal text-foreground-muted">{subtitle}</span>
+            )}
           </h1>
           <p className="text-sm text-foreground-muted">
             {employees.length} actieve medewerkers
             {isAdmin ? " · klik op een vakje om een dienst te wijzigen" : ""}
           </p>
         </div>
-        <div className="flex items-center gap-2 text-sm">
-          <Link
-            href={`/rooster?year=${prev.year}&month=${prev.month}`}
-            className="rounded-md border border-border px-3 py-1.5 hover:bg-surface-muted"
-          >
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <div className="flex overflow-hidden rounded-md border border-border">
+            <Link href={monthHref} className={tabLink(!weekView)}>
+              Maand
+            </Link>
+            <Link href={weekHref} className={`border-l border-border ${tabLink(weekView)}`}>
+              Week
+            </Link>
+          </div>
+          <Link href={prevHref} className="rounded-md border border-border px-3 py-1.5 hover:bg-surface-muted">
             ← vorige
           </Link>
-          <Link
-            href={`/rooster?year=${next.year}&month=${next.month}`}
-            className="rounded-md border border-border px-3 py-1.5 hover:bg-surface-muted"
-          >
+          <Link href={todayHref} className="rounded-md border border-border px-3 py-1.5 hover:bg-surface-muted">
+            vandaag
+          </Link>
+          <Link href={nextHref} className="rounded-md border border-border px-3 py-1.5 hover:bg-surface-muted">
             volgende →
           </Link>
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-border bg-surface">
-        <table className="w-full min-w-max border-collapse text-sm">
+      <DualScroll>
+        <table
+          className="w-full table-fixed border-collapse text-sm"
+          style={{ minWidth: NAME_COLUMN + days.length * cellMin }}
+        >
+          <colgroup>
+            <col style={{ width: NAME_COLUMN }} />
+            {days.map((day) => (
+              <col key={toISODate(day)} />
+            ))}
+          </colgroup>
           <thead>
             <tr>
               <th className="sticky left-0 z-10 border-b border-r border-border bg-surface-muted px-3 py-2 text-left font-medium">
                 Medewerker
               </th>
-              {days.map((day) => (
-                <th
-                  key={toISODate(day)}
-                  className={`border-b border-border px-1 py-2 text-center text-xs font-medium ${
-                    isWeekend(day) ? "bg-surface-muted" : ""
-                  }`}
-                >
-                  <div className="text-foreground-muted">{weekdayShort(day)}</div>
-                  <div>{day.getUTCDate()}</div>
-                </th>
-              ))}
+              {days.map((day) => {
+                const iso = toISODate(day);
+                return (
+                  <th
+                    key={iso}
+                    className={`border-b border-border px-0.5 py-1.5 text-center text-xs font-medium ${
+                      iso === todayISO ? "bg-accent-soft text-accent" : isWeekend(day) ? "bg-surface-muted" : ""
+                    }`}
+                  >
+                    <div className={iso === todayISO ? "" : "text-foreground-muted"}>
+                      {weekView ? weekdayFull(day) : weekdayShort(day)}
+                    </div>
+                    <div>{weekView ? formatDayMonth(day) : day.getUTCDate()}</div>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
             {employees.map((employee) => (
               <tr key={employee.id} className="border-b border-border last:border-0">
-                <td className="sticky left-0 z-10 border-r border-border bg-surface px-3 py-1.5 font-medium whitespace-nowrap">
+                <td className="sticky left-0 z-10 overflow-hidden text-ellipsis whitespace-nowrap border-r border-border bg-surface px-2 py-0.5 text-[13px] font-medium">
                   <span
-                    className="mr-2 inline-block h-2 w-2 rounded-full align-middle"
+                    className="mr-1.5 inline-block h-2 w-2 rounded-full align-middle"
                     style={{
                       background: employee.colorGroup
                         ? (colorGroupSwatch[employee.colorGroup] ?? "#9aa39a")
@@ -140,7 +209,7 @@ export default async function RoosterPage({
                   return (
                     <td
                       key={key}
-                      className={`p-0.5 ${isWeekend(day) ? "bg-surface-muted/60" : ""}`}
+                      className={`p-px ${isWeekend(day) ? "bg-surface-muted/60" : ""}`}
                     >
                       <ShiftCell
                         key={`${key}_${shiftTypeId}`}
@@ -151,6 +220,7 @@ export default async function RoosterPage({
                         canEdit={isAdmin}
                         deviates={deviates}
                         templateLabel={templateId ? (shiftCodeById.get(templateId) ?? "?") : "vrij"}
+                        compact={!weekView}
                       />
                     </td>
                   );
@@ -159,7 +229,7 @@ export default async function RoosterPage({
             ))}
           </tbody>
         </table>
-      </div>
+      </DualScroll>
 
       {isAdmin && (
         <p className="text-xs text-foreground-muted">

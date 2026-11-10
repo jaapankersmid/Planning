@@ -90,3 +90,22 @@ export const colorGroupSwatch: Record<string, string> = {
   Blauw: "#3b6fa8",
   "Licht Blauw": "#4aa3c7",
 };
+
+export function addDays(date: Date, delta: number) {
+  const next = new Date(date);
+  next.setUTCDate(next.getUTCDate() + delta);
+  return next;
+}
+
+/** De maandag van de week waarin de datum valt. */
+export function startOfWeek(date: Date) {
+  const offset = (date.getUTCDay() + 6) % 7; // ma = 0 ... zo = 6
+  return addDays(date, -offset);
+}
+
+/** ISO-weeknummer (de week met de eerste donderdag van het jaar is week 1). */
+export function isoWeek(date: Date) {
+  const thursday = addDays(startOfWeek(date), 3);
+  const yearStart = new Date(Date.UTC(thursday.getUTCFullYear(), 0, 1));
+  return Math.floor((thursday.getTime() - yearStart.getTime()) / 86400000 / 7) + 1;
+}

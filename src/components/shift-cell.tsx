@@ -19,6 +19,7 @@ export function ShiftCell({
   canEdit,
   deviates = false,
   templateLabel = "vrij",
+  compact = false,
 }: {
   employeeId: string;
   dateISO: string;
@@ -29,6 +30,8 @@ export function ShiftCell({
   deviates?: boolean;
   /** Code van de dienst in het vaste rooster, of "vrij". */
   templateLabel?: string;
+  /** Smal vakje (maandoverzicht): in de keuzelijst alleen de code tonen. */
+  compact?: boolean;
 }) {
   const [value, setValue] = useState(initialShiftTypeId ?? "");
   const [isPending, startTransition] = useTransition();
@@ -41,7 +44,9 @@ export function ShiftCell({
   if (!canEdit) {
     return (
       <div
-        className="flex h-8 w-full items-center justify-center rounded text-xs font-semibold"
+        className={`flex w-full items-center justify-center rounded font-semibold ${
+          compact ? "h-7 text-[11px]" : "h-10 text-sm"
+        }`}
         style={style}
         title={current?.label}
       >
@@ -72,14 +77,14 @@ export function ShiftCell({
       }}
       title={deviationTitle}
       style={style}
-      className={`h-8 w-full cursor-pointer appearance-none rounded border-0 text-center text-xs font-semibold outline-none ring-inset ring-accent focus:ring-2 disabled:opacity-60 ${
-        deviates ? "ring-2 ring-amber-500" : ""
-      }`}
+      className={`w-full cursor-pointer appearance-none rounded border-0 p-0 text-center font-semibold outline-none ring-inset ring-accent focus:ring-2 disabled:opacity-60 ${
+        compact ? "h-7 text-[11px]" : "h-10 text-sm"
+      } ${deviates ? "ring-2 ring-amber-500" : ""}`}
     >
       <option value="">–</option>
       {shiftTypes.map((s) => (
         <option key={s.id} value={s.id}>
-          {s.code} · {s.label}
+          {compact ? s.code : `${s.code} · ${s.label}`}
         </option>
       ))}
     </select>
