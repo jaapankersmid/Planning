@@ -31,6 +31,8 @@ export function weekdayNumber(date: Date) {
 
 /** Groepen die standaard niet meetellen in de bezetting (vast personeel en kantoor/overig). */
 const GROUPS_EXCLUDED_BY_DEFAULT = ["Rood", "Blauw"];
+/** Groepen waarvoor het vaste weekrooster standaard geldt. */
+const GROUPS_WITH_TEMPLATE_BY_DEFAULT = ["Rood", "Oranje"];
 
 /**
  * Zorgt dat elke in gebruik zijnde kleurgroep een regel (met volgorde) heeft,
@@ -62,7 +64,18 @@ export async function ensureColorGroups() {
   }
 
   // Nog niet ingestelde groepen krijgen de standaardwaarde; een keuze van de gebruiker blijft staan.
-  if (wanted.length > 0 || groups.some((g) => g.countsInCoverage === null)) {
+  if (
+    wanted.length > 0 ||
+    groups.some((g) => g.countsInCoverage === null || g.usesTemplate === null)
+  ) {
+    await prisma.colorGroup.updateMany({
+      where: { usesTemplate: null, name: { in: GROUPS_WITH_TEMPLATE_BY_DEFAULT } },
+      data: { usesTemplate: true },
+    });
+    await prisma.colorGroup.updateMany({
+      where: { usesTemplate: null },
+      data: { usesTemplate: false },
+    });
     await prisma.colorGroup.updateMany({
       where: { countsInCoverage: null, name: { in: GROUPS_EXCLUDED_BY_DEFAULT } },
       data: { countsInCoverage: false },
@@ -105,15 +118,28 @@ export async function reconcileTemplate(fromISO: string, toISO: string) {
   if (from < today) from = today;
   if (from >= to) return;
 
+  const groups = await ensureColorGroups();
   const [entries, overrides, assignments, employees] = await Promise.all([
     prisma.weeklyScheduleEntry.findMany(),
     prisma.dayOverride.findMany({ where: { date: { gte: from, lt: to } } }),
     prisma.shiftAssignment.findMany({ where: { date: { gte: from, lt: to } } }),
     prisma.employee.findMany({
       where: { active: true },
-      select: { id: true, user: { select: { id: true, calendarSyncEnabled: true } } },
+      select: {
+        id: true,
+        colorGroup: true,
+        user: { select: { id: true, calendarSyncEnabled: true } },
+      },
     }),
   ]);
+
+  // Het vaste rooster geldt alleen voor medewerkers in een kleurgroep waarvoor dat is aangezet
+  // (medewerkers zonder groep doen mee). Voor de rest wordt niets aangemaakt, en automatisch
+  // aangemaakte diensten verdwijnen weer als de groep wordt uitgezet.
+  const offGroups = new Set(groups.filter((g) => g.usesTemplate === false).map((g) => g.name));
+  const templateOff = new Set(
+    employees.filter((e) => e.colorGroup && offGroups.has(e.colorGroup)).map((e) => e.id),
+  );
 
   const template = new Map(
     entries.map((e) => [`${e.employeeId}_${e.weekday}`, e.shiftTypeId]),
@@ -139,7 +165,9 @@ export async function reconcileTemplate(fromISO: string, toISO: string) {
     for (const employeeId of activeIds) {
       const key = `${employeeId}_${iso}`;
       if (overridden.has(key)) continue;
-      const wanted = template.get(`${employeeId}_${weekday}`) ?? null;
+      const wanted = templateOff.has(employeeId)
+        ? null
+        : (template.get(`${employeeId}_${weekday}`) ?? null);
       const current = existing.get(key);
 
       if (current) {

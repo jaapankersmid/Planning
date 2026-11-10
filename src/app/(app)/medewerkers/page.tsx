@@ -9,6 +9,7 @@ import {
   moveColorGroup,
   setEmployeeActive,
   setColorGroupCoverage,
+  setColorGroupTemplate,
   setEmployeeColorGroup,
   unlinkEmployeeAccount,
 } from "./actions";
@@ -42,10 +43,10 @@ export default async function MedewerkersPage() {
         </p>
       </div>
 
-      <div className="max-w-lg rounded-lg border border-border bg-surface p-5">
+      <div className="max-w-2xl rounded-lg border border-border bg-surface p-5">
         <h2 className="text-sm font-semibold">Volgorde van de kleurgroepen</h2>
         <p className="mt-1 text-xs text-foreground-muted">
-          Zo staan de groepen onder elkaar in het rooster. Met de knop &ldquo;telt mee&rdquo; bepaal je of een groep meetelt in de bezetting bovenin het rooster. Een medewerker verplaats je
+          Zo staan de groepen onder elkaar in het rooster. Met de knop &ldquo;telt mee&rdquo; bepaal je of een groep meetelt in de bezetting bovenin het rooster, en met &ldquo;vast rooster&rdquo; of het vaste weekrooster voor die groep geldt. Een medewerker verplaats je
           naar een andere groep in de kolom Kleurgroep hieronder.
         </p>
         <ol className="mt-3 flex flex-col gap-1.5">
@@ -69,6 +70,18 @@ export default async function MedewerkersPage() {
                   title="Klik om te wisselen"
                 >
                   {g.countsInCoverage === false ? "telt niet mee" : "telt mee"}
+                </button>
+              </form>
+              <form action={setColorGroupTemplate.bind(null, g.id, g.usesTemplate !== true)}>
+                <button
+                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                    g.usesTemplate === true
+                      ? "bg-accent-soft text-accent"
+                      : "bg-surface-muted text-foreground-muted"
+                  }`}
+                  title="Geldt het vaste rooster voor deze groep? Klik om te wisselen"
+                >
+                  {g.usesTemplate === true ? "vast rooster aan" : "vast rooster uit"}
                 </button>
               </form>
               <form action={moveColorGroup.bind(null, g.id, "up")}>

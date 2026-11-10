@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { reconcileTemplate, todayAmsterdam } from "@/lib/schedule";
+import { toISODate } from "@/lib/format";
 
 async function requireAdmin() {
   const session = await auth();
@@ -78,4 +80,25 @@ export async function setColorGroupCoverage(groupId: string, counts: boolean) {
   await prisma.colorGroup.update({ where: { id: groupId }, data: { countsInCoverage: counts } });
   revalidatePath("/medewerkers");
   revalidatePath("/rooster");
+}
+
+/**
+ * Bepaalt of het vaste weekrooster voor een kleurgroep geldt, en past het
+ * rooster vanaf vandaag meteen aan. Handmatig ingestelde dagen en dagen die al
+ * geweest zijn blijven ongemoeid.
+ */
+export async function setColorGroupTemplate(groupId: string, uses: boolean) {
+  await requireAdmin();
+  await prisma.colorGroup.update({ where: { id: groupId }, data: { usesTemplate: uses } });
+
+  const from = todayAmsterdam();
+  const to = new Date(from);
+  to.setUTCMonth(to.getUTCMonth() + 6);
+  await reconcileTemplate(toISODate(from), toISODate(to));
+
+  revalidatePath("/medewerkers");
+  revalidatePath("/vast-rooster");
+  revalidatePath("/rooster");
+  revalidatePath("/rooster/mijn");
+  revalidatePath("/bezetting");
 }

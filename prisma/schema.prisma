@@ -154,6 +154,9 @@ model ColorGroup {
   // Telt deze groep mee in de bezetting bovenin het rooster? null = nog niet
   // ingesteld; dan gelden de standaardwaarden (Rood en Blauw tellen niet mee).
   countsInCoverage Boolean?
+  // Geldt het vaste weekrooster voor deze groep? null = nog niet ingesteld; dan
+  // gelden de standaardwaarden (alleen Rood en Oranje).
+  usesTemplate Boolean?
 }
 
 // Het vaste weekrooster: per medewerker per weekdag (1 = maandag ... 7 = zondag)
