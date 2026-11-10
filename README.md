@@ -88,7 +88,7 @@ cp .env.example .env
 # die zijn alleen nodig voor de Calendar-koppeling (zie stap 2)
 
 docker compose up -d          # start een lokale Postgres
-npx prisma migrate dev --name init   # maakt de tabellen aan
+npx prisma db push                   # maakt de tabellen aan
 npm run db:seed               # laadt medewerkers/diensten/september-rooster + eerste beheerder
 npm run dev                   # http://localhost:3000
 ```
@@ -155,7 +155,7 @@ krijgen, anders stopt de agenda-koppeling na een uur.
    → Environment Variables (met `AUTH_URL` = je Vercel-domein).
 4. Als je de Calendar-koppeling gebruikt: voeg bij Google Cloud de
    Vercel-URL toe als redirect-URI (stap 2.4 hierboven).
-5. Draai eenmalig `npx prisma migrate deploy` en `npm run db:seed` tegen de
+5. Draai eenmalig `npx prisma db push` en `npm run db:seed` tegen de
    productiedatabase (bv. vanaf je eigen laptop met `DATABASE_URL` van
    Neon in `.env`).
 
@@ -261,8 +261,8 @@ docker compose -f docker-compose.prod.yml up -d --build
 De eerste build duurt met 2 GB RAM een paar minuten. Daarna:
 
 ```bash
-# Tabellen aanmaken + medewerkers/diensten/rooster + eerste beheerder laden:
-docker compose -f docker-compose.prod.yml exec app npx prisma migrate deploy
+# Tabellen aanmaken (er zijn nog geen migratiebestanden, dus `db push`) + medewerkers/diensten/rooster + eerste beheerder laden:
+docker compose -f docker-compose.prod.yml exec app npx prisma db push
 docker compose -f docker-compose.prod.yml exec app npm run db:seed
 ```
 

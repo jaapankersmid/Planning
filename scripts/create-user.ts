@@ -1,3 +1,4 @@
+import "dotenv/config";
 /**
  * Los script om een account aan te maken zonder een wachtwoord in .env te
  * hoeven zetten — handig voor de eerste beheerder op een productieserver.
@@ -7,9 +8,12 @@
  * en getoond (en moet er bij de eerste login een nieuwe gekozen worden).
  */
 import { PrismaClient, type Role } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { generateTempPassword, hashPassword } from "../src/lib/password";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  adapter: new PrismaPg(process.env.DATABASE_URL ?? ""),
+});
 
 function readArg(name: string) {
   const prefix = `--${name}=`;

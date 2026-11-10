@@ -1,8 +1,12 @@
+import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { hashPassword } from "../src/lib/password";
 import seed from "../src/data/seed.json";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  adapter: new PrismaPg(process.env.DATABASE_URL ?? ""),
+});
 
 /**
  * Zet de app in één keer vol met echte gegevens uit Planning V2.0.xlsx:

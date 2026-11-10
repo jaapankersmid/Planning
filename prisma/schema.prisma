@@ -14,7 +14,9 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  // Prisma 7: de verbindings-URL staat niet meer in dit bestand maar in
+  // prisma.config.ts (voor migraties/db push) en wordt bij het draaien van de
+  // app via een driver-adapter meegegeven (zie src/lib/prisma.ts).
 }
 
 enum Role {
