@@ -109,3 +109,11 @@ export function isoWeek(date: Date) {
   const yearStart = new Date(Date.UTC(thursday.getUTCFullYear(), 0, 1));
   return Math.floor((thursday.getTime() - yearStart.getTime()) / 86400000 / 7) + 1;
 }
+
+/** "ma 2 nov" of, bij meer dagen, "ma 2 nov t/m vr 6 nov 2026". */
+export function formatRange(start: Date, end: Date) {
+  const short = (d: Date) =>
+    `${weekdayShort(d)} ${d.getUTCDate()} ${monthName(d.getUTCMonth() + 1).slice(0, 3)}`;
+  if (toISODate(start) === toISODate(end)) return `${short(start)} ${start.getUTCFullYear()}`;
+  return `${short(start)} t/m ${short(end)} ${end.getUTCFullYear()}`;
+}

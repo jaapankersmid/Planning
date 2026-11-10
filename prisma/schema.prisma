@@ -45,6 +45,10 @@ model User {
   employee   Employee? @relation(fields: [employeeId], references: [id])
   employeeId String?   @unique
 
+  // Verlofaanvragen die dit account heeft ingediend resp. beoordeeld.
+  leaveRequested LeaveRequest[] @relation("LeaveRequestedBy")
+  leaveDecided   LeaveRequest[] @relation("LeaveDecidedBy")
+
   // --- Google Calendar-koppeling (los van inloggen) ---------------------
   // Staat de gebruiker toe dat hun diensten automatisch naar hun Google
   // Calendar worden gepusht? Pas waar als er ook echt tokens zijn verkregen.
@@ -74,6 +78,7 @@ model Employee {
   assignments  ShiftAssignment[]
   weeklyEntries WeeklyScheduleEntry[]
   dayOverrides DayOverride[]
+  leaveRequests LeaveRequest[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -206,4 +211,44 @@ model HolidayPeriod {
   updatedAt DateTime @updatedAt
 
   @@index([startDate, endDate])
+}
+
+enum LeaveStatus {
+  PENDING // ingediend, wacht op een planner
+  APPROVED // goedgekeurd: de dagen staan als V (Vrij) in het rooster
+  REJECTED // afgewezen
+  CANCELLED // ingetrokken (door de aanvrager, of door een planner na goedkeuring)
+}
+
+// Verlofaanvraag van een medewerker. Na goedkeuring door een planner komen de
+// dagen automatisch als V (Vrij) in het rooster.
+model LeaveRequest {
+  id String @id @default(cuid())
+
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId String
+
+  startDate DateTime @db.Date
+  endDate   DateTime @db.Date
+  // Ook zaterdag en zondag als V zetten?
+  includeWeekends Boolean @default(true)
+  note            String?
+
+  status LeaveStatus @default(PENDING)
+
+  // Wie de aanvraag deed (de medewerker zelf, of een planner namens iemand).
+  requestedBy   User?   @relation("LeaveRequestedBy", fields: [requestedById], references: [id])
+  requestedById String?
+
+  // Welke planner de aanvraag beoordeelde, en wanneer.
+  decidedBy    User?     @relation("LeaveDecidedBy", fields: [decidedById], references: [id])
+  decidedById  String?
+  decidedAt    DateTime?
+  decisionNote String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([employeeId])
+  @@index([status])
 }

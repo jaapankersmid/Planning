@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 const links = [
   { href: "/rooster", label: "Rooster", adminOnly: false },
   { href: "/rooster/mijn", label: "Mijn rooster", adminOnly: false },
+  { href: "/verlof", label: "Mijn verlof", adminOnly: false },
+  { href: "/verlof/overzicht", label: "Verlofoverzicht", adminOnly: true },
   { href: "/vast-rooster", label: "Vast rooster", adminOnly: true },
   { href: "/vakanties", label: "Vakanties", adminOnly: true },
   { href: "/bezetting", label: "Bezetting", adminOnly: true },
@@ -14,7 +16,7 @@ const links = [
   { href: "/gebruikers", label: "Gebruikers", adminOnly: true },
 ];
 
-export function NavLinks({ isAdmin }: { isAdmin: boolean }) {
+export function NavLinks({ isAdmin, pendingLeave = 0 }: { isAdmin: boolean; pendingLeave?: number }) {
   const pathname = usePathname();
 
   return (
@@ -34,6 +36,11 @@ export function NavLinks({ isAdmin }: { isAdmin: boolean }) {
               }`}
             >
               {l.label}
+              {l.href === "/verlof/overzicht" && pendingLeave > 0 && (
+                <span className="ml-1.5 rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                  {pendingLeave}
+                </span>
+              )}
             </Link>
           );
         })}

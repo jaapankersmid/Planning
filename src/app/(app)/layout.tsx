@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth, signOut } from "@/auth";
+import { prisma } from "@/lib/prisma";
 import { NavLinks } from "@/components/nav-links";
 import { WidthBox } from "@/components/width-box";
 
@@ -22,6 +23,12 @@ export default async function AppLayout({
     redirect("/onboarding");
   }
 
+  // Planners zien in het menu hoeveel verlofaanvragen op een beoordeling wachten.
+  const pendingLeave =
+    session.user.role === "ADMIN"
+      ? await prisma.leaveRequest.count({ where: { status: "PENDING" } })
+      : 0;
+
   return (
     <div className="flex min-h-full flex-col">
       <header className="border-b border-border bg-surface">
@@ -30,7 +37,7 @@ export default async function AppLayout({
             <span className="text-sm font-semibold tracking-tight">
               Rooster
             </span>
-            <NavLinks isAdmin={session.user.role === "ADMIN"} />
+            <NavLinks isAdmin={session.user.role === "ADMIN"} pendingLeave={pendingLeave} />
           </div>
           <div className="flex items-center gap-3 text-sm text-foreground-muted">
             <span>
