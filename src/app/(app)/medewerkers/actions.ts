@@ -71,3 +71,11 @@ export async function moveColorGroup(groupId: string, direction: "up" | "down") 
   revalidatePath("/rooster");
   revalidatePath("/vast-rooster");
 }
+
+/** Bepaalt of een kleurgroep meetelt in de bezetting bovenin het rooster. */
+export async function setColorGroupCoverage(groupId: string, counts: boolean) {
+  await requireAdmin();
+  await prisma.colorGroup.update({ where: { id: groupId }, data: { countsInCoverage: counts } });
+  revalidatePath("/medewerkers");
+  revalidatePath("/rooster");
+}

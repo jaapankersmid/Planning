@@ -29,7 +29,14 @@ export function weekdayNumber(date: Date) {
   return date.getUTCDay() === 0 ? 7 : date.getUTCDay();
 }
 
-/** Zorgt dat elke in gebruik zijnde kleurgroep een regel (met volgorde) heeft. */
+/** Groepen die standaard niet meetellen in de bezetting (vast personeel en kantoor/overig). */
+const GROUPS_EXCLUDED_BY_DEFAULT = ["Rood", "Blauw"];
+
+/**
+ * Zorgt dat elke in gebruik zijnde kleurgroep een regel (met volgorde) heeft,
+ * en dat elke groep een bezetting-instelling heeft (standaard: Rood en Blauw
+ * tellen niet mee, de rest wel).
+ */
 export async function ensureColorGroups() {
   const [groups, used] = await Promise.all([
     prisma.colorGroup.findMany({ orderBy: { sortOrder: "asc" } }),
@@ -46,13 +53,26 @@ export async function ensureColorGroups() {
     ...used.map((u) => u.colorGroup as string),
   ].filter((name, i, all) => all.indexOf(name) === i && !known.has(name));
 
-  if (wanted.length === 0) return groups;
+  if (wanted.length > 0) {
+    let next = groups.reduce((max, g) => Math.max(max, g.sortOrder), -1) + 1;
+    await prisma.colorGroup.createMany({
+      data: wanted.map((name) => ({ name, sortOrder: next++ })),
+      skipDuplicates: true,
+    });
+  }
 
-  let next = groups.reduce((max, g) => Math.max(max, g.sortOrder), -1) + 1;
-  await prisma.colorGroup.createMany({
-    data: wanted.map((name) => ({ name, sortOrder: next++ })),
-    skipDuplicates: true,
-  });
+  // Nog niet ingestelde groepen krijgen de standaardwaarde; een keuze van de gebruiker blijft staan.
+  if (wanted.length > 0 || groups.some((g) => g.countsInCoverage === null)) {
+    await prisma.colorGroup.updateMany({
+      where: { countsInCoverage: null, name: { in: GROUPS_EXCLUDED_BY_DEFAULT } },
+      data: { countsInCoverage: false },
+    });
+    await prisma.colorGroup.updateMany({
+      where: { countsInCoverage: null },
+      data: { countsInCoverage: true },
+    });
+  }
+
   return prisma.colorGroup.findMany({ orderBy: { sortOrder: "asc" } });
 }
 

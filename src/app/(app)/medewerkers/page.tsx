@@ -8,6 +8,7 @@ import {
   addEmployee,
   moveColorGroup,
   setEmployeeActive,
+  setColorGroupCoverage,
   setEmployeeColorGroup,
   unlinkEmployeeAccount,
 } from "./actions";
@@ -41,10 +42,10 @@ export default async function MedewerkersPage() {
         </p>
       </div>
 
-      <div className="max-w-md rounded-lg border border-border bg-surface p-5">
+      <div className="max-w-lg rounded-lg border border-border bg-surface p-5">
         <h2 className="text-sm font-semibold">Volgorde van de kleurgroepen</h2>
         <p className="mt-1 text-xs text-foreground-muted">
-          Zo staan de groepen onder elkaar in het rooster. Een medewerker verplaats je
+          Zo staan de groepen onder elkaar in het rooster. Met de knop &ldquo;telt mee&rdquo; bepaal je of een groep meetelt in de bezetting bovenin het rooster. Een medewerker verplaats je
           naar een andere groep in de kolom Kleurgroep hieronder.
         </p>
         <ol className="mt-3 flex flex-col gap-1.5">
@@ -58,6 +59,18 @@ export default async function MedewerkersPage() {
               <span className="w-24 text-xs text-foreground-muted">
                 {memberCount.get(g.name) ?? 0} actief
               </span>
+              <form action={setColorGroupCoverage.bind(null, g.id, g.countsInCoverage === false)}>
+                <button
+                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                    g.countsInCoverage === false
+                      ? "bg-surface-muted text-foreground-muted"
+                      : "bg-accent-soft text-accent"
+                  }`}
+                  title="Klik om te wisselen"
+                >
+                  {g.countsInCoverage === false ? "telt niet mee" : "telt mee"}
+                </button>
+              </form>
               <form action={moveColorGroup.bind(null, g.id, "up")}>
                 <button
                   disabled={i === 0}

@@ -151,6 +151,9 @@ model ColorGroup {
   id        String @id @default(cuid())
   name      String @unique
   sortOrder Int    @default(0)
+  // Telt deze groep mee in de bezetting bovenin het rooster? null = nog niet
+  // ingesteld; dan gelden de standaardwaarden (Rood en Blauw tellen niet mee).
+  countsInCoverage Boolean?
 }
 
 // Het vaste weekrooster: per medewerker per weekdag (1 = maandag ... 7 = zondag)

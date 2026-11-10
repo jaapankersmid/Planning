@@ -109,7 +109,15 @@ export default async function RoosterPage({
     templateEntries.map((e) => [`${e.employeeId}_${e.weekday}`, e.shiftTypeId]),
   );
   // Bezetting per dag: hoeveel van de zichtbare medewerkers staan in de ochtend (8:00-12:30) resp. middag (15:30-19:30)?
-  const visibleIds = new Set(employees.map((e) => e.id));
+  // Groepen die niet meetellen (standaard Rood en Blauw) laten we hier buiten beschouwing.
+  const excludedGroups = new Set(
+    groups.filter((g) => g.countsInCoverage === false).map((g) => g.name),
+  );
+  const visibleIds = new Set(
+    employees
+      .filter((e) => !(e.colorGroup && excludedGroups.has(e.colorGroup)))
+      .map((e) => e.id),
+  );
   const coverage = new Map<string, { morning: number; afternoon: number }>();
   for (const a of assignments) {
     if (!visibleIds.has(a.employeeId)) continue;
