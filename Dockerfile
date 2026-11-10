@@ -22,7 +22,10 @@ RUN apt-get update -y \
     && apt-get install -y --no-install-recommends openssl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-COPY package.json package-lock.json ./
+# Het postinstall-script (`prisma generate`) draait al tijdens `npm ci` en heeft
+# dan het schema en prisma.config.ts nodig, dus die moeten er vóór staan.
+COPY package.json package-lock.json prisma.config.ts ./
+COPY prisma ./prisma
 RUN npm ci
 
 COPY . .
