@@ -98,6 +98,11 @@ model ShiftType {
   countsMorningWalk Boolean @default(false)
   countsEveningWalk Boolean @default(false)
 
+  // Telt deze dienst mee in de bezetting bovenin het rooster: ochtend (8:00-12:30)
+  // resp. middag (15:30-19:30)?
+  countsMorning   Boolean @default(false)
+  countsAfternoon Boolean @default(false)
+
   active        Boolean               @default(true)
   assignments   ShiftAssignment[]
   weeklyEntries WeeklyScheduleEntry[]

@@ -39,6 +39,8 @@ export async function addShiftType(formData: FormData) {
       secondEndTime: emptyToNull(formData.get("secondEndTime")),
       countsMorningWalk: formData.get("countsMorningWalk") === "on",
       countsEveningWalk: formData.get("countsEveningWalk") === "on",
+      countsMorning: formData.get("countsMorning") === "on",
+      countsAfternoon: formData.get("countsAfternoon") === "on",
     },
   });
 
@@ -84,6 +86,8 @@ export async function updateShiftType(shiftTypeId: string, formData: FormData) {
       secondEndTime: emptyToNull(formData.get("secondEndTime")),
       countsMorningWalk: formData.get("countsMorningWalk") === "on",
       countsEveningWalk: formData.get("countsEveningWalk") === "on",
+      countsMorning: formData.get("countsMorning") === "on",
+      countsAfternoon: formData.get("countsAfternoon") === "on",
     },
   });
 

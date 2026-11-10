@@ -10,6 +10,8 @@
   --accent: #2f6e63;
   --accent-foreground: #ffffff;
   --accent-soft: #e3ede9;
+  --weekend: #dde5f3;
+  --weekend-border: #4f6794;
 }
 
 @theme inline {
@@ -21,6 +23,8 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent-soft: var(--accent-soft);
+  --color-weekend: var(--weekend);
+  --color-weekend-border: var(--weekend-border);
   --font-sans: var(--font-inter);
 }
 
@@ -35,6 +39,8 @@
     --accent: #67b3a3;
     --accent-foreground: #0e1512;
     --accent-soft: #1d2e2a;
+    --weekend: #252f45;
+    --weekend-border: #8da3d4;
   }
 }
 

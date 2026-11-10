@@ -21,6 +21,7 @@ import { ShiftCell } from "@/components/shift-cell";
 import { DualScroll } from "@/components/dual-scroll";
 import {
   ensureColorGroups,
+  ensureCoverageDefaults,
   reconcileTemplate,
   sortEmployees,
   todayAmsterdam,
@@ -85,6 +86,7 @@ export default async function RoosterPage({
   // Vul het vaste rooster aan voor dit bereik (alleen vanaf vandaag, nooit over handmatige dagen heen).
   await reconcileTemplate(toISODate(rangeStart), toISODate(rangeEnd));
   const groups = await ensureColorGroups();
+  await ensureCoverageDefaults();
 
   const [employeesRaw, shiftTypes, assignments, templateEntries] = await Promise.all([
     prisma.employee.findMany({ where: { active: true } }),
@@ -94,6 +96,7 @@ export default async function RoosterPage({
     }),
     prisma.shiftAssignment.findMany({
       where: { date: { gte: rangeStart, lt: rangeEnd } },
+      include: { shiftType: { select: { countsMorning: true, countsAfternoon: true } } },
     }),
     prisma.weeklyScheduleEntry.findMany(),
   ]);
@@ -105,6 +108,24 @@ export default async function RoosterPage({
   const templateByKey = new Map(
     templateEntries.map((e) => [`${e.employeeId}_${e.weekday}`, e.shiftTypeId]),
   );
+  // Bezetting per dag: hoeveel van de zichtbare medewerkers staan in de ochtend (8:00-12:30) resp. middag (15:30-19:30)?
+  const visibleIds = new Set(employees.map((e) => e.id));
+  const coverage = new Map<string, { morning: number; afternoon: number }>();
+  for (const a of assignments) {
+    if (!visibleIds.has(a.employeeId)) continue;
+    const iso = toISODate(a.date);
+    const entry = coverage.get(iso) ?? { morning: 0, afternoon: 0 };
+    if (a.shiftType.countsMorning) entry.morning += 1;
+    if (a.shiftType.countsAfternoon) entry.afternoon += 1;
+    coverage.set(iso, entry);
+  }
+  // Weekenden krijgen een duidelijke kleur en een dikke rand: links om zaterdag, rechts om zondag.
+  const weekendEdge = (day: Date) =>
+    day.getUTCDay() === 6
+      ? "border-l-2 border-l-weekend-border"
+      : day.getUTCDay() === 0
+        ? "border-r-2 border-r-weekend-border"
+        : "";
   const shiftCodeById = new Map(shiftTypes.map((s) => [s.id, s.code]));
 
   const cellMin = weekView ? 96 : 30;
@@ -171,8 +192,8 @@ export default async function RoosterPage({
                 return (
                   <th
                     key={iso}
-                    className={`border-b border-border px-0.5 py-1.5 text-center text-xs font-medium ${
-                      iso === todayISO ? "bg-accent-soft text-accent" : isWeekend(day) ? "bg-surface-muted" : ""
+                    className={`border-b border-border px-0.5 py-1.5 text-center text-xs font-medium ${weekendEdge(day)} ${
+                      iso === todayISO ? "bg-accent-soft text-accent" : isWeekend(day) ? "bg-weekend" : ""
                     }`}
                   >
                     <div className={iso === todayISO ? "" : "text-foreground-muted"}>
@@ -183,6 +204,32 @@ export default async function RoosterPage({
                 );
               })}
             </tr>
+            {(
+              [
+                { label: "Ochtend", hours: "8:00–12:30", key: "morning" },
+                { label: "Middag", hours: "15:30–19:30", key: "afternoon" },
+              ] as const
+            ).map((row) => (
+              <tr key={row.key} className="border-b border-border bg-surface-muted/50">
+                <th className="sticky left-0 z-10 border-r border-border bg-surface-muted px-2 py-1 text-left text-[13px] font-semibold leading-tight">
+                  Bezetting {row.label.toLowerCase()}
+                  <span className="block text-[11px] font-normal text-foreground-muted">{row.hours}</span>
+                </th>
+                {days.map((day) => {
+                  const iso = toISODate(day);
+                  return (
+                    <td
+                      key={iso}
+                      className={`px-0.5 py-1 text-center font-semibold tabular-nums ${weekendEdge(day)} ${
+                        isWeekend(day) ? "bg-weekend" : ""
+                      } ${weekView ? "text-base" : "text-[13px]"}`}
+                    >
+                      {coverage.get(iso)?.[row.key] ?? 0}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
           </thead>
           <tbody>
             {employees.map((employee) => (
@@ -209,7 +256,7 @@ export default async function RoosterPage({
                   return (
                     <td
                       key={key}
-                      className={`p-px ${isWeekend(day) ? "bg-surface-muted/60" : ""}`}
+                      className={`p-px ${weekendEdge(day)} ${isWeekend(day) ? "bg-weekend" : ""}`}
                     >
                       <ShiftCell
                         key={`${key}_${shiftTypeId}`}

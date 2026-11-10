@@ -183,3 +183,30 @@ export async function reconcileMonth(year: number, month: number) {
   const end = new Date(Date.UTC(year, month, 1));
   await reconcileTemplate(toISODate(start), toISODate(end));
 }
+
+/**
+ * Dezelfde telling als de "Telling uitlaten"-rijen in Planning V2.0: wie telt
+ * mee in de ochtend (8:00-12:30) resp. middag (15:30-19:30)?
+ */
+const DEFAULT_MORNING = ["X", "XI", "O", "Uit", "UitO"];
+const DEFAULT_AFTERNOON = ["X", "IX", "O", "A", "Uit", "UitA"];
+
+/**
+ * Zet de bezetting-vinkjes op de standaardwaarden uit Planning V2.0, maar
+ * alleen zolang er nog nergens een vinkje staat. Daarna beheer je ze zelf bij
+ * "Diensten".
+ */
+export async function ensureCoverageDefaults() {
+  const configured = await prisma.shiftType.count({
+    where: { OR: [{ countsMorning: true }, { countsAfternoon: true }] },
+  });
+  if (configured > 0) return;
+  await prisma.shiftType.updateMany({
+    where: { code: { in: DEFAULT_MORNING } },
+    data: { countsMorning: true },
+  });
+  await prisma.shiftType.updateMany({
+    where: { code: { in: DEFAULT_AFTERNOON } },
+    data: { countsAfternoon: true },
+  });
+}

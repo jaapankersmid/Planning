@@ -72,6 +72,14 @@ export default async function DienstenPage({
               <input type="checkbox" name="countsEveningWalk" defaultChecked={editing.countsEveningWalk} className="h-4 w-4" />
               Telt als avonduitlaat
             </label>
+            <label className="col-span-1 flex items-center gap-2 text-xs">
+              <input type="checkbox" name="countsMorning" defaultChecked={editing.countsMorning} className="h-4 w-4" />
+              Bezetting ochtend (8:00–12:30)
+            </label>
+            <label className="col-span-1 flex items-center gap-2 text-xs">
+              <input type="checkbox" name="countsAfternoon" defaultChecked={editing.countsAfternoon} className="h-4 w-4" />
+              Bezetting middag (15:30–19:30)
+            </label>
             <div className="col-span-2 flex items-center gap-3">
               <button type="submit" className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90">
                 Opslaan
@@ -118,6 +126,8 @@ export default async function DienstenPage({
                   {[
                     s.countsMorningWalk ? "ochtenduitlaat" : null,
                     s.countsEveningWalk ? "avonduitlaat" : null,
+                    s.countsMorning ? "bezetting ochtend" : null,
+                    s.countsAfternoon ? "bezetting middag" : null,
                   ]
                     .filter(Boolean)
                     .join(", ") || "—"}
@@ -204,6 +214,14 @@ export default async function DienstenPage({
           <label className="col-span-1 flex items-center gap-2 text-xs">
             <input type="checkbox" name="countsEveningWalk" className="h-4 w-4" />
             Telt als avonduitlaat
+          </label>
+          <label className="col-span-1 flex items-center gap-2 text-xs">
+            <input type="checkbox" name="countsMorning" className="h-4 w-4" />
+            Bezetting ochtend (8:00–12:30)
+          </label>
+          <label className="col-span-1 flex items-center gap-2 text-xs">
+            <input type="checkbox" name="countsAfternoon" className="h-4 w-4" />
+            Bezetting middag (15:30–19:30)
           </label>
           <button
             type="submit"
