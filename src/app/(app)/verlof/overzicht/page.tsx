@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -11,19 +10,12 @@ import { addLeaveForEmployee, decideLeave, revokeLeave } from "./actions";
 
 type Segment = { start: Date; end: Date; days: number; requestId: string | null };
 
-export default async function VerlofOverzichtPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ jaar?: string }>;
-}) {
+export default async function VerlofOverzichtPage() {
   const session = await auth();
   if (session?.user.role !== "ADMIN") redirect("/verlof");
 
-  const { jaar } = await searchParams;
+  // Dagen die al geweest zijn horen niet meer in dit overzicht: alleen vanaf vandaag.
   const today = todayAmsterdam();
-  const year = Number(jaar) || today.getUTCFullYear();
-  const yearStart = new Date(Date.UTC(year, 0, 1));
-  const yearEnd = new Date(Date.UTC(year + 1, 0, 1));
 
   const groups = await ensureColorGroups();
   const [pending, approved, history, vAssignments, activeEmployees, allEmployees] =
@@ -34,17 +26,17 @@ export default async function VerlofOverzichtPage({
         orderBy: { startDate: "asc" },
       }),
       prisma.leaveRequest.findMany({
-        where: { status: "APPROVED", startDate: { lt: yearEnd }, endDate: { gte: yearStart } },
+        where: { status: "APPROVED", endDate: { gte: today } },
         include: { decidedBy: { select: { name: true } } },
       }),
       prisma.leaveRequest.findMany({
-        where: { status: { not: "PENDING" } },
+        where: { status: { not: "PENDING" }, endDate: { gte: today } },
         include: { employee: true, decidedBy: { select: { name: true } } },
         orderBy: { updatedAt: "desc" },
         take: 40,
       }),
       prisma.shiftAssignment.findMany({
-        where: { date: { gte: yearStart, lt: yearEnd }, shiftType: { code: "V" } },
+        where: { date: { gte: today }, shiftType: { code: "V" } },
         select: { employeeId: true, date: true },
       }),
       prisma.employee.findMany({ where: { active: true }, select: { id: true, name: true } }),
@@ -125,23 +117,8 @@ export default async function VerlofOverzichtPage({
         <div>
           <h1 className="text-lg font-semibold">Verlofoverzicht</h1>
           <p className="text-sm text-foreground-muted">
-            Aanvragen beoordelen en alle vrije dagen (V) per persoon, met welke planner het goedkeurde.
+            Aanvragen beoordelen en de vrije dagen (V) vanaf vandaag per persoon, met welke planner het goedkeurde.
           </p>
-        </div>
-        <div className="flex items-center gap-2 text-sm">
-          <Link
-            href={`/verlof/overzicht?jaar=${year - 1}`}
-            className="rounded-md border border-border px-3 py-1.5 hover:bg-surface-muted"
-          >
-            ← {year - 1}
-          </Link>
-          <span className="px-2 font-medium tabular-nums">{year}</span>
-          <Link
-            href={`/verlof/overzicht?jaar=${year + 1}`}
-            className="rounded-md border border-border px-3 py-1.5 hover:bg-surface-muted"
-          >
-            {year + 1} →
-          </Link>
         </div>
       </div>
 
@@ -212,14 +189,14 @@ export default async function VerlofOverzichtPage({
 
       <section className="rounded-lg border border-border bg-surface">
         <h2 className="border-b border-border px-4 py-3 text-sm font-semibold">
-          Vrije dagen per persoon in {year}{" "}
+          Komende vrije dagen per persoon{" "}
           <span className="ml-1 text-xs font-normal text-foreground-muted">
             {totalDays} dagen · {peopleWithLeave.length} personen
           </span>
         </h2>
         {peopleWithLeave.length === 0 ? (
           <p className="px-4 py-6 text-center text-sm text-foreground-muted">
-            Er staan in {year} geen vrije dagen (V) in het rooster.
+            Er staan geen komende vrije dagen (V) in het rooster.
           </p>
         ) : (
           <div className="overflow-x-auto">
@@ -285,7 +262,7 @@ export default async function VerlofOverzichtPage({
       </div>
 
       <section className="rounded-lg border border-border bg-surface">
-        <h2 className="border-b border-border px-4 py-3 text-sm font-semibold">Eerdere aanvragen</h2>
+        <h2 className="border-b border-border px-4 py-3 text-sm font-semibold">Beoordeelde aanvragen (lopend en komend)</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -301,7 +278,7 @@ export default async function VerlofOverzichtPage({
               {history.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-4 py-6 text-center text-foreground-muted">
-                    Nog geen beoordeelde aanvragen.
+                    Geen beoordeelde aanvragen voor komende dagen.
                   </td>
                 </tr>
               )}

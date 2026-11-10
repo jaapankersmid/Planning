@@ -141,6 +141,15 @@ export default async function RoosterPage({
       : day.getUTCDay() === 0
         ? "border-r-2 border-r-weekend-border"
         : "";
+  // Alleen voor medewerkers waarvoor het vaste rooster telt (kleurgroep staat aan en er is een vast
+  // rooster ingevuld) tonen we afwijkingen met een oranje rand.
+  const groupsWithoutTemplate = new Set(
+    groups.filter((g) => g.usesTemplate !== true).map((g) => g.name),
+  );
+  const employeesWithTemplate = new Set(templateEntries.map((e) => e.employeeId));
+  const followsTemplate = (employee: { id: string; colorGroup: string | null }) =>
+    employeesWithTemplate.has(employee.id) &&
+    !(employee.colorGroup && groupsWithoutTemplate.has(employee.colorGroup));
   const shiftCodeById = new Map(shiftTypes.map((s) => [s.id, s.code]));
 
   const cellMin = weekView ? 96 : 30;
@@ -318,7 +327,8 @@ export default async function RoosterPage({
                   const templateId =
                     templateByKey.get(`${employee.id}_${weekdayNumber(day)}`) ?? null;
                   // Afwijking van het vaste rooster tonen we alleen voor vandaag en later.
-                  const deviates = dateISO >= todayISO && shiftTypeId !== templateId;
+                  const deviates =
+                    followsTemplate(employee) && dateISO >= todayISO && shiftTypeId !== templateId;
                   return (
                     <td
                       key={key}
