@@ -3,7 +3,12 @@ import { google } from "googleapis";
 // Alleen gebruikt voor de losstaande "Verbind met Google Calendar"-koppeling
 // (src/app/api/google-calendar/*) — heeft niets te maken met inloggen, dat
 // gaat via zelf aangemaakte accounts (zie src/auth.ts).
-export const CALENDAR_SCOPE = "https://www.googleapis.com/auth/calendar.events";
+//
+// calendar.app.created: mag een aparte agenda ("Werkrooster") aanmaken en
+// daarin diensten zetten/wijzigen/wissen, maar komt niet aan de andere
+// agenda's van de gebruiker. De bredere scope calendar.events kan géén
+// agenda aanmaken, en vraagt bij Google meer verificatie.
+export const CALENDAR_SCOPE = "https://www.googleapis.com/auth/calendar.app.created";
 
 export function createOAuthClient(redirectUri?: string) {
   return new google.auth.OAuth2(
@@ -13,7 +18,12 @@ export function createOAuthClient(redirectUri?: string) {
   );
 }
 
-/** De vaste redirect-URI die ook in Google Cloud Console geregistreerd moet staan. */
+/**
+ * De vaste redirect-URI die ook in Google Cloud Console geregistreerd moet
+ * staan. Bij voorkeur uit AUTH_URL (de publieke https-url van de app), zodat
+ * hij niet afhangt van hoe de proxy het verzoek doorgeeft.
+ */
 export function calendarCallbackUrl(requestUrl: string) {
-  return new URL("/api/google-calendar/callback", requestUrl).toString();
+  const base = process.env.AUTH_URL || requestUrl;
+  return new URL("/api/google-calendar/callback", base).toString();
 }

@@ -93,3 +93,25 @@ export async function setUserRole(userId: string, role: Role) {
   await prisma.user.update({ where: { id: userId }, data: { role } });
   revalidatePath("/gebruikers");
 }
+
+/** Koppelt een medewerker aan een gebruiker (of ontkoppelt met null). Eén medewerker kan maar bij één account horen. */
+export async function linkEmployee(
+  userId: string,
+  employeeId: string | null,
+): Promise<{ error: string } | void> {
+  await requireAdmin();
+
+  if (employeeId) {
+    const taken = await prisma.user.findFirst({
+      where: { employeeId, NOT: { id: userId } },
+    });
+    if (taken) {
+      return { error: `Al gekoppeld aan ${taken.name}.` };
+    }
+  }
+
+  await prisma.user.update({ where: { id: userId }, data: { employeeId } });
+  revalidatePath("/gebruikers");
+  revalidatePath("/medewerkers");
+  revalidatePath("/rooster/mijn");
+}

@@ -70,8 +70,10 @@ model Employee {
   active     Boolean @default(true)
   experience Float?
 
-  user        User?
-  assignments ShiftAssignment[]
+  user         User?
+  assignments  ShiftAssignment[]
+  weeklyEntries WeeklyScheduleEntry[]
+  dayOverrides DayOverride[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -96,8 +98,9 @@ model ShiftType {
   countsMorningWalk Boolean @default(false)
   countsEveningWalk Boolean @default(false)
 
-  active      Boolean           @default(true)
-  assignments ShiftAssignment[]
+  active        Boolean               @default(true)
+  assignments   ShiftAssignment[]
+  weeklyEntries WeeklyScheduleEntry[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -116,6 +119,11 @@ model ShiftAssignment {
 
   note String?
 
+  // MANUAL = handmatig ingesteld (of geimporteerd): heeft voorrang en wordt
+  // nooit door het vaste rooster overschreven. TEMPLATE = automatisch uit het
+  // vaste rooster aangemaakt en mag bij een wijziging van het vaste rooster mee.
+  source ShiftSource @default(MANUAL)
+
   // Id van het bijbehorende Google Calendar-event, zodat een latere wijziging of
   // verwijdering het juiste event kan bijwerken i.p.v. dupliceren.
   googleEventId String?
@@ -125,5 +133,47 @@ model ShiftAssignment {
   updatedAt DateTime @updatedAt
 
   @@unique([employeeId, date, shiftTypeId])
+  @@index([date])
+}
+
+enum ShiftSource {
+  MANUAL
+  TEMPLATE
+}
+
+// Kleurgroepen van medewerkers (Rood, Oranje, ...) met een instelbare volgorde.
+model ColorGroup {
+  id        String @id @default(cuid())
+  name      String @unique
+  sortOrder Int    @default(0)
+}
+
+// Het vaste weekrooster: per medewerker per weekdag (1 = maandag ... 7 = zondag)
+// de standaarddienst.
+model WeeklyScheduleEntry {
+  id String @id @default(cuid())
+
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId String
+
+  weekday Int
+
+  shiftType   ShiftType @relation(fields: [shiftTypeId], references: [id], onDelete: Cascade)
+  shiftTypeId String
+
+  @@unique([employeeId, weekday])
+}
+
+// Markeert dat een dag voor een medewerker handmatig is bepaald (ook als de
+// dienst is leeggemaakt), zodat het vaste rooster daar afblijft.
+model DayOverride {
+  id String @id @default(cuid())
+
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId String
+
+  date DateTime @db.Date
+
+  @@unique([employeeId, date])
   @@index([date])
 }

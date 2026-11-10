@@ -3,13 +3,14 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { CreateUserForm } from "@/components/create-user-form";
 import { ResetPasswordButton } from "@/components/reset-password-button";
-import { setUserActive, setUserRole } from "./actions";
+import { AutoSelect } from "@/components/auto-select";
+import { linkEmployee, setUserActive, setUserRole } from "./actions";
 
 export default async function GebruikersPage() {
   const session = await auth();
   if (session?.user.role !== "ADMIN") redirect("/rooster");
 
-  const [users, unclaimedEmployees] = await Promise.all([
+  const [users, unclaimedEmployees, allEmployees] = await Promise.all([
     prisma.user.findMany({
       include: { employee: true },
       orderBy: [{ active: "desc" }, { name: "asc" }],
@@ -18,6 +19,11 @@ export default async function GebruikersPage() {
       where: { active: true, user: null },
       orderBy: { name: "asc" },
       select: { id: true, name: true },
+    }),
+    prisma.employee.findMany({
+      where: { active: true },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, user: { select: { id: true } } },
     }),
   ]);
 
@@ -62,8 +68,18 @@ export default async function GebruikersPage() {
                     </button>
                   </form>
                 </td>
-                <td className="px-4 py-2 text-foreground-muted">
-                  {u.employee?.name ?? "—"}
+                <td className="px-4 py-2">
+                  <AutoSelect
+                    key={`${u.id}_${u.employeeId}`}
+                    ariaLabel={`Medewerker van ${u.name}`}
+                    initialValue={u.employeeId ?? ""}
+                    emptyLabel="— niet gekoppeld"
+                    options={allEmployees
+                      // Medewerkers die al bij een ander account horen laten we niet kiezen.
+                      .filter((e) => !e.user || e.user.id === u.id)
+                      .map((e) => ({ value: e.id, label: e.name }))}
+                    action={linkEmployee.bind(null, u.id)}
+                  />
                 </td>
                 <td className="px-4 py-2">
                   <div className="flex flex-col gap-1">

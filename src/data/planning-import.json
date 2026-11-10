@@ -1,0 +1,10880 @@
+{
+"months": [
+{
+"year": 2026,
+"month": 10
+},
+{
+"year": 2026,
+"month": 11
+},
+{
+"year": 2026,
+"month": 12
+},
+{
+"year": 2027,
+"month": 1
+},
+{
+"year": 2027,
+"month": 2
+},
+{
+"year": 2027,
+"month": 3
+}
+],
+"colorGroups": [
+"Rood",
+"Oranje",
+"Geel",
+"Groen",
+"Blauw",
+"Licht Blauw"
+],
+"shiftTypes": [
+{
+"code": "CR",
+"label": "Crem (CR) - controleer tijden",
+"color": "#4f9d69",
+"startTime": null,
+"endTime": null,
+"secondStartTime": null,
+"secondEndTime": null,
+"countsMorningWalk": false,
+"countsEveningWalk": false
+}
+],
+"employees": [
+{
+"externalId": "P001",
+"name": "Jeroen",
+"colorGroup": "Rood",
+"experience": 12.0,
+"active": true
+},
+{
+"externalId": "P002",
+"name": "Marlies",
+"colorGroup": "Rood",
+"experience": 12.0,
+"active": true
+},
+{
+"externalId": "P003",
+"name": "Kelly",
+"colorGroup": "Rood",
+"experience": 12.0,
+"active": true
+},
+{
+"externalId": "P004",
+"name": "Wesley",
+"colorGroup": "Rood",
+"experience": 10.0,
+"active": true
+},
+{
+"externalId": "P005",
+"name": "Jaap",
+"colorGroup": "Oranje",
+"experience": 11.0,
+"active": true
+},
+{
+"externalId": "P006",
+"name": "Koen",
+"colorGroup": "Oranje",
+"experience": 11.0,
+"active": true
+},
+{
+"externalId": "P007",
+"name": "Douwe",
+"colorGroup": "Oranje",
+"experience": 11.0,
+"active": true
+},
+{
+"externalId": "P008",
+"name": "Angela",
+"colorGroup": "Oranje",
+"experience": 10.0,
+"active": true
+},
+{
+"externalId": "P009",
+"name": "Do",
+"colorGroup": "Rood",
+"experience": 11.0,
+"active": true
+},
+{
+"externalId": "P010",
+"name": "Loes",
+"colorGroup": "Geel",
+"experience": 11.0,
+"active": true
+},
+{
+"externalId": "P011",
+"name": "Alissa",
+"colorGroup": "Oranje",
+"experience": 8.0,
+"active": false
+},
+{
+"externalId": "P012",
+"name": "Ellen",
+"colorGroup": "Oranje",
+"experience": 10.0,
+"active": true
+},
+{
+"externalId": "P013",
+"name": "Silke",
+"colorGroup": "Groen",
+"experience": 1.0,
+"active": true
+},
+{
+"externalId": "P014",
+"name": "Mirte",
+"colorGroup": "Groen",
+"experience": 1.0,
+"active": true
+},
+{
+"externalId": "P015",
+"name": "Saar",
+"colorGroup": "Licht Blauw",
+"experience": 1.0,
+"active": false
+},
+{
+"externalId": "P016",
+"name": "Noah",
+"colorGroup": "Licht Blauw",
+"experience": 1.0,
+"active": false
+},
+{
+"externalId": "P017",
+"name": "Esmee",
+"colorGroup": "Licht Blauw",
+"experience": 1.0,
+"active": false
+},
+{
+"externalId": "P018",
+"name": "Lenthe",
+"colorGroup": "Licht Blauw",
+"experience": 1.0,
+"active": false
+},
+{
+"externalId": "P019",
+"name": "Jorrick",
+"colorGroup": "Licht Blauw",
+"experience": 1.0,
+"active": false
+},
+{
+"externalId": "P023",
+"name": "Linnea",
+"colorGroup": "Groen",
+"experience": 6.0,
+"active": true
+},
+{
+"externalId": "P024",
+"name": "Letteke",
+"colorGroup": "Groen",
+"experience": 6.0,
+"active": true
+},
+{
+"externalId": "P025",
+"name": "Thessa",
+"colorGroup": "Groen",
+"experience": 6.0,
+"active": false
+},
+{
+"externalId": "P026",
+"name": "Yara H",
+"colorGroup": "Groen",
+"experience": 7.0,
+"active": true
+},
+{
+"externalId": "P027",
+"name": "Anne",
+"colorGroup": "Groen",
+"experience": 6.0,
+"active": true
+},
+{
+"externalId": "P028",
+"name": "Jackie",
+"colorGroup": "Groen",
+"experience": 5.0,
+"active": true
+},
+{
+"externalId": "P029",
+"name": "Valentina",
+"colorGroup": "Groen",
+"experience": 5.0,
+"active": true
+},
+{
+"externalId": "P030",
+"name": "Marlein",
+"colorGroup": "Groen",
+"experience": 5.0,
+"active": true
+},
+{
+"externalId": "P031",
+"name": "Isa",
+"colorGroup": "Groen",
+"experience": 6.0,
+"active": true
+},
+{
+"externalId": "P032",
+"name": "Anna",
+"colorGroup": "Groen",
+"experience": 4.0,
+"active": true
+},
+{
+"externalId": "P033",
+"name": "Rens",
+"colorGroup": "Geel",
+"experience": 8.0,
+"active": true
+},
+{
+"externalId": "P034",
+"name": "Cas",
+"colorGroup": "Geel",
+"experience": 6.0,
+"active": true
+},
+{
+"externalId": "P035",
+"name": "Daan",
+"colorGroup": "Groen",
+"experience": 3.0,
+"active": false
+},
+{
+"externalId": "P036",
+"name": "Hidde",
+"colorGroup": "Groen",
+"experience": 3.0,
+"active": false
+},
+{
+"externalId": "P037",
+"name": "Luuk",
+"colorGroup": "Groen",
+"experience": 3.0,
+"active": false
+},
+{
+"externalId": "P038",
+"name": "Stijn",
+"colorGroup": "Groen",
+"experience": 3.0,
+"active": true
+},
+{
+"externalId": "P039",
+"name": "Noor",
+"colorGroup": "Geel",
+"experience": 10.0,
+"active": true
+},
+{
+"externalId": "P040",
+"name": "Jonne",
+"colorGroup": "Geel",
+"experience": 11.0,
+"active": true
+},
+{
+"externalId": "P041",
+"name": "Lian",
+"colorGroup": "Geel",
+"experience": 11.0,
+"active": true
+},
+{
+"externalId": "P042",
+"name": "Maud",
+"colorGroup": "Geel",
+"experience": 9.0,
+"active": false
+},
+{
+"externalId": "P043",
+"name": "Yara V",
+"colorGroup": "Geel",
+"experience": 11.0,
+"active": false
+},
+{
+"externalId": "P044",
+"name": "Irene",
+"colorGroup": "Geel",
+"experience": 11.0,
+"active": false
+},
+{
+"externalId": "P045",
+"name": "Elisa",
+"colorGroup": "Geel",
+"experience": 10.0,
+"active": true
+},
+{
+"externalId": "P046",
+"name": "Manouk",
+"colorGroup": "Geel",
+"experience": 10.0,
+"active": true
+},
+{
+"externalId": "P047",
+"name": "Lisa",
+"colorGroup": "Geel",
+"experience": 9.0,
+"active": true
+},
+{
+"externalId": "P048",
+"name": "Michelle",
+"colorGroup": "Oranje",
+"experience": 9.0,
+"active": true
+},
+{
+"externalId": "P049",
+"name": "Dries",
+"colorGroup": "Geel",
+"experience": 9.0,
+"active": true
+},
+{
+"externalId": "P050",
+"name": "Feie",
+"colorGroup": "Geel",
+"experience": 10.0,
+"active": true
+},
+{
+"externalId": "P051",
+"name": "Guus",
+"colorGroup": "Geel",
+"experience": 8.0,
+"active": true
+},
+{
+"externalId": "P052",
+"name": "Pien",
+"colorGroup": "Blauw",
+"experience": 4.0,
+"active": false
+},
+{
+"externalId": "P053",
+"name": "Myrthe",
+"colorGroup": "Blauw",
+"experience": 3.0,
+"active": false
+},
+{
+"externalId": "P054",
+"name": "Sanne",
+"colorGroup": "Blauw",
+"experience": 3.0,
+"active": true
+},
+{
+"externalId": "P055",
+"name": "Hannah",
+"colorGroup": "Groen",
+"experience": 1.0,
+"active": true
+},
+{
+"externalId": "P056",
+"name": "Lars",
+"colorGroup": "Groen",
+"experience": 1.0,
+"active": true
+},
+{
+"externalId": "P057",
+"name": "Maura",
+"colorGroup": "Groen",
+"experience": 1.0,
+"active": true
+},
+{
+"externalId": "P058",
+"name": "Maartje",
+"colorGroup": "Licht Blauw",
+"experience": 1.0,
+"active": false
+},
+{
+"externalId": "P059",
+"name": "Elin",
+"colorGroup": "Groen",
+"experience": 1.0,
+"active": true
+},
+{
+"externalId": "P060",
+"name": "Eva",
+"colorGroup": "Licht Blauw",
+"experience": 1.0,
+"active": false
+},
+{
+"externalId": "P061",
+"name": "Roos",
+"colorGroup": "Licht Blauw",
+"experience": 1.0,
+"active": false
+},
+{
+"externalId": "P062",
+"name": "Rick",
+"colorGroup": "Groen",
+"experience": 2.0,
+"active": true
+},
+{
+"externalId": "P063",
+"name": "Sanne N",
+"colorGroup": "Geel",
+"experience": 4.0,
+"active": true
+},
+{
+"externalId": "P064",
+"name": "Amber",
+"colorGroup": "Licht Blauw",
+"experience": 1.0,
+"active": false
+},
+{
+"externalId": "P065",
+"name": "Noor B",
+"colorGroup": "Groen",
+"experience": 1.0,
+"active": true
+},
+{
+"externalId": "P066",
+"name": "Kaya",
+"colorGroup": "Blauw",
+"experience": 1.0,
+"active": true
+}
+],
+"template": [
+{
+"externalId": "P001",
+"weekday": 1,
+"code": "O"
+},
+{
+"externalId": "P001",
+"weekday": 2,
+"code": "O"
+},
+{
+"externalId": "P001",
+"weekday": 3,
+"code": "O"
+},
+{
+"externalId": "P001",
+"weekday": 4,
+"code": "O"
+},
+{
+"externalId": "P001",
+"weekday": 5,
+"code": "A"
+},
+{
+"externalId": "P002",
+"weekday": 1,
+"code": "A"
+},
+{
+"externalId": "P002",
+"weekday": 2,
+"code": "O"
+},
+{
+"externalId": "P002",
+"weekday": 3,
+"code": "O"
+},
+{
+"externalId": "P002",
+"weekday": 5,
+"code": "O"
+},
+{
+"externalId": "P003",
+"weekday": 1,
+"code": "O"
+},
+{
+"externalId": "P003",
+"weekday": 2,
+"code": "O"
+},
+{
+"externalId": "P003",
+"weekday": 4,
+"code": "O"
+},
+{
+"externalId": "P004",
+"weekday": 1,
+"code": "O"
+},
+{
+"externalId": "P004",
+"weekday": 2,
+"code": "O"
+},
+{
+"externalId": "P004",
+"weekday": 3,
+"code": "CR"
+},
+{
+"externalId": "P004",
+"weekday": 5,
+"code": "O"
+},
+{
+"externalId": "P004",
+"weekday": 6,
+"code": "X"
+},
+{
+"externalId": "P005",
+"weekday": 2,
+"code": "CrA"
+},
+{
+"externalId": "P005",
+"weekday": 3,
+"code": "X"
+},
+{
+"externalId": "P005",
+"weekday": 4,
+"code": "A"
+},
+{
+"externalId": "P005",
+"weekday": 5,
+"code": "CrO"
+},
+{
+"externalId": "P005",
+"weekday": 6,
+"code": "X"
+},
+{
+"externalId": "P006",
+"weekday": 1,
+"code": "O"
+},
+{
+"externalId": "P006",
+"weekday": 2,
+"code": "X"
+},
+{
+"externalId": "P006",
+"weekday": 3,
+"code": "O"
+},
+{
+"externalId": "P006",
+"weekday": 4,
+"code": "CrA"
+},
+{
+"externalId": "P006",
+"weekday": 5,
+"code": "O"
+},
+{
+"externalId": "P007",
+"weekday": 1,
+"code": "X"
+},
+{
+"externalId": "P007",
+"weekday": 2,
+"code": "K"
+},
+{
+"externalId": "P007",
+"weekday": 3,
+"code": "K"
+},
+{
+"externalId": "P007",
+"weekday": 4,
+"code": "O"
+},
+{
+"externalId": "P007",
+"weekday": 5,
+"code": "O"
+},
+{
+"externalId": "P008",
+"weekday": 1,
+"code": "X"
+},
+{
+"externalId": "P008",
+"weekday": 3,
+"code": "O"
+},
+{
+"externalId": "P008",
+"weekday": 4,
+"code": "X"
+},
+{
+"externalId": "P012",
+"weekday": 1,
+"code": "X"
+},
+{
+"externalId": "P012",
+"weekday": 2,
+"code": "X"
+},
+{
+"externalId": "P012",
+"weekday": 4,
+"code": "O"
+},
+{
+"externalId": "P012",
+"weekday": 5,
+"code": "X"
+},
+{
+"externalId": "P048",
+"weekday": 1,
+"code": "X"
+},
+{
+"externalId": "P048",
+"weekday": 2,
+"code": "O"
+},
+{
+"externalId": "P048",
+"weekday": 3,
+"code": "X"
+},
+{
+"externalId": "P048",
+"weekday": 4,
+"code": "O"
+},
+{
+"externalId": "P048",
+"weekday": 5,
+"code": "X"
+}
+],
+"assignments": [
+{
+"externalId": "P001",
+"date": "2026-10-01",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-10-02",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-10-05",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-10-06",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-10-07",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-10-08",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-10-09",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-10-12",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-10-13",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-10-14",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-10-15",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-10-16",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-10-19",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-10-20",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-10-21",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P001",
+"date": "2026-10-22",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-10-23",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-10-26",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-10-27",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-10-28",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-10-29",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-10-30",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-10-02",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-10-05",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-10-06",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-10-07",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-10-09",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-10-12",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-10-13",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-10-14",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-10-16",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P002",
+"date": "2026-10-19",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-10-20",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-10-21",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-10-23",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-10-26",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-10-27",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-10-28",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-10-30",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-10-01",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-10-05",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-10-06",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-10-08",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-10-12",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-10-13",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-10-15",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-10-19",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-10-20",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-10-22",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-10-26",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-10-27",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-10-29",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P009",
+"date": "2026-10-01",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-02",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-03",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-05",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-06",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-07",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-08",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-09",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-12",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-13",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-14",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-15",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-16",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-19",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-20",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-21",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-22",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-23",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-26",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-27",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-28",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-29",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-10-30",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2026-10-02",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-10-03",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-10-05",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-10-06",
+"code": "Z",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2026-10-07",
+"code": "Z",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2026-10-09",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2026-10-10",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2026-10-12",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-10-13",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-10-14",
+"code": "A",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2026-10-16",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-10-17",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-10-19",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-10-20",
+"code": "CrA",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2026-10-21",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2026-10-23",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-10-24",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2026-10-26",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-10-27",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-10-28",
+"code": "A",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2026-10-30",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2026-10-31",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-10-01",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-10-02",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-10-03",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-10-06",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-10-07",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-10-08",
+"code": "R",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-10-09",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-10-10",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-10-13",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-10-14",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-10-15",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-10-16",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-10-17",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-10-18",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-10-19",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-10-20",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-10-21",
+"code": "CrA",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-10-22",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-10-23",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-10-24",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-10-25",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-10-27",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-10-28",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-10-29",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-10-30",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-10-31",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P006",
+"date": "2026-10-01",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-10-02",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-10-04",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P006",
+"date": "2026-10-05",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-10-06",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-10-07",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-10-08",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-10-09",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-10-12",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-10-13",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-10-14",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-10-15",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-10-16",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-10-18",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P006",
+"date": "2026-10-19",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-10-20",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-10-21",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-10-22",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-10-23",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-10-26",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-10-27",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-10-28",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-10-29",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-10-30",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-10-01",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-10-02",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-10-05",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-10-06",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-10-07",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-10-08",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-10-09",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-10-11",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-10-12",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-10-13",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-10-14",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-10-15",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-10-16",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-10-19",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-10-20",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-10-21",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-10-22",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-10-23",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-10-26",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-10-27",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-10-28",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-10-29",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-10-30",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-10-31",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P008",
+"date": "2026-10-01",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P008",
+"date": "2026-10-02",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P008",
+"date": "2026-10-03",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P008",
+"date": "2026-10-04",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P008",
+"date": "2026-10-05",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-10-07",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-10-08",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-10-12",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-10-14",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-10-15",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-10-18",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P008",
+"date": "2026-10-19",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-10-21",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-10-22",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-10-26",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-10-28",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-10-29",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-10-01",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-10-02",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-10-04",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-10-05",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-10-06",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-10-08",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-10-09",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-10-11",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-10-12",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-10-13",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-10-15",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-10-16",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-10-19",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-10-20",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-10-22",
+"code": "Z",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-10-23",
+"code": "Z",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-10-26",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-10-27",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-10-29",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-10-30",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-01",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-02",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-05",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-06",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-07",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-08",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-09",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-12",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-13",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-14",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-15",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-16",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-19",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-20",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-21",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-22",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-23",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-26",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-27",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-28",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-29",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-10-30",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P010",
+"date": "2026-10-03",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P010",
+"date": "2026-10-10",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P010",
+"date": "2026-10-17",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P010",
+"date": "2026-10-24",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P010",
+"date": "2026-10-31",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-01",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-03",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-04",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-05",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-06",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-08",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-10",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-11",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-12",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-13",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-14",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-15",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-17",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-18",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-19",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-20",
+"code": "UitO",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-21",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-22",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-24",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-26",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-27",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-29",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-10-31",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-10-01",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-10-02",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-10-03",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-10-05",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-10-09",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-10-10",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-10-12",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-10-13",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-10-14",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-10-16",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-10-17",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-10-18",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-10-19",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-10-23",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-10-24",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-10-26",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-10-29",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-10-30",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-10-31",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-10-01",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-10-07",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-10-08",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-10-10",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-10-13",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-10-14",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-10-15",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-10-16",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-10-17",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-10-18",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-10-20",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-10-21",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-10-22",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-10-23",
+"code": "Z",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-10-24",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-10-25",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-10-28",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-10-29",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-10-30",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-10-31",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-10-01",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-10-03",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-10-04",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-10-09",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-10-10",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-10-11",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-10-12",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-10-13",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-10-14",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-10-15",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-10-16",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-10-17",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-10-18",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-10-21",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-10-23",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-10-24",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-10-25",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-10-28",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-10-29",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-10-30",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-10-31",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P046",
+"date": "2026-10-27",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P046",
+"date": "2026-10-29",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P046",
+"date": "2026-10-30",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P046",
+"date": "2026-10-31",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P047",
+"date": "2026-10-03",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P047",
+"date": "2026-10-06",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P047",
+"date": "2026-10-07",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P047",
+"date": "2026-10-10",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P047",
+"date": "2026-10-12",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P047",
+"date": "2026-10-13",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P047",
+"date": "2026-10-14",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P047",
+"date": "2026-10-15",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P047",
+"date": "2026-10-16",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P047",
+"date": "2026-10-17",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P047",
+"date": "2026-10-19",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P047",
+"date": "2026-10-21",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P047",
+"date": "2026-10-24",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P047",
+"date": "2026-10-28",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P047",
+"date": "2026-10-31",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-01",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-02",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-03",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-04",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-05",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-06",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-08",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-09",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-10",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-11",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-12",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-15",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-16",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-17",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-18",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-21",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-22",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-23",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-25",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-27",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-28",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-29",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-10-30",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P063",
+"date": "2026-10-07",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P026",
+"date": "2026-10-04",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P026",
+"date": "2026-10-11",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P026",
+"date": "2026-10-18",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P026",
+"date": "2026-10-19",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P026",
+"date": "2026-10-20",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P026",
+"date": "2026-10-22",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P026",
+"date": "2026-10-25",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P024",
+"date": "2026-10-12",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P024",
+"date": "2026-10-16",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P024",
+"date": "2026-10-17",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P024",
+"date": "2026-10-24",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P024",
+"date": "2026-10-25",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P024",
+"date": "2026-10-31",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P027",
+"date": "2026-10-13",
+"code": "Z",
+"source": "MANUAL"
+},
+{
+"externalId": "P027",
+"date": "2026-10-18",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P027",
+"date": "2026-10-19",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P027",
+"date": "2026-10-20",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P027",
+"date": "2026-10-21",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P027",
+"date": "2026-10-22",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P027",
+"date": "2026-10-23",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P027",
+"date": "2026-10-24",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P027",
+"date": "2026-10-25",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P027",
+"date": "2026-10-27",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P031",
+"date": "2026-10-03",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P031",
+"date": "2026-10-10",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P031",
+"date": "2026-10-11",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P031",
+"date": "2026-10-12",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P031",
+"date": "2026-10-13",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P031",
+"date": "2026-10-14",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P031",
+"date": "2026-10-15",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P031",
+"date": "2026-10-16",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P031",
+"date": "2026-10-17",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P031",
+"date": "2026-10-18",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P031",
+"date": "2026-10-24",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P028",
+"date": "2026-10-04",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P028",
+"date": "2026-10-11",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P028",
+"date": "2026-10-17",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P028",
+"date": "2026-10-18",
+"code": "Z",
+"source": "MANUAL"
+},
+{
+"externalId": "P030",
+"date": "2026-10-04",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P030",
+"date": "2026-10-11",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P030",
+"date": "2026-10-17",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P030",
+"date": "2026-10-18",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P030",
+"date": "2026-10-25",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P032",
+"date": "2026-10-03",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P032",
+"date": "2026-10-10",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P032",
+"date": "2026-10-17",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P032",
+"date": "2026-10-24",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P038",
+"date": "2026-10-04",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P038",
+"date": "2026-10-08",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P038",
+"date": "2026-10-11",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P038",
+"date": "2026-10-20",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P038",
+"date": "2026-10-21",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P038",
+"date": "2026-10-22",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P013",
+"date": "2026-10-05",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P013",
+"date": "2026-10-06",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P013",
+"date": "2026-10-07",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P013",
+"date": "2026-10-08",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P013",
+"date": "2026-10-09",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P013",
+"date": "2026-10-13",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P013",
+"date": "2026-10-15",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P013",
+"date": "2026-10-18",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P013",
+"date": "2026-10-19",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P013",
+"date": "2026-10-20",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P013",
+"date": "2026-10-25",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P013",
+"date": "2026-10-26",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P013",
+"date": "2026-10-27",
+"code": "Z",
+"source": "MANUAL"
+},
+{
+"externalId": "P014",
+"date": "2026-10-02",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P014",
+"date": "2026-10-09",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P014",
+"date": "2026-10-16",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P014",
+"date": "2026-10-23",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P014",
+"date": "2026-10-30",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P055",
+"date": "2026-10-02",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P055",
+"date": "2026-10-04",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P055",
+"date": "2026-10-09",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P055",
+"date": "2026-10-11",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P055",
+"date": "2026-10-17",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P055",
+"date": "2026-10-18",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P055",
+"date": "2026-10-19",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P055",
+"date": "2026-10-25",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P056",
+"date": "2026-10-02",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P056",
+"date": "2026-10-04",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P056",
+"date": "2026-10-10",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P056",
+"date": "2026-10-11",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P056",
+"date": "2026-10-13",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P056",
+"date": "2026-10-14",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P056",
+"date": "2026-10-15",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P056",
+"date": "2026-10-30",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P059",
+"date": "2026-10-04",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P059",
+"date": "2026-10-11",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P059",
+"date": "2026-10-16",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P059",
+"date": "2026-10-21",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P059",
+"date": "2026-10-22",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P059",
+"date": "2026-10-23",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P059",
+"date": "2026-10-25",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P065",
+"date": "2026-10-10",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P065",
+"date": "2026-10-11",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P065",
+"date": "2026-10-12",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P065",
+"date": "2026-10-13",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P065",
+"date": "2026-10-14",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P065",
+"date": "2026-10-16",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P065",
+"date": "2026-10-17",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P065",
+"date": "2026-10-18",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P066",
+"date": "2026-10-01",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P066",
+"date": "2026-10-08",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P066",
+"date": "2026-10-13",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P066",
+"date": "2026-10-14",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P066",
+"date": "2026-10-15",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P066",
+"date": "2026-10-16",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P001",
+"date": "2026-11-02",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-11-03",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-11-04",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-11-05",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-11-06",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-11-09",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-11-10",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-11-11",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-11-12",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-11-13",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-11-16",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-11-17",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-11-18",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-11-19",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-11-20",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P001",
+"date": "2026-11-23",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-11-24",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-11-25",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-11-26",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-11-27",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-11-30",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-11-02",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-11-03",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-11-04",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-11-06",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-11-09",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-11-10",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-11-11",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-11-13",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-11-16",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-11-17",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-11-18",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-11-20",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-11-23",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-11-24",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-11-25",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-11-27",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-11-30",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-11-02",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-11-03",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-11-05",
+"code": "Z",
+"source": "MANUAL"
+},
+{
+"externalId": "P003",
+"date": "2026-11-09",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-11-10",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-11-12",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-11-16",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-11-17",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-11-19",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-11-23",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-11-24",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-11-26",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-11-30",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P009",
+"date": "2026-11-02",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-11-03",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-11-04",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-11-05",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-11-06",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-11-09",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-11-10",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-11-11",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-11-12",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-11-13",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-11-16",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-11-17",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-11-18",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-11-19",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-11-20",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-11-23",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-11-24",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-11-25",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-11-26",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-11-27",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-11-30",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2026-11-02",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-11-03",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-11-04",
+"code": "A",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2026-11-06",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-11-07",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-11-09",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-11-10",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-11-11",
+"code": "A",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2026-11-13",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-11-14",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-11-16",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-11-17",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-11-18",
+"code": "A",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2026-11-20",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-11-21",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-11-23",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-11-24",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-11-25",
+"code": "A",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2026-11-27",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-11-28",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-11-30",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-11-03",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-11-04",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-11-05",
+"code": "R",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-11-06",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-11-07",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-11-10",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-11-11",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-11-12",
+"code": "R",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-11-13",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-11-14",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-11-17",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-11-18",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-11-19",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-11-20",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-11-21",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-11-24",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-11-25",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-11-26",
+"code": "CrA",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-11-27",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-11-28",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-11-01",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P006",
+"date": "2026-11-02",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-11-03",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-11-04",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-11-05",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-11-06",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-11-09",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-11-10",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-11-11",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-11-12",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-11-13",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-11-16",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-11-17",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-11-18",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-11-19",
+"code": "R",
+"source": "MANUAL"
+},
+{
+"externalId": "P006",
+"date": "2026-11-20",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-11-23",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-11-24",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-11-25",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-11-26",
+"code": "R",
+"source": "MANUAL"
+},
+{
+"externalId": "P006",
+"date": "2026-11-27",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-11-30",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-11-01",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-11-02",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-11-03",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-11-04",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-11-05",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-11-06",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-11-07",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-11-08",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-11-09",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-11-10",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-11-11",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-11-12",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-11-13",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-11-16",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-11-17",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-11-18",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-11-19",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-11-20",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-11-23",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-11-24",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-11-25",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-11-26",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-11-27",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-11-30",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-11-02",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-11-04",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-11-05",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-11-08",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P008",
+"date": "2026-11-09",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-11-11",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-11-12",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-11-16",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-11-18",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-11-19",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P008",
+"date": "2026-11-23",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-11-25",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-11-26",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P008",
+"date": "2026-11-30",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-11-02",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-11-03",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-11-05",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-11-06",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-11-09",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-11-10",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-11-12",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-11-13",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-11-15",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-11-16",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-11-17",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-11-19",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-11-20",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-11-23",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-11-24",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-11-26",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-11-27",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-11-30",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-11-02",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-11-03",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-11-04",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-11-05",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-11-06",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-11-09",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P048",
+"date": "2026-11-10",
+"code": "Z",
+"source": "MANUAL"
+},
+{
+"externalId": "P048",
+"date": "2026-11-11",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-11-12",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-11-13",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-11-16",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-11-17",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-11-18",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-11-19",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-11-20",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P048",
+"date": "2026-11-22",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P048",
+"date": "2026-11-23",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-11-24",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-11-25",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-11-26",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-11-27",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-11-29",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P048",
+"date": "2026-11-30",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P010",
+"date": "2026-11-07",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P010",
+"date": "2026-11-14",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P010",
+"date": "2026-11-19",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P010",
+"date": "2026-11-21",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P010",
+"date": "2026-11-25",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P010",
+"date": "2026-11-28",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-01",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-02",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-03",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-04",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-05",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-07",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-09",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-10",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-11",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-12",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-14",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-16",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-17",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-18",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-19",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-21",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-23",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-24",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-25",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-26",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-28",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-11-30",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-11-02",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-11-06",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-11-07",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-11-09",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-11-13",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-11-14",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-11-16",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-11-20",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-11-21",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-11-23",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-11-24",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-11-26",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-11-27",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-11-28",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-02",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-03",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-04",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-05",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-06",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-08",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-09",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-10",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-12",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-13",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-14",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-15",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-17",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-19",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-20",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-21",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-22",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-24",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-26",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-27",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-28",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P039",
+"date": "2026-11-29",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-11-01",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-11-06",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-11-08",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-11-10",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-11-11",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-11-13",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-11-15",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-11-22",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P045",
+"date": "2026-11-29",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P046",
+"date": "2026-11-07",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P046",
+"date": "2026-11-14",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P046",
+"date": "2026-11-15",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P046",
+"date": "2026-11-21",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P046",
+"date": "2026-11-28",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P050",
+"date": "2026-11-09",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P050",
+"date": "2026-11-22",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P050",
+"date": "2026-11-29",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P047",
+"date": "2026-11-14",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P047",
+"date": "2026-11-18",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P047",
+"date": "2026-11-25",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P047",
+"date": "2026-11-28",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-03",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-04",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-05",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-07",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-08",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-09",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-11",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-12",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-14",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-15",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-17",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-18",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-19",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-20",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-22",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-24",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-25",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-26",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-27",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-28",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-29",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P049",
+"date": "2026-11-30",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P026",
+"date": "2026-11-01",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P026",
+"date": "2026-11-05",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P026",
+"date": "2026-11-08",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P026",
+"date": "2026-11-15",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P026",
+"date": "2026-11-22",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P026",
+"date": "2026-11-29",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P023",
+"date": "2026-11-07",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P023",
+"date": "2026-11-14",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P023",
+"date": "2026-11-21",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P023",
+"date": "2026-11-28",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P024",
+"date": "2026-11-11",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P024",
+"date": "2026-11-14",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P024",
+"date": "2026-11-18",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P024",
+"date": "2026-11-28",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P031",
+"date": "2026-11-07",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P031",
+"date": "2026-11-08",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P031",
+"date": "2026-11-14",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P031",
+"date": "2026-11-21",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P031",
+"date": "2026-11-28",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P028",
+"date": "2026-11-01",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P028",
+"date": "2026-11-08",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P028",
+"date": "2026-11-22",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P028",
+"date": "2026-11-29",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P030",
+"date": "2026-11-01",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P030",
+"date": "2026-11-08",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P030",
+"date": "2026-11-15",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P030",
+"date": "2026-11-22",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P030",
+"date": "2026-11-29",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P032",
+"date": "2026-11-08",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P032",
+"date": "2026-11-14",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P032",
+"date": "2026-11-21",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P032",
+"date": "2026-11-28",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P038",
+"date": "2026-11-01",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P038",
+"date": "2026-11-08",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P038",
+"date": "2026-11-15",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P038",
+"date": "2026-11-22",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P038",
+"date": "2026-11-29",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P013",
+"date": "2026-11-01",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P013",
+"date": "2026-11-03",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P013",
+"date": "2026-11-10",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P013",
+"date": "2026-11-15",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P013",
+"date": "2026-11-17",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P013",
+"date": "2026-11-22",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P013",
+"date": "2026-11-24",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P013",
+"date": "2026-11-29",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P014",
+"date": "2026-11-13",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P014",
+"date": "2026-11-20",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P055",
+"date": "2026-11-01",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P056",
+"date": "2026-11-04",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P056",
+"date": "2026-11-06",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P056",
+"date": "2026-11-08",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P056",
+"date": "2026-11-13",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P056",
+"date": "2026-11-15",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P056",
+"date": "2026-11-22",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P056",
+"date": "2026-11-27",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P056",
+"date": "2026-11-29",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P059",
+"date": "2026-11-27",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P001",
+"date": "2026-12-01",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-02",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-03",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-04",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-07",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-08",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-09",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-10",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-11",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-14",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-15",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-16",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-17",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-18",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-21",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-22",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-23",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-24",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-25",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-28",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-29",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-30",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2026-12-31",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-12-01",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-12-02",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-12-04",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-12-07",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-12-08",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-12-09",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-12-11",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-12-14",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-12-15",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-12-16",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-12-18",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-12-21",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-12-22",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-12-23",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-12-25",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-12-28",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-12-29",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2026-12-30",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-12-01",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-12-03",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-12-07",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-12-08",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-12-10",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-12-14",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-12-15",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-12-17",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2026-12-21",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P003",
+"date": "2026-12-22",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P003",
+"date": "2026-12-24",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P003",
+"date": "2026-12-28",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P003",
+"date": "2026-12-29",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P003",
+"date": "2026-12-31",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-01",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-02",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-03",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-04",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-07",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-08",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-09",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-10",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-11",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-14",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-15",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-16",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-17",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-18",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-21",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-22",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-23",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-24",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-25",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-28",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-29",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-30",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2026-12-31",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2026-12-01",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-12-02",
+"code": "CR",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-12-04",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-12-05",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-12-07",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-12-08",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-12-09",
+"code": "CR",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-12-11",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-12-12",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-12-14",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-12-15",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-12-16",
+"code": "CR",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-12-18",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-12-19",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-12-21",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-12-22",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-12-23",
+"code": "CR",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-12-24",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2026-12-25",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2026-12-26",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2026-12-28",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-12-29",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2026-12-30",
+"code": "CR",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-12-01",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-12-02",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-12-03",
+"code": "R",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-12-04",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-12-05",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-12-08",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-12-09",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-12-10",
+"code": "CrA",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-12-11",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-12-12",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-12-15",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-12-16",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-12-17",
+"code": "R",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-12-18",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-12-19",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-12-22",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-12-23",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-12-24",
+"code": "UitO",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-12-25",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-12-26",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-12-27",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2026-12-29",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-12-30",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2026-12-31",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P006",
+"date": "2026-12-01",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-12-02",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-12-03",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-12-04",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-12-07",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-12-08",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-12-09",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-12-10",
+"code": "R",
+"source": "MANUAL"
+},
+{
+"externalId": "P006",
+"date": "2026-12-11",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-12-14",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-12-15",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-12-16",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-12-17",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-12-18",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-12-20",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P006",
+"date": "2026-12-21",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-12-22",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-12-23",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-12-24",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-12-25",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-12-28",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-12-29",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-12-30",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2026-12-31",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-12-01",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-12-02",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-12-03",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-12-04",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-12-06",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-12-07",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-12-08",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-12-09",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-12-10",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-12-11",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-12-14",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-12-15",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-12-16",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-12-17",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-12-18",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-12-21",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-12-22",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-12-23",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-12-25",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-12-26",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2026-12-28",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-12-29",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2026-12-30",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-12-02",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-12-03",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P008",
+"date": "2026-12-07",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-12-09",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-12-10",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-12-13",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P008",
+"date": "2026-12-14",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-12-16",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-12-17",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-12-21",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-12-23",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-12-24",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P008",
+"date": "2026-12-26",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P008",
+"date": "2026-12-28",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-12-30",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2026-12-31",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-12-01",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-12-03",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-12-04",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-12-07",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-12-08",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-12-09",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-12-10",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-12-11",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-12-14",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-12-15",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-12-16",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-12-17",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-12-18",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-12-20",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-12-21",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-12-22",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-12-23",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-12-24",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-12-25",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-12-26",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-12-27",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-12-28",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-12-29",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2026-12-30",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2026-12-31",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P048",
+"date": "2026-12-01",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-12-02",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-12-03",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-12-04",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-12-07",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-12-08",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-12-09",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-12-10",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-12-11",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-12-14",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-12-15",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-12-16",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-12-17",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-12-18",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-12-21",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-12-22",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-12-23",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-12-24",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P048",
+"date": "2026-12-25",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-12-28",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-12-29",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-12-30",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2026-12-31",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P011",
+"date": "2026-12-19",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P011",
+"date": "2026-12-20",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P011",
+"date": "2026-12-21",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P011",
+"date": "2026-12-22",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P011",
+"date": "2026-12-23",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P011",
+"date": "2026-12-24",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P011",
+"date": "2026-12-25",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P011",
+"date": "2026-12-26",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P011",
+"date": "2026-12-27",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P011",
+"date": "2026-12-28",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P011",
+"date": "2026-12-29",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P011",
+"date": "2026-12-30",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P011",
+"date": "2026-12-31",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P010",
+"date": "2026-12-05",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P010",
+"date": "2026-12-12",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P010",
+"date": "2026-12-19",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P010",
+"date": "2026-12-26",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-01",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-02",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-03",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-04",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-05",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-06",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-07",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-09",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-10",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-12",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-14",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-15",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-16",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-17",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-19",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-21",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-22",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-23",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-24",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-25",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-29",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2026-12-30",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-12-04",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-12-05",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-12-07",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-12-11",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-12-12",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-12-17",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-12-18",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-12-19",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-12-20",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-12-21",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-12-22",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-12-23",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-12-24",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-12-25",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-12-27",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-12-28",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-12-29",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-12-30",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2026-12-31",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P046",
+"date": "2026-12-05",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P046",
+"date": "2026-12-12",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P046",
+"date": "2026-12-19",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P046",
+"date": "2026-12-26",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P026",
+"date": "2026-12-06",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P026",
+"date": "2026-12-13",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P026",
+"date": "2026-12-20",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P026",
+"date": "2026-12-27",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P031",
+"date": "2026-12-12",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P031",
+"date": "2026-12-19",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P038",
+"date": "2026-12-06",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P038",
+"date": "2026-12-13",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P038",
+"date": "2026-12-20",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P038",
+"date": "2026-12-27",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P001",
+"date": "2027-01-01",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-01-04",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-01-05",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-01-06",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-01-07",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-01-08",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-01-11",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-01-12",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-01-13",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-01-14",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-01-15",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-01-18",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-01-19",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-01-20",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-01-21",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-01-22",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-01-25",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-01-26",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-01-27",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-01-28",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-01-29",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-01-01",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-01-04",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-01-05",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-01-06",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-01-08",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-01-11",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-01-12",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-01-13",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-01-15",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-01-18",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-01-19",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-01-20",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-01-22",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-01-25",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-01-26",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-01-27",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-01-29",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-01-04",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-01-05",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-01-07",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-01-11",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-01-12",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-01-14",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-01-18",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-01-19",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-01-21",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-01-25",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-01-26",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-01-28",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P009",
+"date": "2027-01-01",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2027-01-04",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2027-01-05",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2027-01-06",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2027-01-07",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2027-01-08",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2027-01-11",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2027-01-12",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2027-01-13",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2027-01-14",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2027-01-15",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2027-01-18",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2027-01-19",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2027-01-20",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2027-01-21",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2027-01-22",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2027-01-25",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2027-01-26",
+"code": "O",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2027-01-27",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2027-01-28",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P009",
+"date": "2027-01-29",
+"code": "T",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2027-01-01",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-01-02",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-01-04",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-01-05",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-01-06",
+"code": "CR",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-01-08",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-01-09",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-01-11",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-01-12",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-01-13",
+"code": "CR",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-01-15",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-01-16",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-01-18",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-01-19",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-01-20",
+"code": "CR",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-01-22",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-01-23",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-01-25",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-01-26",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-01-27",
+"code": "CR",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-01-29",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-01-30",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-01-01",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2027-01-02",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-01-05",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-01-06",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-01-07",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-01-08",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-01-09",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-01-12",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-01-13",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-01-14",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-01-15",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-01-16",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-01-17",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2027-01-19",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-01-20",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-01-21",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-01-22",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-01-23",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-01-26",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-01-27",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-01-28",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-01-29",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-01-30",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2027-01-31",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P006",
+"date": "2027-01-01",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-01-04",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-01-05",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-01-06",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-01-07",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-01-08",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-01-11",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-01-12",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-01-13",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-01-14",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-01-15",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-01-18",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-01-19",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-01-20",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-01-21",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-01-22",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-01-24",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P006",
+"date": "2027-01-25",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-01-26",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-01-27",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-01-28",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-01-29",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-01-04",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-01-05",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-01-06",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-01-07",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-01-08",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-01-11",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-01-12",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-01-13",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-01-14",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-01-15",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-01-18",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-01-19",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-01-20",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-01-21",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-01-22",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-01-25",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-01-26",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-01-27",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-01-28",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-01-29",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-01-04",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-01-06",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-01-07",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-01-11",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-01-13",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-01-14",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-01-18",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-01-20",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-01-21",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-01-25",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-01-27",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-01-28",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-01-31",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2027-01-01",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-01-03",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2027-01-04",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-01-05",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-01-07",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-01-08",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-01-11",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-01-12",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-01-14",
+"code": "IX",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2027-01-15",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-01-18",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-01-19",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2027-01-21",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-01-22",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-01-25",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-01-26",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-01-28",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-01-29",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-01-04",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-01-05",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-01-06",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-01-07",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-01-08",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-01-10",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P048",
+"date": "2027-01-11",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-01-12",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-01-13",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-01-14",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-01-15",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-01-18",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-01-19",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-01-20",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-01-21",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-01-22",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-01-25",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-01-26",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-01-27",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-01-28",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-01-29",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P011",
+"date": "2027-01-01",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P011",
+"date": "2027-01-02",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P011",
+"date": "2027-01-03",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P010",
+"date": "2027-01-02",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P010",
+"date": "2027-01-09",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P010",
+"date": "2027-01-16",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P010",
+"date": "2027-01-23",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P010",
+"date": "2027-01-30",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2027-01-01",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2027-01-02",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2027-01-09",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2027-01-16",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2027-01-23",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P040",
+"date": "2027-01-30",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2027-01-01",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2027-01-02",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2027-01-09",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2027-01-11",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2027-01-12",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2027-01-16",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2027-01-23",
+"code": "XI",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2027-01-30",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P001",
+"date": "2027-02-01",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-02-02",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-02-03",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-02-04",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-02-05",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-02-08",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-02-09",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-02-10",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-02-11",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-02-12",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-02-15",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-02-16",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-02-17",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-02-18",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-02-19",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-02-22",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-02-23",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-02-24",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-02-25",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P001",
+"date": "2027-02-26",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-02-01",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-02-02",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-02-03",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-02-05",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-02-08",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-02-09",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-02-10",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-02-12",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-02-15",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-02-16",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-02-17",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-02-19",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-02-22",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-02-23",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-02-24",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P002",
+"date": "2027-02-26",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-02-01",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-02-02",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-02-04",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-02-08",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-02-09",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-02-11",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-02-15",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-02-16",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-02-18",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-02-22",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-02-23",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P003",
+"date": "2027-02-25",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-02-01",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-02-02",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-02-03",
+"code": "A",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2027-02-05",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-02-06",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-02-08",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-02-09",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-02-10",
+"code": "A",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2027-02-12",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-02-13",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-02-15",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-02-16",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-02-17",
+"code": "A",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2027-02-19",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-02-20",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-02-22",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-02-23",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-02-24",
+"code": "A",
+"source": "MANUAL"
+},
+{
+"externalId": "P004",
+"date": "2027-02-26",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P004",
+"date": "2027-02-27",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-02-02",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-02-03",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-02-04",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-02-05",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-02-06",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-02-09",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-02-10",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-02-11",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-02-12",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-02-13",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-02-16",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-02-17",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-02-18",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-02-19",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-02-20",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-02-23",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-02-24",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-02-25",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-02-26",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-02-27",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-02-01",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-02-02",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-02-03",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-02-04",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-02-05",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-02-08",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-02-09",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-02-10",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-02-11",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-02-12",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-02-15",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-02-16",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-02-17",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-02-18",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-02-19",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-02-22",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-02-23",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-02-24",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-02-25",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-02-26",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-02-01",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-02-02",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-02-03",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-02-04",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-02-05",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-02-08",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-02-09",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-02-10",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-02-11",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-02-12",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-02-14",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2027-02-15",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-02-16",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-02-17",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-02-18",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-02-19",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-02-22",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-02-23",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-02-24",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-02-25",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-02-26",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-02-28",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P008",
+"date": "2027-02-01",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-02-03",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-02-04",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-02-08",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-02-10",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-02-11",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-02-15",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-02-17",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-02-18",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-02-21",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P008",
+"date": "2027-02-22",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-02-24",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-02-25",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-02-01",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-02-02",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-02-04",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-02-05",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-02-07",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2027-02-08",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-02-09",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-02-11",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-02-12",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-02-15",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-02-16",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-02-18",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-02-19",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-02-22",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-02-23",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-02-25",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-02-26",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-02-01",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-02-02",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-02-03",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-02-04",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-02-05",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-02-08",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-02-09",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-02-10",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-02-11",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-02-12",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-02-15",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-02-16",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-02-17",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-02-18",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-02-19",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-02-22",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-02-23",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-02-24",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-02-25",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-02-26",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P041",
+"date": "2027-02-04",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2027-02-05",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2027-02-06",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2027-02-07",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2027-02-08",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2027-02-09",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2027-02-10",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2027-02-11",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2027-02-12",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2027-02-13",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2027-03-02",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-03-03",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-03-04",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-03-05",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-03-06",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-03-09",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-03-10",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-03-11",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-03-12",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-03-13",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-03-16",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-03-17",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-03-18",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-03-19",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-03-20",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-03-21",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P005",
+"date": "2027-03-23",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-03-24",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-03-25",
+"code": "A",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-03-26",
+"code": "CrO",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P005",
+"date": "2027-03-27",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-03-01",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-03-02",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-03-03",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-03-04",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-03-05",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-03-07",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P006",
+"date": "2027-03-08",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-03-09",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-03-10",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-03-11",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-03-12",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-03-15",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-03-16",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-03-17",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-03-18",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-03-19",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-03-22",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-03-23",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-03-24",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-03-25",
+"code": "CrA",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P006",
+"date": "2027-03-26",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-03-01",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-03-02",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-03-03",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-03-04",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-03-05",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-03-08",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-03-09",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-03-10",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-03-11",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-03-12",
+"code": "V",
+"source": "MANUAL"
+},
+{
+"externalId": "P007",
+"date": "2027-03-15",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-03-16",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-03-17",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-03-18",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-03-19",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-03-22",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-03-23",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-03-24",
+"code": "K",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-03-25",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P007",
+"date": "2027-03-26",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-03-01",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-03-03",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-03-04",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-03-08",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-03-10",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-03-11",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-03-15",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-03-17",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-03-18",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-03-22",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-03-24",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P008",
+"date": "2027-03-25",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-03-01",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-03-02",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-03-04",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-03-05",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-03-08",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-03-09",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-03-11",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-03-12",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-03-14",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P012",
+"date": "2027-03-15",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-03-16",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-03-18",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-03-19",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-03-22",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-03-23",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-03-25",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P012",
+"date": "2027-03-26",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-03-01",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-03-02",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-03-03",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-03-04",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-03-05",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-03-08",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-03-09",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-03-10",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-03-11",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-03-12",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-03-15",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-03-16",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-03-17",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-03-18",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-03-19",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-03-22",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-03-23",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-03-24",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-03-25",
+"code": "O",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-03-26",
+"code": "X",
+"source": "TEMPLATE"
+},
+{
+"externalId": "P048",
+"date": "2027-03-28",
+"code": "X",
+"source": "MANUAL"
+},
+{
+"externalId": "P041",
+"date": "2027-03-06",
+"code": "V",
+"source": "MANUAL"
+}
+],
+"overrides": [
+{
+"externalId": "P007",
+"date": "2026-12-24"
+},
+{
+"externalId": "P007",
+"date": "2026-12-31"
+},
+{
+"externalId": "P007",
+"date": "2027-01-01"
+},
+{
+"externalId": "P048",
+"date": "2027-01-01"
+}
+]
+}

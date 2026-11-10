@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { reconcileTemplate } from "@/lib/schedule";
 import { formatDayMonth, readableTextColor, weekdayFull } from "@/lib/format";
 import { CalendarSyncPanel } from "@/components/calendar-sync-panel";
 
@@ -32,6 +33,11 @@ export default async function MijnRoosterPage({
   today.setUTCHours(0, 0, 0, 0);
   const in60Days = new Date(today);
   in60Days.setUTCDate(in60Days.getUTCDate() + 60);
+
+  await reconcileTemplate(
+    today.toISOString().slice(0, 10),
+    in60Days.toISOString().slice(0, 10),
+  );
 
   const upcoming = employee
     ? await prisma.shiftAssignment.findMany({

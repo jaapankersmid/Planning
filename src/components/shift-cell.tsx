@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { readableTextColor } from "@/lib/format";
-import { setAssignment } from "@/app/(app)/rooster/actions";
+import { resetToTemplate, setAssignment } from "@/app/(app)/rooster/actions";
 
 type ShiftTypeOption = {
   id: string;
@@ -17,12 +17,18 @@ export function ShiftCell({
   initialShiftTypeId,
   shiftTypes,
   canEdit,
+  deviates = false,
+  templateLabel = "vrij",
 }: {
   employeeId: string;
   dateISO: string;
   initialShiftTypeId: string | null;
   shiftTypes: ShiftTypeOption[];
   canEdit: boolean;
+  /** Wijkt deze dag af van het vaste rooster (alleen voor vandaag en later)? */
+  deviates?: boolean;
+  /** Code van de dienst in het vaste rooster, of "vrij". */
+  templateLabel?: string;
 }) {
   const [value, setValue] = useState(initialShiftTypeId ?? "");
   const [isPending, startTransition] = useTransition();
@@ -44,7 +50,12 @@ export function ShiftCell({
     );
   }
 
+  const deviationTitle = deviates
+    ? `Afwijking van het vaste rooster (vast: ${templateLabel})`
+    : current?.label;
+
   return (
+    <div className="group relative">
     <select
       value={value}
       disabled={isPending}
@@ -59,9 +70,11 @@ export function ShiftCell({
           });
         });
       }}
-      title={current?.label}
+      title={deviationTitle}
       style={style}
-      className="h-8 w-full cursor-pointer appearance-none rounded border-0 text-center text-xs font-semibold outline-none ring-inset ring-accent focus:ring-2 disabled:opacity-60"
+      className={`h-8 w-full cursor-pointer appearance-none rounded border-0 text-center text-xs font-semibold outline-none ring-inset ring-accent focus:ring-2 disabled:opacity-60 ${
+        deviates ? "ring-2 ring-amber-500" : ""
+      }`}
     >
       <option value="">–</option>
       {shiftTypes.map((s) => (
@@ -70,5 +83,22 @@ export function ShiftCell({
         </option>
       ))}
     </select>
+    {deviates && (
+      <button
+        type="button"
+        disabled={isPending}
+        title={`Terug naar vast rooster (${templateLabel})`}
+        aria-label={`Terug naar vast rooster (${templateLabel})`}
+        onClick={() =>
+          startTransition(async () => {
+            await resetToTemplate({ employeeId, dateISO });
+          })
+        }
+        className="absolute -right-1 -top-1 z-20 hidden h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] leading-none text-white shadow group-hover:flex group-focus-within:flex"
+      >
+        ↺
+      </button>
+    )}
+    </div>
   );
 }

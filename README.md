@@ -118,7 +118,7 @@ Dit is **niet nodig om de app te kunnen gebruiken** — alleen voor de knop
 3. Ga naar **APIs & services → OAuth consent screen**. Kies "Extern" (of
    "Intern" als iedereen bij hetzelfde Google Workspace-domein hoort), vul
    de naam en je eigen e-mailadres in. Voeg bij "Scopes" de scope
-   `https://www.googleapis.com/auth/calendar.events` toe. Zolang de app in
+   `https://www.googleapis.com/auth/calendar.app.created` toe (mag alleen de aparte agenda "Werkrooster" aanmaken en beheren). Zolang de app in
    "Testing"-status staat, moet je bij "Test users" elk Google-account
    toevoegen dat de koppeling mag gebruiken. Voor gebruik door een grotere
    groep zonder die beperking moet de app later bij Google worden
@@ -128,6 +128,10 @@ Dit is **niet nodig om de app te kunnen gebruiken** — alleen voor de knop
    URIs**:
    - lokaal: `http://localhost:3000/api/google-calendar/callback`
    - productie: `https://<jouw-domein>/api/google-calendar/callback`
+   Google accepteert hier **geen kaal IP-adres en geen http** (behalve
+   localhost): zonder echte domeinnaam met https krijg je "Toegang
+   geblokkeerd: autorisatiefout". Zet `AUTH_URL` in `.env` op dezelfde
+   `https://<jouw-domein>`; de app bouwt het terugkeeradres daaruit.
 5. Kopieer de **Client ID** en **Client secret** naar `.env` als
    `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`.
 
@@ -325,3 +329,17 @@ zelf een geldig HTTPS-certificaat.
   voorbereid: een tweede app komt gewoon als extra service in
   `docker-compose.prod.yml` met een eigen blok in `Caddyfile`, op een eigen
   sub(domein), zonder dat de rooster-app-configuratie hoeft te veranderen.
+
+
+## Rooster inlezen uit Planning V2.0 en vast rooster
+
+- `npm run db:import-planning` (op de server:
+  `docker compose -f docker-compose.prod.yml exec app npm run db:import-planning`)
+  leest `src/data/planning-import.json` in: personeelslijst, kleurgroep-volgorde,
+  het vaste weekrooster en het rooster van oktober 2026 t/m maart 2027. De maanden
+  in het bestand worden vervangen door de Excel-stand; andere maanden blijven staan.
+- Pagina **Vast rooster**: dienst per medewerker per weekdag. Wijzigingen worden
+  automatisch doorgevoerd vanaf vandaag; verleden dagen en handmatig ingestelde
+  dagen blijven ongemoeid. In het rooster krijgt een afwijkende dag een oranje
+  rand; met de knop ↺ zet je die dag terug naar het vaste rooster.
+- Kleurgroepen: volgorde en indeling per medewerker bij **Medewerkers**.

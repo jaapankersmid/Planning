@@ -12,6 +12,13 @@ import {
   weekdayShort,
 } from "@/lib/format";
 import { ShiftCell } from "@/components/shift-cell";
+import {
+  ensureColorGroups,
+  reconcileMonth,
+  sortEmployees,
+  todayAmsterdam,
+  weekdayNumber,
+} from "@/lib/schedule";
 
 export default async function RoosterPage({
   searchParams,
@@ -31,11 +38,12 @@ export default async function RoosterPage({
   const rangeEnd = new Date(days[days.length - 1]);
   rangeEnd.setUTCDate(rangeEnd.getUTCDate() + 1);
 
-  const [employees, shiftTypes, assignments] = await Promise.all([
-    prisma.employee.findMany({
-      where: { active: true },
-      orderBy: [{ colorGroup: "asc" }, { name: "asc" }],
-    }),
+  // Vul het vaste rooster aan voor deze maand (alleen vanaf vandaag, nooit over handmatige dagen heen).
+  await reconcileMonth(year, month);
+  const groups = await ensureColorGroups();
+
+  const [employeesRaw, shiftTypes, assignments, templateEntries] = await Promise.all([
+    prisma.employee.findMany({ where: { active: true } }),
     prisma.shiftType.findMany({
       where: { active: true },
       orderBy: { code: "asc" },
@@ -43,11 +51,18 @@ export default async function RoosterPage({
     prisma.shiftAssignment.findMany({
       where: { date: { gte: rangeStart, lt: rangeEnd } },
     }),
+    prisma.weeklyScheduleEntry.findMany(),
   ]);
 
+  const employees = sortEmployees(employeesRaw, groups);
   const assignmentByKey = new Map(
     assignments.map((a) => [`${a.employeeId}_${toISODate(a.date)}`, a.shiftTypeId]),
   );
+  const templateByKey = new Map(
+    templateEntries.map((e) => [`${e.employeeId}_${e.weekday}`, e.shiftTypeId]),
+  );
+  const todayISO = toISODate(todayAmsterdam());
+  const shiftCodeById = new Map(shiftTypes.map((s) => [s.id, s.code]));
 
   const prev = addMonths(year, month, -1);
   const next = addMonths(year, month, 1);
@@ -108,7 +123,7 @@ export default async function RoosterPage({
                     className="mr-2 inline-block h-2 w-2 rounded-full align-middle"
                     style={{
                       background: employee.colorGroup
-                        ? colorGroupSwatch[employee.colorGroup]
+                        ? (colorGroupSwatch[employee.colorGroup] ?? "#9aa39a")
                         : "#9aa39a",
                     }}
                   />
@@ -117,17 +132,25 @@ export default async function RoosterPage({
                 {days.map((day) => {
                   const dateISO = toISODate(day);
                   const key = `${employee.id}_${dateISO}`;
+                  const shiftTypeId = assignmentByKey.get(key) ?? null;
+                  const templateId =
+                    templateByKey.get(`${employee.id}_${weekdayNumber(day)}`) ?? null;
+                  // Afwijking van het vaste rooster tonen we alleen voor vandaag en later.
+                  const deviates = dateISO >= todayISO && shiftTypeId !== templateId;
                   return (
                     <td
                       key={key}
                       className={`p-0.5 ${isWeekend(day) ? "bg-surface-muted/60" : ""}`}
                     >
                       <ShiftCell
+                        key={`${key}_${shiftTypeId}`}
                         employeeId={employee.id}
                         dateISO={dateISO}
-                        initialShiftTypeId={assignmentByKey.get(key) ?? null}
+                        initialShiftTypeId={shiftTypeId}
                         shiftTypes={shiftTypes}
                         canEdit={isAdmin}
+                        deviates={deviates}
+                        templateLabel={templateId ? (shiftCodeById.get(templateId) ?? "?") : "vrij"}
                       />
                     </td>
                   );
@@ -137,6 +160,16 @@ export default async function RoosterPage({
           </tbody>
         </table>
       </div>
+
+      {isAdmin && (
+        <p className="text-xs text-foreground-muted">
+          Een oranje rand betekent dat de dag afwijkt van het{" "}
+          <Link href="/vast-rooster" className="underline hover:no-underline">
+            vaste rooster
+          </Link>
+          ; met ↺ zet je de dag terug naar het vaste rooster.
+        </p>
+      )}
 
       <div className="flex flex-wrap gap-2 text-xs">
         {shiftTypes.map((s) => (

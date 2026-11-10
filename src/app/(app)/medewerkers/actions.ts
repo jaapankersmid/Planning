@@ -43,3 +43,31 @@ export async function unlinkEmployeeAccount(employeeId: string) {
   }
   revalidatePath("/medewerkers");
 }
+
+export async function setEmployeeColorGroup(employeeId: string, colorGroup: string | null) {
+  await requireAdmin();
+  await prisma.employee.update({ where: { id: employeeId }, data: { colorGroup } });
+  revalidatePath("/medewerkers");
+  revalidatePath("/rooster");
+  revalidatePath("/vast-rooster");
+}
+
+/** Verschuift een kleurgroep één plek omhoog of omlaag in de volgorde van het rooster. */
+export async function moveColorGroup(groupId: string, direction: "up" | "down") {
+  await requireAdmin();
+  const groups = await prisma.colorGroup.findMany({ orderBy: { sortOrder: "asc" } });
+  const index = groups.findIndex((g) => g.id === groupId);
+  const target = direction === "up" ? index - 1 : index + 1;
+  if (index < 0 || target < 0 || target >= groups.length) return;
+
+  const reordered = [...groups];
+  [reordered[index], reordered[target]] = [reordered[target], reordered[index]];
+  await prisma.$transaction(
+    reordered.map((g, i) =>
+      prisma.colorGroup.update({ where: { id: g.id }, data: { sortOrder: i } }),
+    ),
+  );
+  revalidatePath("/medewerkers");
+  revalidatePath("/rooster");
+  revalidatePath("/vast-rooster");
+}

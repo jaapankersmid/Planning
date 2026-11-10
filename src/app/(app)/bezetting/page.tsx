@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { reconcileMonth } from "@/lib/schedule";
 import { addMonths, daysInMonth, isWeekend, monthName, toISODate, weekdayShort } from "@/lib/format";
 
 export default async function BezettingPage({
@@ -16,6 +17,8 @@ export default async function BezettingPage({
   const now = new Date();
   const year = Number(params.year) || now.getUTCFullYear();
   const month = Number(params.month) || now.getUTCMonth() + 1;
+
+  await reconcileMonth(year, month);
 
   const days = daysInMonth(year, month);
   const rangeStart = days[0];

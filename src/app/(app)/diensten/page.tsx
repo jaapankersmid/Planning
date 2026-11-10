@@ -2,15 +2,26 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { readableTextColor } from "@/lib/format";
-import { addShiftType, setShiftTypeActive } from "./actions";
+import Link from "next/link";
+import { addShiftType, setShiftTypeActive, updateShiftType } from "./actions";
 
-export default async function DienstenPage() {
+const inputClass =
+  "rounded-md border border-border bg-surface px-3 py-2 text-sm";
+
+export default async function DienstenPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ bewerk?: string }>;
+}) {
+  const { bewerk } = await searchParams;
   const session = await auth();
   if (session?.user.role !== "ADMIN") redirect("/rooster");
 
   const shiftTypes = await prisma.shiftType.findMany({
     orderBy: [{ active: "desc" }, { code: "asc" }],
   });
+
+  const editing = bewerk ? shiftTypes.find((s) => s.id === bewerk) : undefined;
 
   return (
     <div className="flex flex-col gap-6">
@@ -21,6 +32,57 @@ export default async function DienstenPage() {
           de digitale versie van de “Legenda uren” uit Planning V2.0.
         </p>
       </div>
+
+      {editing && (
+        <div className="max-w-md rounded-lg border border-accent bg-surface p-5">
+          <h2 className="text-sm font-semibold">Dienst bewerken: {editing.code}</h2>
+          <p className="mt-1 text-xs text-foreground-muted">
+            Een wijziging geldt voor alle plekken in het rooster waar deze dienst
+            staat, ook voor dagen die al geweest zijn.
+          </p>
+          <form
+            key={editing.id}
+            action={updateShiftType.bind(null, editing.id)}
+            className="mt-3 grid grid-cols-2 gap-3"
+          >
+            <input name="code" required defaultValue={editing.code} placeholder="Code" className={`col-span-1 ${inputClass}`} />
+            <input name="color" type="color" defaultValue={editing.color} className="col-span-1 h-10 rounded-md border border-border bg-surface px-1" />
+            <input name="label" required defaultValue={editing.label} placeholder="Omschrijving" className={`col-span-2 ${inputClass}`} />
+            <label className="flex flex-col gap-1 text-xs text-foreground-muted">
+              Start
+              <input name="startTime" type="time" defaultValue={editing.startTime ?? ""} className={inputClass} />
+            </label>
+            <label className="flex flex-col gap-1 text-xs text-foreground-muted">
+              Eind
+              <input name="endTime" type="time" defaultValue={editing.endTime ?? ""} className={inputClass} />
+            </label>
+            <label className="flex flex-col gap-1 text-xs text-foreground-muted">
+              2e blok start
+              <input name="secondStartTime" type="time" defaultValue={editing.secondStartTime ?? ""} className={inputClass} />
+            </label>
+            <label className="flex flex-col gap-1 text-xs text-foreground-muted">
+              2e blok eind
+              <input name="secondEndTime" type="time" defaultValue={editing.secondEndTime ?? ""} className={inputClass} />
+            </label>
+            <label className="col-span-1 flex items-center gap-2 text-xs">
+              <input type="checkbox" name="countsMorningWalk" defaultChecked={editing.countsMorningWalk} className="h-4 w-4" />
+              Telt als ochtenduitlaat
+            </label>
+            <label className="col-span-1 flex items-center gap-2 text-xs">
+              <input type="checkbox" name="countsEveningWalk" defaultChecked={editing.countsEveningWalk} className="h-4 w-4" />
+              Telt als avonduitlaat
+            </label>
+            <div className="col-span-2 flex items-center gap-3">
+              <button type="submit" className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90">
+                Opslaan
+              </button>
+              <Link href="/diensten" className="text-sm underline hover:no-underline">
+                annuleren
+              </Link>
+            </div>
+          </form>
+        </div>
+      )}
 
       <div className="overflow-x-auto rounded-lg border border-border bg-surface">
         <table className="w-full text-sm">
@@ -72,11 +134,19 @@ export default async function DienstenPage() {
                   </span>
                 </td>
                 <td className="px-4 py-2 text-right">
-                  <form action={setShiftTypeActive.bind(null, s.id, !s.active)}>
-                    <button className="text-xs underline hover:no-underline">
-                      {s.active ? "op inactief zetten" : "activeren"}
-                    </button>
-                  </form>
+                  <div className="flex flex-col items-end gap-1.5">
+                    <Link
+                      href={`/diensten?bewerk=${s.id}`}
+                      className="text-xs underline hover:no-underline"
+                    >
+                      bewerken
+                    </Link>
+                    <form action={setShiftTypeActive.bind(null, s.id, !s.active)}>
+                      <button className="text-xs underline hover:no-underline">
+                        {s.active ? "op inactief zetten" : "activeren"}
+                      </button>
+                    </form>
+                  </div>
                 </td>
               </tr>
             ))}

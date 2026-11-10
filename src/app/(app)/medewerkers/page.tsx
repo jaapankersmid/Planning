@@ -2,18 +2,34 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { colorGroupSwatch } from "@/lib/format";
-import { addEmployee, setEmployeeActive, unlinkEmployeeAccount } from "./actions";
-
-const COLOR_GROUPS = Object.keys(colorGroupSwatch);
+import { ensureColorGroups, sortEmployees } from "@/lib/schedule";
+import { AutoSelect } from "@/components/auto-select";
+import {
+  addEmployee,
+  moveColorGroup,
+  setEmployeeActive,
+  setEmployeeColorGroup,
+  unlinkEmployeeAccount,
+} from "./actions";
 
 export default async function MedewerkersPage() {
   const session = await auth();
   if (session?.user.role !== "ADMIN") redirect("/rooster");
 
-  const employees = await prisma.employee.findMany({
-    include: { user: true },
-    orderBy: [{ active: "desc" }, { name: "asc" }],
-  });
+  const groups = await ensureColorGroups();
+  const employeesRaw = await prisma.employee.findMany({ include: { user: true } });
+  // Actieve medewerkers eerst, in dezelfde volgorde als in het rooster.
+  const employees = [
+    ...sortEmployees(employeesRaw.filter((e) => e.active), groups),
+    ...sortEmployees(employeesRaw.filter((e) => !e.active), groups),
+  ];
+  const memberCount = new Map<string, number>();
+  for (const e of employeesRaw) {
+    if (e.active && e.colorGroup) {
+      memberCount.set(e.colorGroup, (memberCount.get(e.colorGroup) ?? 0) + 1);
+    }
+  }
+  const groupOptions = groups.map((g) => ({ value: g.name, label: g.name }));
 
   return (
     <div className="flex flex-col gap-6">
@@ -23,6 +39,46 @@ export default async function MedewerkersPage() {
           {employees.filter((e) => e.active).length} actief van de{" "}
           {employees.length} in totaal.
         </p>
+      </div>
+
+      <div className="max-w-md rounded-lg border border-border bg-surface p-5">
+        <h2 className="text-sm font-semibold">Volgorde van de kleurgroepen</h2>
+        <p className="mt-1 text-xs text-foreground-muted">
+          Zo staan de groepen onder elkaar in het rooster. Een medewerker verplaats je
+          naar een andere groep in de kolom Kleurgroep hieronder.
+        </p>
+        <ol className="mt-3 flex flex-col gap-1.5">
+          {groups.map((g, i) => (
+            <li key={g.id} className="flex items-center gap-3 text-sm">
+              <span
+                className="h-3 w-3 rounded-full"
+                style={{ background: colorGroupSwatch[g.name] ?? "#9aa39a" }}
+              />
+              <span className="w-28 font-medium">{g.name}</span>
+              <span className="w-24 text-xs text-foreground-muted">
+                {memberCount.get(g.name) ?? 0} actief
+              </span>
+              <form action={moveColorGroup.bind(null, g.id, "up")}>
+                <button
+                  disabled={i === 0}
+                  aria-label={`${g.name} omhoog`}
+                  className="rounded border border-border px-2 py-0.5 text-xs hover:bg-surface-muted disabled:opacity-30"
+                >
+                  ↑
+                </button>
+              </form>
+              <form action={moveColorGroup.bind(null, g.id, "down")}>
+                <button
+                  disabled={i === groups.length - 1}
+                  aria-label={`${g.name} omlaag`}
+                  className="rounded border border-border px-2 py-0.5 text-xs hover:bg-surface-muted disabled:opacity-30"
+                >
+                  ↓
+                </button>
+              </form>
+            </li>
+          ))}
+        </ol>
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-border bg-surface">
@@ -41,15 +97,24 @@ export default async function MedewerkersPage() {
               <tr key={e.id} className="border-b border-border last:border-0">
                 <td className="px-4 py-2 font-medium">{e.name}</td>
                 <td className="px-4 py-2">
-                  {e.colorGroup && (
-                    <span className="inline-flex items-center gap-1.5">
-                      <span
-                        className="h-2.5 w-2.5 rounded-full"
-                        style={{ background: colorGroupSwatch[e.colorGroup] }}
-                      />
-                      {e.colorGroup}
-                    </span>
-                  )}
+                  <span className="inline-flex items-center gap-2">
+                    <span
+                      className="h-2.5 w-2.5 rounded-full"
+                      style={{
+                        background: e.colorGroup
+                          ? (colorGroupSwatch[e.colorGroup] ?? "#9aa39a")
+                          : "#d4d9d4",
+                      }}
+                    />
+                    <AutoSelect
+                      key={`${e.id}_${e.colorGroup}`}
+                      ariaLabel={`Kleurgroep van ${e.name}`}
+                      initialValue={e.colorGroup ?? ""}
+                      options={groupOptions}
+                      emptyLabel="Geen kleurgroep"
+                      action={setEmployeeColorGroup.bind(null, e.id)}
+                    />
+                  </span>
                 </td>
                 <td className="px-4 py-2 text-foreground-muted">
                   {e.user ? (
@@ -104,9 +169,9 @@ export default async function MedewerkersPage() {
             className="rounded-md border border-border bg-surface px-3 py-2 text-sm"
           >
             <option value="">Geen kleurgroep</option>
-            {COLOR_GROUPS.map((c) => (
-              <option key={c} value={c}>
-                {c}
+            {groups.map((g) => (
+              <option key={g.id} value={g.name}>
+                {g.name}
               </option>
             ))}
           </select>
