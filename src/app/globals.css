@@ -12,6 +12,12 @@
   --accent-soft: #e3ede9;
   --weekend: #dde5f3;
   --weekend-border: #4f6794;
+  --holiday: #efe6fa;
+  --holiday-strong: #6b4aa8;
+  --good: #cdeacf;
+  --good-text: #17592a;
+  --bad: #f6cccc;
+  --bad-text: #8c1d1d;
 }
 
 @theme inline {
@@ -25,6 +31,12 @@
   --color-accent-soft: var(--accent-soft);
   --color-weekend: var(--weekend);
   --color-weekend-border: var(--weekend-border);
+  --color-holiday: var(--holiday);
+  --color-holiday-strong: var(--holiday-strong);
+  --color-good: var(--good);
+  --color-good-text: var(--good-text);
+  --color-bad: var(--bad);
+  --color-bad-text: var(--bad-text);
   --font-sans: var(--font-inter);
 }
 
@@ -41,6 +53,12 @@
     --accent-soft: #1d2e2a;
     --weekend: #252f45;
     --weekend-border: #8da3d4;
+    --holiday: #2f2742;
+    --holiday-strong: #b9a2f0;
+    --good: #1f3d28;
+    --good-text: #a5dcb3;
+    --bad: #4a2323;
+    --bad-text: #f2aaaa;
   }
 }
 

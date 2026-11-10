@@ -7,6 +7,7 @@ const links = [
   { href: "/rooster", label: "Rooster", adminOnly: false },
   { href: "/rooster/mijn", label: "Mijn rooster", adminOnly: false },
   { href: "/vast-rooster", label: "Vast rooster", adminOnly: true },
+  { href: "/vakanties", label: "Vakanties", adminOnly: true },
   { href: "/bezetting", label: "Bezetting", adminOnly: true },
   { href: "/medewerkers", label: "Medewerkers", adminOnly: true },
   { href: "/diensten", label: "Diensten", adminOnly: true },

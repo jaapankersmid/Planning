@@ -185,3 +185,22 @@ model DayOverride {
   @@unique([employeeId, date])
   @@index([date])
 }
+
+// Vakantieperiode met (optioneel) een wensaantal voor de bezetting. In het rooster
+// kleurt de bezetting groen als dat aantal gehaald is en rood als het eronder blijft.
+model HolidayPeriod {
+  id String @id @default(cuid())
+
+  name      String
+  startDate DateTime @db.Date
+  endDate   DateTime @db.Date
+
+  // Gewenst aantal mensen in de ochtend (8:00-12:30) resp. middag (15:30-19:30).
+  wantMorning   Int?
+  wantAfternoon Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([startDate, endDate])
+}

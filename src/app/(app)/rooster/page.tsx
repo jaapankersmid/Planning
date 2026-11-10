@@ -17,6 +17,7 @@ import {
   weekdayFull,
   weekdayShort,
 } from "@/lib/format";
+import { holidayOn, holidaySegments } from "@/lib/holidays";
 import { ShiftCell } from "@/components/shift-cell";
 import { DualScroll } from "@/components/dual-scroll";
 import {
@@ -88,7 +89,7 @@ export default async function RoosterPage({
   const groups = await ensureColorGroups();
   await ensureCoverageDefaults();
 
-  const [employeesRaw, shiftTypes, assignments, templateEntries] = await Promise.all([
+  const [employeesRaw, shiftTypes, assignments, templateEntries, holidays] = await Promise.all([
     prisma.employee.findMany({ where: { active: true } }),
     prisma.shiftType.findMany({
       where: { active: true },
@@ -99,7 +100,13 @@ export default async function RoosterPage({
       include: { shiftType: { select: { countsMorning: true, countsAfternoon: true } } },
     }),
     prisma.weeklyScheduleEntry.findMany(),
+    prisma.holidayPeriod.findMany({
+      where: { startDate: { lt: rangeEnd }, endDate: { gte: rangeStart } },
+      orderBy: { startDate: "asc" },
+    }),
   ]);
+  const segments = holidaySegments(days, holidays);
+  const anyWish = holidays.some((h) => h.wantMorning !== null || h.wantAfternoon !== null);
 
   const employees = sortEmployees(employeesRaw, groups);
   const assignmentByKey = new Map(
@@ -191,6 +198,27 @@ export default async function RoosterPage({
             ))}
           </colgroup>
           <thead>
+            {holidays.length > 0 && (
+              <tr>
+                <th className="sticky left-0 z-10 border-b border-r border-border bg-surface-muted px-3 py-1 text-left text-xs font-medium text-holiday-strong">
+                  Vakantie
+                </th>
+                {segments.map((segment, i) =>
+                  segment.holiday ? (
+                    <th
+                      key={`h${i}`}
+                      colSpan={segment.span}
+                      title={segment.holiday.name}
+                      className="overflow-hidden text-ellipsis whitespace-nowrap border-x-2 border-b border-x-holiday-strong border-b-border bg-holiday px-1 py-1 text-center text-xs font-semibold text-holiday-strong"
+                    >
+                      {segment.holiday.name}
+                    </th>
+                  ) : (
+                    <th key={`h${i}`} colSpan={segment.span} className="border-b border-border" />
+                  ),
+                )}
+              </tr>
+            )}
             <tr>
               <th className="sticky left-0 z-10 border-b border-r border-border bg-surface-muted px-3 py-2 text-left font-medium">
                 Medewerker
@@ -201,7 +229,13 @@ export default async function RoosterPage({
                   <th
                     key={iso}
                     className={`border-b border-border px-0.5 py-1.5 text-center text-xs font-medium ${weekendEdge(day)} ${
-                      iso === todayISO ? "bg-accent-soft text-accent" : isWeekend(day) ? "bg-weekend" : ""
+                      iso === todayISO
+                        ? "bg-accent-soft text-accent"
+                        : isWeekend(day)
+                          ? "bg-weekend"
+                          : holidayOn(holidays, iso)
+                            ? "bg-holiday"
+                            : ""
                     }`}
                   >
                     <div className={iso === todayISO ? "" : "text-foreground-muted"}>
@@ -225,14 +259,38 @@ export default async function RoosterPage({
                 </th>
                 {days.map((day) => {
                   const iso = toISODate(day);
+                  const count = coverage.get(iso)?.[row.key] ?? 0;
+                  const holiday = holidayOn(holidays, iso);
+                  const wish = holiday
+                    ? row.key === "morning"
+                      ? holiday.wantMorning
+                      : holiday.wantAfternoon
+                    : null;
+                  const reached = wish === null ? null : count >= wish;
                   return (
                     <td
                       key={iso}
+                      title={
+                        wish === null
+                          ? undefined
+                          : `${holiday!.name}: wens ${wish}, ingepland ${count} (${reached ? "gehaald" : `nog ${wish - count} nodig`})`
+                      }
                       className={`px-0.5 py-1 text-center font-semibold tabular-nums ${weekendEdge(day)} ${
-                        isWeekend(day) ? "bg-weekend" : ""
+                        reached === null
+                          ? isWeekend(day)
+                            ? "bg-weekend"
+                            : holiday
+                              ? "bg-holiday"
+                              : ""
+                          : reached
+                            ? "bg-good text-good-text"
+                            : "bg-bad text-bad-text"
                       } ${weekView ? "text-base" : "text-[13px]"}`}
                     >
-                      {coverage.get(iso)?.[row.key] ?? 0}
+                      {count}
+                      {weekView && wish !== null && (
+                        <span className="text-xs font-normal"> / {wish}</span>
+                      )}
                     </td>
                   );
                 })}
@@ -264,7 +322,9 @@ export default async function RoosterPage({
                   return (
                     <td
                       key={key}
-                      className={`p-px ${weekendEdge(day)} ${isWeekend(day) ? "bg-weekend" : ""}`}
+                      className={`p-px ${weekendEdge(day)} ${
+                        isWeekend(day) ? "bg-weekend" : holidayOn(holidays, dateISO) ? "bg-holiday" : ""
+                      }`}
                     >
                       <ShiftCell
                         key={`${key}_${shiftTypeId}`}
@@ -285,6 +345,13 @@ export default async function RoosterPage({
           </tbody>
         </table>
       </DualScroll>
+
+      {holidays.length > 0 && (
+        <p className="text-xs text-foreground-muted">
+          Paars is een vakantieperiode.
+          {anyWish && " Bij een wensaantal is de bezetting groen als dat gehaald is en rood als het eronder blijft."}
+        </p>
+      )}
 
       {isAdmin && (
         <p className="text-xs text-foreground-muted">
