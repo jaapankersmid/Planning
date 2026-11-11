@@ -99,7 +99,7 @@ export function AvailabilityGrid({
                   ) : (
                     day.inMonth && (
                       <span
-                        className={`rounded px-1 py-1 text-center text-[11px] font-semibold sm:text-xs ${
+                        className={`rounded px-0.5 py-1 text-center text-[10px] font-semibold sm:px-1 sm:text-xs ${
                           label ? label.className : "border border-dashed border-border text-foreground-muted"
                         }`}
                       >

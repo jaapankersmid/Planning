@@ -87,37 +87,53 @@ export function ShiftCell({
     ? `${baseTitle ? baseTitle + " · " : ""}${availabilityTitle}`
     : baseTitle;
 
+  // Zichtbaar is alleen de code; de echte keuzelijst ligt er onzichtbaar bovenop. Zo past de code ook
+  // in een smal vakje, en toont de keuzelijst (bv. op een iPhone) wel de volledige namen. Het
+  // lettertype van de lijst is 16px, anders zoomt iOS Safari bij het aantikken het scherm in.
+  const ring = conflict
+    ? "ring-2 ring-inset ring-red-600"
+    : deviates
+      ? "ring-2 ring-inset ring-amber-500"
+      : "peer-focus:ring-2 peer-focus:ring-inset peer-focus:ring-accent";
+
   return (
     <div className="group relative">
-    <select
-      value={value}
-      disabled={isPending}
-      onChange={(event) => {
-        const newValue = event.target.value;
-        setValue(newValue);
-        startTransition(async () => {
-          await setAssignment({
-            employeeId,
-            dateISO,
-            shiftTypeId: newValue || null,
+      <select
+        value={value}
+        disabled={isPending}
+        aria-label={`Dienst op ${dateISO}${current ? `: ${current.label}` : ""}`}
+        onChange={(event) => {
+          const newValue = event.target.value;
+          setValue(newValue);
+          startTransition(async () => {
+            await setAssignment({
+              employeeId,
+              dateISO,
+              shiftTypeId: newValue || null,
+            });
           });
-        });
-      }}
-      title={deviationTitle}
-      style={style}
-      className={`w-full cursor-pointer appearance-none rounded border-0 p-0 text-center font-semibold outline-none ring-inset ring-accent focus:ring-2 disabled:opacity-60 ${
-        compact ? "h-7 text-[11px]" : "h-10 text-sm"
-      } ${conflict ? "ring-2 ring-red-600" : deviates ? "ring-2 ring-amber-500" : ""}`}
-    >
-      <option value="">–</option>
-      {shiftTypes.map((s) => (
-        <option key={s.id} value={s.id}>
-          {compact ? s.code : `${s.code} · ${s.label}`}
-        </option>
-      ))}
-    </select>
-    {dotNode}
-    {deviates && (
+        }}
+        title={deviationTitle}
+        className="peer absolute inset-0 z-10 h-full w-full cursor-pointer appearance-none opacity-0 text-base"
+      >
+        <option value="">–</option>
+        {shiftTypes.map((s) => (
+          <option key={s.id} value={s.id}>
+            {compact ? s.code : `${s.code} · ${s.label}`}
+          </option>
+        ))}
+      </select>
+      <div
+        aria-hidden
+        style={style}
+        className={`flex w-full items-center justify-center rounded text-center font-semibold ${
+          compact ? "h-7 text-[11px]" : "h-10 text-sm"
+        } ${isPending ? "opacity-60" : ""} ${ring}`}
+      >
+        {current?.code ?? "–"}
+      </div>
+      {dotNode}
+      {deviates && (
       <button
         type="button"
         disabled={isPending}
@@ -132,7 +148,7 @@ export function ShiftCell({
       >
         ↺
       </button>
-    )}
+      )}
     </div>
   );
 }

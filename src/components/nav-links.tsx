@@ -17,11 +17,20 @@ const links = [
   { href: "/gebruikers", label: "Gebruikers", adminOnly: true },
 ];
 
-export function NavLinks({ isAdmin, pendingLeave = 0 }: { isAdmin: boolean; pendingLeave?: number }) {
+export function NavLinks({
+  isAdmin,
+  pendingLeave = 0,
+  className = "",
+}: {
+  isAdmin: boolean;
+  pendingLeave?: number;
+  className?: string;
+}) {
   const pathname = usePathname();
 
   return (
-    <nav className="flex flex-wrap items-center gap-1 text-sm">
+    // Op een telefoon één rij die zijwaarts schuift, zodat het menu niet de helft van het scherm opeet.
+    <nav className={`flex items-center gap-1 overflow-x-auto whitespace-nowrap pb-1 text-sm sm:flex-wrap sm:overflow-visible sm:pb-0 ${className}`}>
       {links
         .filter((l) => !l.adminOnly || isAdmin)
         .map((l) => {

@@ -32,15 +32,10 @@ export default async function AppLayout({
   return (
     <div className="flex min-h-full flex-col">
       <header className="border-b border-border bg-surface">
-        <WidthBox className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-6">
-            <span className="text-sm font-semibold tracking-tight">
-              Rooster
-            </span>
-            <NavLinks isAdmin={session.user.role === "ADMIN"} pendingLeave={pendingLeave} />
-          </div>
-          <div className="flex items-center gap-3 text-sm text-foreground-muted">
-            <span>
+        <WidthBox className="flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 sm:px-6">
+          <span className="order-1 text-sm font-semibold tracking-tight">Rooster</span>
+          <div className="order-2 ml-auto flex items-center gap-3 text-sm text-foreground-muted sm:order-3">
+            <span className="max-w-[45vw] truncate">
               {session.user.name}
               {session.user.role === "ADMIN" ? " · planner" : ""}
             </span>
@@ -55,6 +50,11 @@ export default async function AppLayout({
               </button>
             </form>
           </div>
+          <NavLinks
+            isAdmin={session.user.role === "ADMIN"}
+            pendingLeave={pendingLeave}
+            className="order-3 w-full sm:order-2 sm:w-auto sm:flex-1"
+          />
         </WidthBox>
       </header>
       <main className="flex-1">

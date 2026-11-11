@@ -1,4 +1,6 @@
+import type { CSSProperties } from "react";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import {
@@ -30,6 +32,7 @@ import {
 } from "@/lib/schedule";
 
 const NAME_COLUMN = 132;
+const NAME_COLUMN_PHONE = 84;
 
 export default async function RoosterPage({
   searchParams,
@@ -42,7 +45,11 @@ export default async function RoosterPage({
 
   const today = todayAmsterdam();
   const todayISO = toISODate(today);
-  const weekView = params.weergave === "week";
+  // Op een telefoon is een hele maand te krap: zonder expliciete keuze openen we dan de weekweergave.
+  const userAgent = (await headers()).get("user-agent") ?? "";
+  const isPhone = /iPhone|iPod|Android.+Mobile/i.test(userAgent);
+  const weekView =
+    params.weergave === "week" || (!params.weergave && !params.year && !params.month && isPhone);
 
   let days: Date[];
   let title: string;
@@ -160,6 +167,7 @@ export default async function RoosterPage({
   const shiftCodeById = new Map(shiftTypes.map((s) => [s.id, s.code]));
 
   const cellMin = weekView ? 96 : 30;
+  const cellMinPhone = weekView ? 44 : 30;
   const tabLink = (active: boolean) =>
     `px-3 py-1.5 ${active ? "bg-accent-soft font-medium text-accent" : "hover:bg-surface-muted"}`;
   const todayHref = weekView
@@ -204,11 +212,16 @@ export default async function RoosterPage({
 
       <DualScroll>
         <table
-          className="w-full table-fixed border-collapse text-sm"
-          style={{ minWidth: NAME_COLUMN + days.length * cellMin }}
+          className="w-full min-w-(--min-phone) table-fixed border-collapse text-sm sm:min-w-(--min-desktop)"
+          style={
+            {
+              "--min-desktop": `${NAME_COLUMN + days.length * cellMin}px`,
+              "--min-phone": `${NAME_COLUMN_PHONE + days.length * cellMinPhone}px`,
+            } as CSSProperties
+          }
         >
           <colgroup>
-            <col style={{ width: NAME_COLUMN }} />
+            <col className="w-(--name-phone) sm:w-(--name-desktop)" style={{ "--name-phone": `${NAME_COLUMN_PHONE}px`, "--name-desktop": `${NAME_COLUMN}px` } as CSSProperties} />
             {days.map((day) => (
               <col key={toISODate(day)} />
             ))}
@@ -255,9 +268,25 @@ export default async function RoosterPage({
                     }`}
                   >
                     <div className={iso === todayISO ? "" : "text-foreground-muted"}>
-                      {weekView ? weekdayFull(day) : weekdayShort(day)}
+                      {weekView ? (
+                        <>
+                          <span className="sm:hidden">{weekdayShort(day)}</span>
+                          <span className="hidden sm:inline">{weekdayFull(day)}</span>
+                        </>
+                      ) : (
+                        weekdayShort(day)
+                      )}
                     </div>
-                    <div>{weekView ? formatDayMonth(day) : day.getUTCDate()}</div>
+                    <div>
+                      {weekView ? (
+                        <>
+                          <span className="sm:hidden">{day.getUTCDate()}</span>
+                          <span className="hidden sm:inline">{formatDayMonth(day)}</span>
+                        </>
+                      ) : (
+                        day.getUTCDate()
+                      )}
+                    </div>
                   </th>
                 );
               })}
