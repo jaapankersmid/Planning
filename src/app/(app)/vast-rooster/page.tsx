@@ -82,14 +82,14 @@ export default async function VastRoosterPage() {
                             }`}
                             title="Klik om te wisselen"
                           >
-                            {group.usesTemplate === true ? "vast rooster aan" : "vast rooster uit"}
+                            {group.usesTemplate === true ? "afwijkingen markeren" : "afwijkingen niet markeren"}
                           </button>
                         </form>
                       )}
                       {group && group.usesTemplate !== true && (
                         <span className="text-foreground-muted">
-                          Het vaste rooster geldt niet voor deze groep: wat je hieronder invult wordt pas
-                          doorgevoerd als je de groep aanzet.
+                          Wat je hieronder invult komt gewoon in het rooster. Bij deze groep krijgt een
+                          afwijking alleen geen oranje rand.
                         </span>
                       )}
                     </div>

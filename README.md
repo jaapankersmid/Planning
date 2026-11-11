@@ -355,5 +355,7 @@ zelf een geldig HTTPS-certificaat.
 - Pagina **Vast rooster**: dienst per medewerker per weekdag. Wijzigingen worden
   automatisch doorgevoerd vanaf vandaag; verleden dagen en handmatig ingestelde
   dagen blijven ongemoeid. In het rooster krijgt een afwijkende dag een oranje
-  rand; met de knop ↺ zet je die dag terug naar het vaste rooster.
+  rand; met de knop ↺ zet je die dag terug naar het vaste rooster. Wat je invult
+  geldt voor elke kleurgroep; de schakelaar per groep ("afwijkingen markeren")
+  bepaalt alleen of een afwijking die oranje rand krijgt.
 - Kleurgroepen: volgorde en indeling per medewerker bij **Medewerkers**.

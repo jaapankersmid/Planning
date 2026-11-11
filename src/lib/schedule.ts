@@ -118,7 +118,6 @@ export async function reconcileTemplate(fromISO: string, toISO: string) {
   if (from < today) from = today;
   if (from >= to) return;
 
-  const groups = await ensureColorGroups();
   const [entries, overrides, assignments, employees] = await Promise.all([
     prisma.weeklyScheduleEntry.findMany(),
     prisma.dayOverride.findMany({ where: { date: { gte: from, lt: to } } }),
@@ -132,14 +131,6 @@ export async function reconcileTemplate(fromISO: string, toISO: string) {
       },
     }),
   ]);
-
-  // Het vaste rooster geldt alleen voor medewerkers in een kleurgroep waarvoor dat is aangezet
-  // (medewerkers zonder groep doen mee). Voor de rest wordt niets aangemaakt, en automatisch
-  // aangemaakte diensten verdwijnen weer als de groep wordt uitgezet.
-  const offGroups = new Set(groups.filter((g) => g.usesTemplate === false).map((g) => g.name));
-  const templateOff = new Set(
-    employees.filter((e) => e.colorGroup && offGroups.has(e.colorGroup)).map((e) => e.id),
-  );
 
   const template = new Map(
     entries.map((e) => [`${e.employeeId}_${e.weekday}`, e.shiftTypeId]),
@@ -170,9 +161,7 @@ export async function reconcileTemplate(fromISO: string, toISO: string) {
     for (const employeeId of activeIds) {
       const key = `${employeeId}_${iso}`;
       if (overridden.has(key)) continue;
-      const wanted = templateOff.has(employeeId)
-        ? null
-        : (template.get(`${employeeId}_${weekday}`) ?? null);
+      const wanted = template.get(`${employeeId}_${weekday}`) ?? null;
       const current = existing.get(key);
 
       if (current) {

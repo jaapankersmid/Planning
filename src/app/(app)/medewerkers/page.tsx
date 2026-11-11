@@ -79,9 +79,9 @@ export default async function MedewerkersPage() {
                       ? "bg-accent-soft text-accent"
                       : "bg-surface-muted text-foreground-muted"
                   }`}
-                  title="Geldt het vaste rooster voor deze groep? Klik om te wisselen"
+                  title="Oranje rand in het rooster als een dag afwijkt van het vaste rooster? Klik om te wisselen"
                 >
-                  {g.usesTemplate === true ? "vast rooster aan" : "vast rooster uit"}
+                  {g.usesTemplate === true ? "afwijkingen markeren" : "afwijkingen niet markeren"}
                 </button>
               </form>
               <form action={moveColorGroup.bind(null, g.id, "up")}>
