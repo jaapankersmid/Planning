@@ -34,9 +34,9 @@ export function MailStatusPanel({
       </div>
       <p className="mt-1 text-sm text-foreground-muted">
         {configured
-          ? `Medewerkers krijgen één gebundelde mail zodra jij ${delayMinutes} minuten niets meer hebt gewijzigd.`
+          ? `Medewerkers krijgen één gebundelde mail zodra jij ${delayMinutes} minuten niets meer hebt gewijzigd. Planners krijgen meteen een mail bij een verlofaanvraag en gebundeld bij aangepaste beschikbaarheid.`
           : "Vul SMTP_HOST, SMTP_USER en SMTP_PASSWORD in het .env-bestand op de server in en herstart de app. Zie de README."}
-        {configured && pending > 0 && ` Nu wacht${pending === 1 ? "" : "en"} er ${pending} medewerker${pending === 1 ? "" : "s"} op een mail.`}
+        {configured && pending > 0 && ` Nu ${pending === 1 ? "wacht" : "wachten"} er ${pending} ${pending === 1 ? "melding" : "meldingen"} om verstuurd te worden.`}
       </p>
       {configured && (
         <div className="mt-3 flex flex-wrap items-center gap-2">

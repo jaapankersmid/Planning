@@ -6,6 +6,7 @@ import { ResetPasswordButton } from "@/components/reset-password-button";
 import { MailStatusPanel } from "@/components/mail-status-panel";
 import { isMailConfigured } from "@/lib/mail";
 import { pendingNotificationCount } from "@/lib/notifications";
+import { pendingAvailabilityCount } from "@/lib/planner-alerts";
 import { AutoSelect } from "@/components/auto-select";
 import { linkEmployee, setUserActive, setUserRole } from "./actions";
 
@@ -30,7 +31,7 @@ export default async function GebruikersPage() {
     }),
   ]);
 
-  const pendingMails = await pendingNotificationCount();
+  const pendingMails = (await pendingNotificationCount()) + (await pendingAvailabilityCount());
   const delayMinutes = Number(process.env.NOTIFY_DELAY_MINUTES) || 10;
 
   return (

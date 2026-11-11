@@ -110,6 +110,15 @@ export default async function MijnRoosterPage({
           initialEnabled={user?.emailNotifications ?? true}
           email={session.user.email ?? user?.email ?? ""}
         />
+        {session.user.role === "ADMIN" && (
+          <div className="mt-3 border-t border-border pt-3">
+            <EmailNotificationsToggle
+              kind="planner"
+              initialEnabled={user?.plannerNotifications ?? true}
+              email={session.user.email ?? user?.email ?? ""}
+            />
+          </div>
+        )}
       </div>
 
       <div>

@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { generateTempPassword, hashPassword } from "@/lib/password";
 import { isMailConfigured, sendMail } from "@/lib/mail";
 import { pendingNotificationCount, processDueNotifications } from "@/lib/notifications";
+import { pendingAvailabilityCount, processAvailabilityAlerts } from "@/lib/planner-alerts";
 import type { Role } from "@prisma/client";
 
 async function requireAdmin() {
@@ -176,9 +177,10 @@ export async function sendPendingNow(): Promise<MailActionState> {
   if (!isMailConfigured()) {
     return { ok: false, message: "E-mail is nog niet ingesteld." };
   }
-  const before = await pendingNotificationCount();
+  const before = (await pendingNotificationCount()) + (await pendingAvailabilityCount());
   await processDueNotifications({ force: true });
-  const after = await pendingNotificationCount();
+  await processAvailabilityAlerts({ force: true });
+  const after = (await pendingNotificationCount()) + (await pendingAvailabilityCount());
   revalidatePath("/gebruikers");
   return {
     ok: after === 0,
@@ -187,6 +189,6 @@ export async function sendPendingNow(): Promise<MailActionState> {
         ? before === 0
           ? "Er stonden geen meldingen klaar."
           : "Alle wachtende meldingen zijn verstuurd."
-        : `${before - after} medewerker(s) gemaild, bij ${after} is het niet gelukt (de app probeert het automatisch opnieuw).`,
+        : `${before - after} melding(en) verstuurd, bij ${after} is het niet gelukt (de app probeert het automatisch opnieuw).`,
   };
 }

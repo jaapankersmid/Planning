@@ -71,3 +71,14 @@ export async function setEmailNotifications(enabled: boolean) {
   });
   revalidatePath("/rooster/mijn");
 }
+
+/** Alleen voor planners: mail bij nieuwe verlofaanvragen en aangepaste beschikbaarheid. */
+export async function setPlannerNotifications(enabled: boolean) {
+  const session = await auth();
+  if (session?.user.role !== "ADMIN") throw new Error("Alleen planners kunnen dit instellen.");
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: { plannerNotifications: enabled },
+  });
+  revalidatePath("/rooster/mijn");
+}

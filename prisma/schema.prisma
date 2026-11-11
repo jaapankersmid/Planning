@@ -47,6 +47,8 @@ model User {
 
   // Mail sturen als er een dienst voor de gekoppelde medewerker wordt ingepland of gewijzigd?
   emailNotifications Boolean @default(true)
+  // Alleen voor planners: mail bij een nieuwe verlofaanvraag of gewijzigde beschikbaarheid.
+  plannerNotifications Boolean @default(true)
 
   // Verlofaanvragen die dit account heeft ingediend resp. beoordeeld.
   leaveRequested LeaveRequest[] @relation("LeaveRequestedBy")
@@ -84,6 +86,7 @@ model Employee {
   leaveRequests LeaveRequest[]
   availability  Availability[]
   rosterChanges RosterChange[]
+  availabilityChanges AvailabilityChange[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -300,6 +303,23 @@ model RosterChange {
   attempts  Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([employeeId, date])
+  @@index([updatedAt])
+}
+
+// Wachtrij met door medewerkers aangepaste beschikbaarheid, voor de gebundelde
+// mail aan de planners. Per medewerker en dag staat hier de nettowijziging.
+model AvailabilityChange {
+  id         String   @id @default(cuid())
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId String
+  date       DateTime @db.Date
+  oldStatus  AvailabilityStatus?
+  newStatus  AvailabilityStatus?
+  attempts   Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@unique([employeeId, date])
   @@index([updatedAt])

@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { dateFromISO, daysInMonth } from "@/lib/format";
 import { todayAmsterdam } from "@/lib/schedule";
+import { recordAvailabilityChange } from "@/lib/planner-alerts";
 import type { AvailabilityStatus } from "@prisma/client";
 
 const STATUSES: AvailabilityStatus[] = ["AVAILABLE", "MORNING", "AFTERNOON", "UNAVAILABLE"];
@@ -23,6 +24,10 @@ export async function setAvailability(input: { dateISO: string; status: Availabi
   const date = dateFromISO(input.dateISO);
   if (date < todayAmsterdam()) throw new Error("Dagen die al geweest zijn kun je niet meer wijzigen.");
 
+  const before = await prisma.availability.findUnique({
+    where: { employeeId_date: { employeeId, date } },
+    select: { status: true },
+  });
   if (input.status === null) {
     await prisma.availability.deleteMany({ where: { employeeId, date } });
   } else {
@@ -33,6 +38,12 @@ export async function setAvailability(input: { dateISO: string; status: Availabi
       create: { employeeId, date, status: input.status },
     });
   }
+  await recordAvailabilityChange({
+    employeeId,
+    date,
+    oldStatus: before?.status ?? null,
+    newStatus: input.status,
+  }).catch((error) => console.error("Beschikbaarheidswijziging vastleggen mislukt:", error));
   revalidatePath("/beschikbaarheid");
   revalidatePath("/rooster");
 }
@@ -55,12 +66,16 @@ export async function fillEmptyDays(input: { year: number; month: number; status
   });
   const onLeave = new Set(leave.map((l) => l.date.getTime()));
 
+  const toFill = days.filter((d) => !taken.has(d.getTime()) && !onLeave.has(d.getTime()));
   await prisma.availability.createMany({
-    data: days
-      .filter((d) => !taken.has(d.getTime()) && !onLeave.has(d.getTime()))
-      .map((date) => ({ employeeId, date, status: input.status })),
+    data: toFill.map((date) => ({ employeeId, date, status: input.status })),
     skipDuplicates: true,
   });
+  for (const date of toFill) {
+    await recordAvailabilityChange({ employeeId, date, oldStatus: null, newStatus: input.status }).catch((error) =>
+      console.error("Beschikbaarheidswijziging vastleggen mislukt:", error),
+    );
+  }
   revalidatePath("/beschikbaarheid");
   revalidatePath("/rooster");
 }

@@ -5,6 +5,8 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { findOverlappingLeave, parseLeaveForm } from "@/lib/leave";
 import { formatRange } from "@/lib/format";
+import { after } from "next/server";
+import { notifyPlannersOfLeaveRequest } from "@/lib/planner-alerts";
 
 export type LeaveFormState = { error?: string; ok?: string } | undefined;
 
@@ -33,7 +35,7 @@ export async function requestLeave(
         error: `Er staat al een aanvraag voor ${formatRange(overlap.startDate, overlap.endDate)}.`,
       };
     }
-    await prisma.leaveRequest.create({
+    const created = await prisma.leaveRequest.create({
       data: {
         employeeId,
         startDate,
@@ -43,6 +45,8 @@ export async function requestLeave(
         requestedById: session.user.id,
       },
     });
+    // Planners krijgen meteen een mail; dat gebeurt na het antwoord aan de medewerker.
+    after(() => notifyPlannersOfLeaveRequest(created.id));
     revalidateLeave();
     return { ok: `Aangevraagd: ${formatRange(startDate, endDate)}. Een planner beoordeelt dit.` };
   } catch (error) {
