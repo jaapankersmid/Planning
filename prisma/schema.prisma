@@ -145,6 +145,8 @@ model ShiftAssignment {
   // Id van het bijbehorende Google Calendar-event, zodat een latere wijziging of
   // verwijdering het juiste event kan bijwerken i.p.v. dupliceren.
   googleEventId String?
+  // Tweede agenda-event, voor een gebroken dienst (bv. 8:00-12:30 én 15:30-19:30).
+  googleEventId2 String?
   syncedAt      DateTime?
 
   createdAt DateTime @default(now())

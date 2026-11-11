@@ -21,8 +21,13 @@ function revalidateRoster() {
   revalidatePath("/bezetting");
 }
 
-async function removeFromCalendar(assignment: { id: string; googleEventId: string | null; employeeId: string }) {
-  if (!assignment.googleEventId) return;
+async function removeFromCalendar(assignment: {
+  id: string;
+  googleEventId: string | null;
+  googleEventId2: string | null;
+  employeeId: string;
+}) {
+  if (!assignment.googleEventId && !assignment.googleEventId2) return;
   const employee = await prisma.employee.findUnique({
     where: { id: assignment.employeeId },
     include: { user: true },
@@ -32,6 +37,7 @@ async function removeFromCalendar(assignment: { id: string; googleEventId: strin
       assignment.id,
       assignment.googleEventId,
       employee.user.id,
+      assignment.googleEventId2,
     ).catch((error) => console.error("Kalender-verwijdering mislukt:", error));
   }
 }

@@ -157,7 +157,12 @@ export async function reconcileTemplate(fromISO: string, toISO: string) {
 
   const toCreate: { employeeId: string; date: Date; shiftTypeId: string }[] = [];
   const toUpdate: { id: string; employeeId: string; shiftTypeId: string }[] = [];
-  const toDelete: { id: string; employeeId: string; googleEventId: string | null }[] = [];
+  const toDelete: {
+    id: string;
+    employeeId: string;
+    googleEventId: string | null;
+    googleEventId2: string | null;
+  }[] = [];
 
   for (const date = new Date(from); date < to; date.setUTCDate(date.getUTCDate() + 1)) {
     const iso = toISODate(date);
@@ -173,7 +178,12 @@ export async function reconcileTemplate(fromISO: string, toISO: string) {
       if (current) {
         if (current.source !== "TEMPLATE") continue;
         if (!wanted) {
-          toDelete.push({ id: current.id, employeeId, googleEventId: current.googleEventId });
+          toDelete.push({
+            id: current.id,
+            employeeId,
+            googleEventId: current.googleEventId,
+            googleEventId2: current.googleEventId2,
+          });
         } else if (current.shiftTypeId !== wanted) {
           toUpdate.push({ id: current.id, employeeId, shiftTypeId: wanted });
         }
@@ -206,7 +216,7 @@ export async function reconcileTemplate(fromISO: string, toISO: string) {
   const syncIds = [...created, ...toUpdate]
     .filter((a) => syncUsers.has(a.employeeId))
     .map((a) => a.id);
-  const removals = toDelete.filter((d) => d.googleEventId && syncUsers.has(d.employeeId));
+  const removals = toDelete.filter((d) => (d.googleEventId || d.googleEventId2) && syncUsers.has(d.employeeId));
   if (syncIds.length || removals.length) {
     after(async () => {
       for (const id of syncIds) {
@@ -219,6 +229,7 @@ export async function reconcileTemplate(fromISO: string, toISO: string) {
           r.id,
           r.googleEventId,
           syncUsers.get(r.employeeId) ?? null,
+          r.googleEventId2,
         ).catch((e) => console.error("Kalender-verwijdering mislukt:", e));
       }
     });

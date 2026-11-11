@@ -66,10 +66,10 @@ export async function approveLeave(requestId: string, plannerId: string, note?: 
   // Agenda bijwerken na het antwoord: oude events weg, V erin.
   const user = request.employee.user;
   if (user?.calendarSyncEnabled) {
-    const removals = existing.filter((e) => e.googleEventId);
+    const removals = existing.filter((e) => e.googleEventId || e.googleEventId2);
     after(async () => {
       for (const r of removals) {
-        await removeAssignmentFromCalendar(r.id, r.googleEventId, user.id).catch((e) =>
+        await removeAssignmentFromCalendar(r.id, r.googleEventId, user.id, r.googleEventId2).catch((e) =>
           console.error("Kalender-verwijdering mislukt:", e),
         );
       }
@@ -121,10 +121,10 @@ export async function revokeApprovedLeave(requestId: string) {
 
   const user = request.employee.user;
   if (user?.calendarSyncEnabled) {
-    const removals = toRemove.filter((r) => r.googleEventId);
+    const removals = toRemove.filter((r) => r.googleEventId || r.googleEventId2);
     after(async () => {
       for (const r of removals) {
-        await removeAssignmentFromCalendar(r.id, r.googleEventId, user.id).catch((e) =>
+        await removeAssignmentFromCalendar(r.id, r.googleEventId, user.id, r.googleEventId2).catch((e) =>
           console.error("Kalender-verwijdering mislukt:", e),
         );
       }

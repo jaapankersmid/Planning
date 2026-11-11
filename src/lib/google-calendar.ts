@@ -1,4 +1,4 @@
-import { google } from "googleapis";
+import { google, type calendar_v3 } from "googleapis";
 import { prisma } from "@/lib/prisma";
 import { createOAuthClient } from "@/lib/google-oauth";
 import type { Employee, ShiftAssignment, ShiftType } from "@prisma/client";
@@ -116,24 +116,61 @@ function toEventTimes(date: Date, startTime: string | null, endTime: string | nu
   };
 }
 
-function eventDescription(assignment: AssignmentWithRelations) {
+function eventDescription(assignment: AssignmentWithRelations, block: { index: number; total: number; start: string | null; end: string | null }) {
   const parts = [assignment.shiftType.label];
-  if (assignment.shiftType.secondStartTime && assignment.shiftType.secondEndTime) {
-    parts.push(
-      `Tweede blok: ${assignment.shiftType.secondStartTime}–${assignment.shiftType.secondEndTime}`,
-    );
+  if (block.total > 1 && block.start && block.end) {
+    parts.push(`Deel ${block.index + 1} van ${block.total}: ${block.start}–${block.end}`);
   }
   if (assignment.note) parts.push(assignment.note);
   parts.push("Automatisch gesynchroniseerd vanuit het rooster.");
   return parts.join("\n");
 }
 
+function statusOf(error: unknown) {
+  const e = error as { code?: number | string; status?: number };
+  return typeof e?.code === "number" ? e.code : e?.status;
+}
+
+type CalendarClient = NonNullable<Awaited<ReturnType<typeof getCalendarClientForUser>>>;
+
+/** Werkt een event bij, of maakt het aan (ook als het aan Google's kant verdwenen is). Geeft het event-id terug. */
+async function upsertEvent(
+  calendar: CalendarClient,
+  calendarId: string,
+  existingId: string | null,
+  requestBody: calendar_v3.Schema$Event,
+) {
+  if (existingId) {
+    try {
+      await calendar.events.update({ calendarId, eventId: existingId, requestBody });
+      return existingId;
+    } catch (error) {
+      const status = statusOf(error);
+      if (status !== 404 && status !== 410) throw error;
+      // Event bestond niet meer aan Google's kant (bv. handmatig verwijderd) — opnieuw aanmaken.
+    }
+  }
+  const created = await calendar.events.insert({ calendarId, requestBody });
+  if (!created.data.id) throw new Error("Google gaf geen event-id terug.");
+  return created.data.id;
+}
+
+async function deleteEvent(calendar: CalendarClient, calendarId: string, eventId: string) {
+  try {
+    await calendar.events.delete({ calendarId, eventId });
+  } catch (error) {
+    const status = statusOf(error);
+    if (status !== 404 && status !== 410) throw error;
+  }
+}
+
 /**
- * Zet één dienst-toewijzing als event in de Google Calendar van de gekoppelde
- * medewerker (indien die de koppeling heeft aangezet). Maakt een nieuw event
- * aan, of werkt het bestaande event bij als deze toewijzing al eerder is
- * gesynchroniseerd. Geeft stil `null` terug als er niets te doen is, zodat
- * dit veilig na elke roosterwijziging aangeroepen kan worden.
+ * Zet één dienst-toewijzing als event(s) in de Google Calendar van de gekoppelde
+ * medewerker (indien die de koppeling heeft aangezet). Een gebroken dienst met twee
+ * tijdsblokken (bv. 8:00–12:30 en 15:30–19:30) wordt twee losse events. Maakt nieuwe
+ * events aan, of werkt bestaande bij als deze toewijzing al eerder is gesynchroniseerd.
+ * Geeft stil `null` terug als er niets te doen is, zodat dit veilig na elke
+ * roosterwijziging aangeroepen kan worden.
  */
 export async function syncAssignmentToCalendar(assignmentId: string) {
   const assignment = await prisma.shiftAssignment.findUnique({
@@ -148,60 +185,44 @@ export async function syncAssignmentToCalendar(assignmentId: string) {
   if (!calendar) return null;
 
   const calendarId = await ensureWorkCalendar(user.id, calendar);
+  const type = assignment.shiftType;
 
-  const eventBody = {
-    summary: `${assignment.shiftType.code} · ${assignment.shiftType.label}`,
-    description: eventDescription(assignment),
-    ...toEventTimes(assignment.date, assignment.shiftType.startTime, assignment.shiftType.endTime),
-  };
+  const blocks: { start: string | null; end: string | null }[] = [
+    { start: type.startTime, end: type.endTime },
+  ];
+  if (type.secondStartTime && type.secondEndTime) {
+    blocks.push({ start: type.secondStartTime, end: type.secondEndTime });
+  }
 
-  try {
-    if (assignment.googleEventId) {
-      await calendar.events.update({
-        calendarId,
-        eventId: assignment.googleEventId,
-        requestBody: eventBody,
-      });
-    } else {
-      const created = await calendar.events.insert({
-        calendarId,
-        requestBody: eventBody,
-      });
-      await prisma.shiftAssignment.update({
-        where: { id: assignment.id },
-        data: { googleEventId: created.data.id, syncedAt: new Date() },
-      });
-      return created.data.id;
-    }
-  } catch (error: unknown) {
-    const status = (error as { code?: number; status?: number })?.code ??
-      (error as { code?: number; status?: number })?.status;
-    if (status === 404 || status === 410) {
-      // Event bestond niet meer aan Google's kant (bv. handmatig verwijderd) — opnieuw aanmaken.
-      const created = await calendar.events.insert({ calendarId, requestBody: eventBody });
-      await prisma.shiftAssignment.update({
-        where: { id: assignment.id },
-        data: { googleEventId: created.data.id, syncedAt: new Date() },
-      });
-      return created.data.id;
-    }
-    throw error;
+  const ids: (string | null)[] = [assignment.googleEventId, assignment.googleEventId2];
+  const newIds: (string | null)[] = [null, null];
+  for (const [index, block] of blocks.entries()) {
+    newIds[index] = await upsertEvent(calendar, calendarId, ids[index], {
+      summary: `${type.code} · ${type.label}`,
+      description: eventDescription(assignment, { index, total: blocks.length, ...block }),
+      ...toEventTimes(assignment.date, block.start, block.end),
+    });
+  }
+  // De dienst is niet (meer) gebroken: een eerder gemaakt tweede event hoort er niet meer te zijn.
+  if (blocks.length < 2 && ids[1]) {
+    await deleteEvent(calendar, calendarId, ids[1]);
   }
 
   await prisma.shiftAssignment.update({
     where: { id: assignment.id },
-    data: { syncedAt: new Date() },
+    data: { googleEventId: newIds[0], googleEventId2: newIds[1], syncedAt: new Date() },
   });
-  return assignment.googleEventId;
+  return newIds[0];
 }
 
-/** Verwijdert het Google Calendar-event bij een toewijzing die is (of gaat worden) gewist. */
+/** Verwijdert de Google Calendar-event(s) bij een toewijzing die is (of gaat worden) gewist. */
 export async function removeAssignmentFromCalendar(
   assignmentId: string,
   googleEventId: string | null,
   userId: string | null,
+  googleEventId2: string | null = null,
 ) {
-  if (!googleEventId || !userId) return;
+  if ((!googleEventId && !googleEventId2) || !userId) return;
 
   const calendar = await getCalendarClientForUser(userId);
   if (!calendar) return;
@@ -209,12 +230,8 @@ export async function removeAssignmentFromCalendar(
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user?.googleCalendarId) return;
 
-  try {
-    await calendar.events.delete({ calendarId: user.googleCalendarId, eventId: googleEventId });
-  } catch (error: unknown) {
-    const status = (error as { code?: number; status?: number })?.code ??
-      (error as { code?: number; status?: number })?.status;
-    if (status !== 404 && status !== 410) throw error;
+  for (const eventId of [googleEventId, googleEventId2]) {
+    if (eventId) await deleteEvent(calendar, user.googleCalendarId, eventId);
   }
 }
 
