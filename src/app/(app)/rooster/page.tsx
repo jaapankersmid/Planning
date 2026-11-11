@@ -20,6 +20,7 @@ import {
   weekdayShort,
 } from "@/lib/format";
 import { holidayOn, holidaySegments } from "@/lib/holidays";
+import { formatHours, shiftHours } from "@/lib/hours";
 import { ShiftCell } from "@/components/shift-cell";
 import { DualScroll } from "@/components/dual-scroll";
 import {
@@ -33,6 +34,7 @@ import {
 
 const NAME_COLUMN = 132;
 const NAME_COLUMN_PHONE = 84;
+const HOURS_COLUMN = 64;
 
 export default async function RoosterPage({
   searchParams,
@@ -104,7 +106,18 @@ export default async function RoosterPage({
     }),
     prisma.shiftAssignment.findMany({
       where: { date: { gte: rangeStart, lt: rangeEnd } },
-      include: { shiftType: { select: { countsMorning: true, countsAfternoon: true } } },
+      include: {
+        shiftType: {
+          select: {
+            countsMorning: true,
+            countsAfternoon: true,
+            startTime: true,
+            endTime: true,
+            secondStartTime: true,
+            secondEndTime: true,
+          },
+        },
+      },
     }),
     prisma.weeklyScheduleEntry.findMany(),
     prisma.holidayPeriod.findMany({
@@ -148,6 +161,14 @@ export default async function RoosterPage({
     if (a.shiftType.countsAfternoon) entry.afternoon += 1;
     coverage.set(iso, entry);
   }
+  // Uren per medewerker in de getoonde periode (alleen voor de planner), uit de tijden van de diensttypen.
+  const hoursByEmployee = new Map<string, number>();
+  if (isAdmin) {
+    for (const a of assignments) {
+      hoursByEmployee.set(a.employeeId, (hoursByEmployee.get(a.employeeId) ?? 0) + shiftHours(a.shiftType));
+    }
+  }
+  const hoursLabel = weekView ? "Uren deze week" : "Uren deze maand";
   // Weekenden krijgen een duidelijke kleur en een dikke rand: links om zaterdag, rechts om zondag.
   const weekendEdge = (day: Date) =>
     day.getUTCDay() === 6
@@ -215,8 +236,8 @@ export default async function RoosterPage({
           className="w-full min-w-(--min-phone) table-fixed border-collapse text-sm sm:min-w-(--min-desktop)"
           style={
             {
-              "--min-desktop": `${NAME_COLUMN + days.length * cellMin}px`,
-              "--min-phone": `${NAME_COLUMN_PHONE + days.length * cellMinPhone}px`,
+              "--min-desktop": `${NAME_COLUMN + days.length * cellMin + (isAdmin ? HOURS_COLUMN : 0)}px`,
+              "--min-phone": `${NAME_COLUMN_PHONE + days.length * cellMinPhone + (isAdmin ? HOURS_COLUMN : 0)}px`,
             } as CSSProperties
           }
         >
@@ -225,6 +246,7 @@ export default async function RoosterPage({
             {days.map((day) => (
               <col key={toISODate(day)} />
             ))}
+            {isAdmin && <col style={{ width: HOURS_COLUMN }} />}
           </colgroup>
           <thead>
             {holidays.length > 0 && (
@@ -246,6 +268,7 @@ export default async function RoosterPage({
                     <th key={`h${i}`} colSpan={segment.span} className="border-b border-border" />
                   ),
                 )}
+                {isAdmin && <th className="sticky right-0 z-10 border-b border-l border-border bg-surface-muted" />}
               </tr>
             )}
             <tr>
@@ -290,6 +313,15 @@ export default async function RoosterPage({
                   </th>
                 );
               })}
+              {isAdmin && (
+                <th
+                  title={hoursLabel}
+                  className="sticky right-0 z-10 border-b border-l border-border bg-surface-muted px-1 py-1.5 text-center text-xs font-semibold"
+                >
+                  Uren
+                  <div className="text-[10px] font-normal text-foreground-muted">{weekView ? "week" : "maand"}</div>
+                </th>
+              )}
             </tr>
             {(
               [
@@ -339,6 +371,7 @@ export default async function RoosterPage({
                     </td>
                   );
                 })}
+                {isAdmin && <td className="sticky right-0 z-10 border-l border-border bg-surface-muted" />}
               </tr>
             ))}
           </thead>
@@ -387,6 +420,14 @@ export default async function RoosterPage({
                     </td>
                   );
                 })}
+                {isAdmin && (
+                  <td
+                    title={`${hoursLabel}: ${formatHours(hoursByEmployee.get(employee.id) ?? 0)}`}
+                    className="sticky right-0 z-10 border-l border-border bg-surface px-1 text-center text-[13px] font-semibold tabular-nums"
+                  >
+                    {formatHours(hoursByEmployee.get(employee.id) ?? 0)}
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
@@ -397,6 +438,13 @@ export default async function RoosterPage({
         <p className="text-xs text-foreground-muted">
           Lichtgroen is een vakantieperiode.
           {anyWish && " Bij een wensaantal is de bezetting groen als dat gehaald is en rood als het eronder blijft."}
+        </p>
+      )}
+
+      {isAdmin && (
+        <p className="text-xs text-foreground-muted">
+          De uren rechts zijn het totaal van de getoonde {weekView ? "week" : "maand"}, berekend uit de tijden van de
+          diensten (pauzes zijn niet afgetrokken; V en Z tellen niet mee).
         </p>
       )}
 
