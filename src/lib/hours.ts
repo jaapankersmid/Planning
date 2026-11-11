@@ -14,13 +14,29 @@ export const BREAKS: [string, string][] = [
   ["15:00", "15:30"],
 ];
 
-/** Aantal uren van een dienst: eerste blok plus eventueel het tweede blok. Pauzes (zie BREAKS) gaan eraf. Diensten zonder tijden (V, Z) tellen als 0. */
+/**
+ * Diensten die vast op een eigen aantal uren staan, zolang de planner bij Diensten niets anders invult.
+ * O (8:00–17:00) en CrA (10:30–19:00) tellen als 8 uur.
+ */
+export const DEFAULT_PAID_HOURS: Record<string, number> = { O: 8, CrA: 8 };
+
+/**
+ * Aantal uren van een dienst. Staat er bij de dienst een vast aantal uren (paidHours, of een standaard
+ * voor die code), dan geldt dat. Anders: eerste blok plus eventueel het tweede blok, min de pauzes
+ * (zie BREAKS). Diensten zonder tijden (V, Z) tellen als 0.
+ */
 export function shiftHours(shift: {
+  code?: string;
+  paidHours?: number | null;
   startTime: string | null;
   endTime: string | null;
   secondStartTime: string | null;
   secondEndTime: string | null;
 }) {
+  if (shift.paidHours !== null && shift.paidHours !== undefined) return shift.paidHours;
+  const fixed = shift.code ? DEFAULT_PAID_HOURS[shift.code] : undefined;
+  if (fixed !== undefined) return fixed;
+
   const block = (start: string | null, end: string | null) => {
     const s = toHours(start);
     const e = toHours(end);

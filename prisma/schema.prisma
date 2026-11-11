@@ -116,6 +116,9 @@ model ShiftType {
   countsMorning   Boolean @default(false)
   countsAfternoon Boolean @default(false)
 
+  // Vast aantal betaalde uren voor deze dienst. Leeg = automatisch uit de tijden min de pauzes.
+  paidHours Float?
+
   active        Boolean               @default(true)
   assignments   ShiftAssignment[]
   weeklyEntries WeeklyScheduleEntry[]

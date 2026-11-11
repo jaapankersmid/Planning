@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { readableTextColor } from "@/lib/format";
 import Link from "next/link";
+import { shiftHours, formatHours, DEFAULT_PAID_HOURS } from "@/lib/hours";
 import { addShiftType, setShiftTypeActive, updateShiftType } from "./actions";
 
 const inputClass =
@@ -80,6 +81,10 @@ export default async function DienstenPage({
               <input type="checkbox" name="countsAfternoon" defaultChecked={editing.countsAfternoon} className="h-4 w-4" />
               Bezetting middag (15:30–19:30)
             </label>
+            <label className="col-span-2 flex flex-col gap-1 text-xs text-foreground-muted">
+              Uren voor het urenoverzicht (leeg = automatisch uit de tijden min de pauzes{DEFAULT_PAID_HOURS[editing.code] !== undefined ? `, standaard ${DEFAULT_PAID_HOURS[editing.code]}` : ""})
+              <input name="paidHours" inputMode="decimal" defaultValue={editing.paidHours ?? ""} placeholder="bv. 8" className={inputClass} />
+            </label>
             <div className="col-span-2 flex items-center gap-3">
               <button type="submit" className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90">
                 Opslaan
@@ -99,6 +104,7 @@ export default async function DienstenPage({
               <th className="px-4 py-2">Code</th>
               <th className="px-4 py-2">Omschrijving</th>
               <th className="px-4 py-2">Tijden</th>
+              <th className="px-4 py-2">Uren</th>
               <th className="px-4 py-2">Telt mee als</th>
               <th className="px-4 py-2">Status</th>
               <th className="px-4 py-2" />
@@ -121,6 +127,10 @@ export default async function DienstenPage({
                   {s.secondStartTime && s.secondEndTime
                     ? ` en ${s.secondStartTime}–${s.secondEndTime}`
                     : ""}
+                </td>
+                <td className="px-4 py-2 text-foreground-muted tabular-nums">
+                  {formatHours(shiftHours(s))}
+                  {s.paidHours !== null || DEFAULT_PAID_HOURS[s.code] !== undefined ? " (vast)" : ""}
                 </td>
                 <td className="px-4 py-2 text-foreground-muted">
                   {[
@@ -222,6 +232,10 @@ export default async function DienstenPage({
           <label className="col-span-1 flex items-center gap-2 text-xs">
             <input type="checkbox" name="countsAfternoon" className="h-4 w-4" />
             Bezetting middag (15:30–19:30)
+          </label>
+          <label className="col-span-2 flex flex-col gap-1 text-xs text-foreground-muted">
+            Uren voor het urenoverzicht (leeg = automatisch uit de tijden min de pauzes)
+            <input name="paidHours" inputMode="decimal" placeholder="bv. 8" className="rounded-md border border-border bg-surface px-3 py-2 text-sm" />
           </label>
           <button
             type="submit"

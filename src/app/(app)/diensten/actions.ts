@@ -20,6 +20,17 @@ function emptyToNull(value: FormDataEntryValue | null) {
   return str || null;
 }
 
+/** Leest een aantal uren uit het formulier ("7,5" of "7.5"); leeg betekent automatisch berekenen. */
+function parseHours(value: FormDataEntryValue | null) {
+  const str = String(value ?? "").trim().replace(",", ".");
+  if (!str) return null;
+  const hours = Number(str);
+  if (!Number.isFinite(hours) || hours < 0 || hours > 24) {
+    throw new Error("Uren moeten een getal tussen 0 en 24 zijn.");
+  }
+  return hours;
+}
+
 export async function addShiftType(formData: FormData) {
   await requireAdmin();
 
@@ -41,6 +52,7 @@ export async function addShiftType(formData: FormData) {
       countsEveningWalk: formData.get("countsEveningWalk") === "on",
       countsMorning: formData.get("countsMorning") === "on",
       countsAfternoon: formData.get("countsAfternoon") === "on",
+      paidHours: parseHours(formData.get("paidHours")),
     },
   });
 
@@ -88,6 +100,7 @@ export async function updateShiftType(shiftTypeId: string, formData: FormData) {
       countsEveningWalk: formData.get("countsEveningWalk") === "on",
       countsMorning: formData.get("countsMorning") === "on",
       countsAfternoon: formData.get("countsAfternoon") === "on",
+      paidHours: parseHours(formData.get("paidHours")),
     },
   });
 
