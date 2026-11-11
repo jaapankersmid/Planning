@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { generateTempPassword, hashPassword } from "@/lib/password";
+import { isMailConfigured, sendMail } from "@/lib/mail";
+import { pendingNotificationCount, processDueNotifications } from "@/lib/notifications";
 import type { Role } from "@prisma/client";
 
 async function requireAdmin() {
@@ -142,4 +144,49 @@ export async function linkEmployee(
   revalidatePath("/gebruikers");
   revalidatePath("/medewerkers");
   revalidatePath("/rooster/mijn");
+}
+
+export type MailActionState = { ok: boolean; message: string } | undefined;
+
+/** Stuurt een testmail naar het e-mailadres van de ingelogde planner. */
+export async function sendTestMail(): Promise<MailActionState> {
+  const session = await requireAdmin();
+  if (!isMailConfigured()) {
+    return { ok: false, message: "E-mail is nog niet ingesteld: SMTP_HOST, SMTP_USER en SMTP_PASSWORD ontbreken in .env." };
+  }
+  const to = session.user.email;
+  if (!to) return { ok: false, message: "Je account heeft geen e-mailadres." };
+  try {
+    await sendMail({
+      to,
+      subject: "Testmail van het rooster",
+      text: "Dit is een testmail. Als je dit leest, werkt het versturen van e-mail vanuit de roosterapp.",
+      html: "<p>Dit is een testmail. Als je dit leest, werkt het versturen van e-mail vanuit de roosterapp.</p>",
+    });
+    return { ok: true, message: `Testmail verstuurd naar ${to}.` };
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    return { ok: false, message: `Versturen mislukt: ${detail}` };
+  }
+}
+
+/** Verstuurt de wachtende meldingen meteen, zonder de pauze af te wachten. */
+export async function sendPendingNow(): Promise<MailActionState> {
+  await requireAdmin();
+  if (!isMailConfigured()) {
+    return { ok: false, message: "E-mail is nog niet ingesteld." };
+  }
+  const before = await pendingNotificationCount();
+  await processDueNotifications({ force: true });
+  const after = await pendingNotificationCount();
+  revalidatePath("/gebruikers");
+  return {
+    ok: after === 0,
+    message:
+      after === 0
+        ? before === 0
+          ? "Er stonden geen meldingen klaar."
+          : "Alle wachtende meldingen zijn verstuurd."
+        : `${before - after} medewerker(s) gemaild, bij ${after} is het niet gelukt (de app probeert het automatisch opnieuw).`,
+  };
 }

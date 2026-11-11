@@ -14,6 +14,7 @@ import {
 } from "@/lib/format";
 import { holidayOn } from "@/lib/holidays";
 import { CalendarSyncPanel } from "@/components/calendar-sync-panel";
+import { EmailNotificationsToggle } from "@/components/email-notifications-toggle";
 
 const CALENDAR_MESSAGES: Record<string, string> = {
   verbonden: "Google Calendar gekoppeld — de sync staat aan.",
@@ -98,6 +99,17 @@ export default async function MijnRoosterPage({
             initialEnabled={session.user.calendarSyncEnabled}
           />
         </div>
+      </div>
+
+      <div className="max-w-2xl rounded-lg border border-border bg-surface p-5">
+        <h2 className="text-sm font-semibold">E-mailmeldingen</h2>
+        <p className="mt-1 mb-3 text-sm text-foreground-muted">
+          Je krijgt één mail met alle nieuwe of gewijzigde diensten, kort nadat de planner klaar is met inplannen.
+        </p>
+        <EmailNotificationsToggle
+          initialEnabled={user?.emailNotifications ?? true}
+          email={session.user.email ?? user?.email ?? ""}
+        />
       </div>
 
       <div>

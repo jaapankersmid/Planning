@@ -45,6 +45,9 @@ model User {
   employee   Employee? @relation(fields: [employeeId], references: [id])
   employeeId String?   @unique
 
+  // Mail sturen als er een dienst voor de gekoppelde medewerker wordt ingepland of gewijzigd?
+  emailNotifications Boolean @default(true)
+
   // Verlofaanvragen die dit account heeft ingediend resp. beoordeeld.
   leaveRequested LeaveRequest[] @relation("LeaveRequestedBy")
   leaveDecided   LeaveRequest[] @relation("LeaveDecidedBy")
@@ -79,6 +82,8 @@ model Employee {
   weeklyEntries WeeklyScheduleEntry[]
   dayOverrides DayOverride[]
   leaveRequests LeaveRequest[]
+  availability  Availability[]
+  rosterChanges RosterChange[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -251,4 +256,51 @@ model LeaveRequest {
 
   @@index([employeeId])
   @@index([status])
+}
+
+enum AvailabilityStatus {
+  AVAILABLE // hele dag beschikbaar
+  MORNING // alleen ochtend (8:00-12:30)
+  AFTERNOON // alleen middag (15:30-19:30)
+  UNAVAILABLE // niet beschikbaar
+}
+
+// Door de medewerker opgegeven beschikbaarheid per dag. Geen regel = niets doorgegeven.
+model Availability {
+  id String @id @default(cuid())
+
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId String
+
+  date   DateTime           @db.Date
+  status AvailabilityStatus
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([employeeId, date])
+  @@index([date])
+}
+
+// Wachtrij voor e-mails over ingeplande diensten: per medewerker per dag de
+// nettowijziging sinds de laatste mail. Wordt gebundeld verstuurd nadat de
+// planner een tijdje niets meer heeft aangepast.
+model RosterChange {
+  id String @id @default(cuid())
+
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId String
+
+  date DateTime @db.Date
+
+  // Dienst zoals die was bij de eerste wijziging in deze reeks, en zoals die nu is (null = geen dienst).
+  oldShiftTypeId String?
+  newShiftTypeId String?
+
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([employeeId, date])
+  @@index([updatedAt])
 }

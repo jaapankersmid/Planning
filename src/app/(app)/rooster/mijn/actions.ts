@@ -60,3 +60,14 @@ export async function disconnectCalendar() {
 
   revalidatePath("/rooster/mijn");
 }
+
+/** Zet de e-mailmeldingen over ingeplande diensten aan of uit voor de ingelogde gebruiker. */
+export async function setEmailNotifications(enabled: boolean) {
+  const session = await auth();
+  if (!session?.user) throw new Error("Niet ingelogd.");
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: { emailNotifications: enabled },
+  });
+  revalidatePath("/rooster/mijn");
+}

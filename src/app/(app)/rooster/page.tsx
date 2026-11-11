@@ -89,7 +89,7 @@ export default async function RoosterPage({
   const groups = await ensureColorGroups();
   await ensureCoverageDefaults();
 
-  const [employeesRaw, shiftTypes, assignments, templateEntries, holidays] = await Promise.all([
+  const [employeesRaw, shiftTypes, assignments, templateEntries, holidays, availabilityRows] = await Promise.all([
     prisma.employee.findMany({ where: { active: true } }),
     prisma.shiftType.findMany({
       where: { active: true },
@@ -104,7 +104,14 @@ export default async function RoosterPage({
       where: { startDate: { lt: rangeEnd }, endDate: { gte: rangeStart } },
       orderBy: { startDate: "asc" },
     }),
+    // Beschikbaarheid is alleen interessant voor de planner.
+    isAdmin
+      ? prisma.availability.findMany({ where: { date: { gte: rangeStart, lt: rangeEnd } } })
+      : Promise.resolve([]),
   ]);
+  const availabilityByKey = new Map(
+    availabilityRows.map((a) => [`${a.employeeId}_${toISODate(a.date)}`, a.status]),
+  );
   const segments = holidaySegments(days, holidays);
   const anyWish = holidays.some((h) => h.wantMorning !== null || h.wantAfternoon !== null);
 
@@ -346,6 +353,7 @@ export default async function RoosterPage({
                         deviates={deviates}
                         templateLabel={templateId ? (shiftCodeById.get(templateId) ?? "?") : "vrij"}
                         compact={!weekView}
+                        availability={availabilityByKey.get(key) ?? null}
                       />
                     </td>
                   );
@@ -370,6 +378,16 @@ export default async function RoosterPage({
             vaste rooster
           </Link>
           ; met ↺ zet je de dag terug naar het vaste rooster.
+        </p>
+      )}
+
+      {isAdmin && (
+        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-foreground-muted">
+          <span>Opgegeven beschikbaarheid (stipje linksonder in het vakje):</span>
+          <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full" style={{ background: "#16a34a" }} />hele dag</span>
+          <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full" style={{ background: "#0ea5e9" }} />ochtend</span>
+          <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full" style={{ background: "#f59e0b" }} />middag</span>
+          <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full" style={{ background: "#dc2626" }} />niet beschikbaar (rode rand = toch ingepland)</span>
         </p>
       )}
 

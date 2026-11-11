@@ -3,6 +3,9 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { CreateUserForm } from "@/components/create-user-form";
 import { ResetPasswordButton } from "@/components/reset-password-button";
+import { MailStatusPanel } from "@/components/mail-status-panel";
+import { isMailConfigured } from "@/lib/mail";
+import { pendingNotificationCount } from "@/lib/notifications";
 import { AutoSelect } from "@/components/auto-select";
 import { linkEmployee, setUserActive, setUserRole } from "./actions";
 
@@ -27,6 +30,9 @@ export default async function GebruikersPage() {
     }),
   ]);
 
+  const pendingMails = await pendingNotificationCount();
+  const delayMinutes = Number(process.env.NOTIFY_DELAY_MINUTES) || 10;
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -36,6 +42,8 @@ export default async function GebruikersPage() {
           rooster staat. Alleen mensen met een account hier kunnen inloggen.
         </p>
       </div>
+
+      <MailStatusPanel configured={isMailConfigured()} pending={pendingMails} delayMinutes={delayMinutes} />
 
       <div className="overflow-x-auto rounded-lg border border-border bg-surface">
         <table className="w-full text-sm">

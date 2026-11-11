@@ -139,6 +139,18 @@ Bij elke koppeling wordt bewust opnieuw om toestemming gevraagd
 (`prompt: "consent"`) — dat is nodig om betrouwbaar een ververs-token te
 krijgen, anders stopt de agenda-koppeling na een uur.
 
+## E-mailmeldingen en beschikbaarheid
+
+**Beschikbaarheid.** Iedere medewerker met een gekoppeld account kan onder *Beschikbaarheid* per dag aangeven: hele dag, alleen ochtend, alleen middag of niet beschikbaar (tikken op een dag wisselt door de keuzes heen). Verlofdagen (V) en dagen die al geweest zijn staan vast. De planner ziet dit als gekleurd stipje in elk vakje van het rooster; een rode rand betekent dat iemand is ingepland op een dag waarop hij of zij zich niet beschikbaar heeft gemeld.
+
+**Mail bij inplannen.** Wijzigt de planner een dienst, dan wordt dat onthouden. Zodra het `NOTIFY_DELAY_MINUTES` (standaard 10) stil is, krijgt elke betrokken medewerker één mail met alle nieuwe en gewijzigde diensten. Medewerkers kunnen dit zelf uitzetten bij *Mijn rooster*. Instellen:
+
+1. Zet `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` (en eventueel `SMTP_FROM`) in het `.env`-bestand op de server — zie `.env.example`. Gebruik poort 587 of 465; poort 25 is bij Hetzner geblokkeerd.
+2. Herstart de app: `docker compose -f docker-compose.prod.yml up -d --force-recreate app`.
+3. Open *Gebruikers* in de app en klik op *Stuur testmail naar mezelf*.
+
+Nieuwe tabellen: na het updaten eenmalig `docker compose -f docker-compose.prod.yml exec app npx prisma db push` draaien.
+
 ## 3. Een echte omgeving hosten
 
 > **Let op als je bij Hetzner host:** Hetzner heeft twee verschillende

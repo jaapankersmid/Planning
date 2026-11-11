@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { dateFromISO } from "@/lib/format";
+import { recordRosterChange } from "@/lib/notifications";
 import { reconcileTemplate, todayAmsterdam, weekdayNumber } from "@/lib/schedule";
 import { removeAssignmentFromCalendar, syncAssignmentToCalendar } from "@/lib/google-calendar";
 
@@ -94,6 +95,14 @@ export async function setAssignment(input: {
     );
   }
 
+  // De medewerker krijgt (gebundeld) een mail over deze wijziging.
+  await recordRosterChange({
+    employeeId: input.employeeId,
+    date,
+    oldShiftTypeId: existing?.shiftTypeId ?? null,
+    newShiftTypeId: input.shiftTypeId,
+  }).catch((error) => console.error("Mailwachtrij bijwerken mislukt:", error));
+
   revalidateRoster();
 }
 
@@ -118,6 +127,16 @@ export async function resetToTemplate(input: { employeeId: string; dateISO: stri
   const next = new Date(date);
   next.setUTCDate(next.getUTCDate() + 1);
   await reconcileTemplate(input.dateISO, next.toISOString().slice(0, 10));
+
+  const now = await prisma.shiftAssignment.findFirst({
+    where: { employeeId: input.employeeId, date },
+  });
+  await recordRosterChange({
+    employeeId: input.employeeId,
+    date,
+    oldShiftTypeId: existing?.shiftTypeId ?? null,
+    newShiftTypeId: now?.shiftTypeId ?? null,
+  }).catch((error) => console.error("Mailwachtrij bijwerken mislukt:", error));
 
   revalidateRoster();
 }
