@@ -444,7 +444,7 @@ export default async function RoosterPage({
       {isAdmin && (
         <p className="text-xs text-foreground-muted">
           De uren rechts zijn het totaal van de getoonde {weekView ? "week" : "maand"}, berekend uit de tijden van de
-          diensten (pauzes zijn niet afgetrokken; V en Z tellen niet mee).
+          diensten, zonder de pauzes van 10:00–10:30, 12:30–13:00 en 15:00–15:30 (V en Z tellen niet mee).
         </p>
       )}
 

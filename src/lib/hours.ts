@@ -4,7 +4,17 @@ function toHours(time: string | null | undefined) {
   return match ? Number(match[1]) + Number(match[2]) / 60 : null;
 }
 
-/** Aantal uren van een dienst: eerste blok plus eventueel het tweede blok. Diensten zonder tijden (V, Z) tellen als 0. */
+/**
+ * Vaste pauzes die niet als werktijd tellen. Alleen het deel van een pauze dat binnen een
+ * tijdsblok van de dienst valt gaat eraf (een dienst van 8:00 tot 10:00 verliest dus niets).
+ */
+export const BREAKS: [string, string][] = [
+  ["10:00", "10:30"],
+  ["12:30", "13:00"],
+  ["15:00", "15:30"],
+];
+
+/** Aantal uren van een dienst: eerste blok plus eventueel het tweede blok. Pauzes (zie BREAKS) gaan eraf. Diensten zonder tijden (V, Z) tellen als 0. */
 export function shiftHours(shift: {
   startTime: string | null;
   endTime: string | null;
@@ -14,7 +24,12 @@ export function shiftHours(shift: {
   const block = (start: string | null, end: string | null) => {
     const s = toHours(start);
     const e = toHours(end);
-    return s !== null && e !== null && e > s ? e - s : 0;
+    if (s === null || e === null || e <= s) return 0;
+    const paused = BREAKS.reduce((sum, [from, to]) => {
+      const overlap = Math.min(e, toHours(to)!) - Math.max(s, toHours(from)!);
+      return sum + Math.max(0, overlap);
+    }, 0);
+    return e - s - paused;
   };
   return block(shift.startTime, shift.endTime) + block(shift.secondStartTime, shift.secondEndTime);
 }
