@@ -20,14 +20,20 @@ export function CreateUserForm({
           <p>
             Account aangemaakt voor <strong>{success.email}</strong>.
           </p>
-          <p>
-            Tijdelijk wachtwoord (nu doorgeven, wordt niet nogmaals getoond):
-          </p>
-          <code className="rounded bg-surface px-2 py-1 font-mono text-sm">
-            {success.tempPassword}
-          </code>
+          {success.tempPassword ? (
+            <>
+              <p>Tijdelijk wachtwoord (nu doorgeven, wordt niet nogmaals getoond):</p>
+              <code className="rounded bg-surface px-2 py-1 font-mono text-sm">
+                {success.tempPassword}
+              </code>
+            </>
+          ) : (
+            <p>Het wachtwoord dat je hebt ingesteld is opgeslagen.</p>
+          )}
           <p className="text-xs text-foreground-muted">
-            Bij de eerste keer inloggen wordt om een eigen wachtwoord gevraagd.
+            {success.mustChange
+              ? "Bij de eerste keer inloggen wordt om een eigen wachtwoord gevraagd."
+              : "De gebruiker hoeft het wachtwoord bij het inloggen niet te wijzigen."}
           </p>
           <button
             type="button"
@@ -73,8 +79,34 @@ export function CreateUserForm({
             ))}
           </select>
 
+          <fieldset className="flex flex-col gap-2 rounded-md border border-border p-3">
+            <legend className="px-1 text-xs text-foreground-muted">Wachtwoord</legend>
+            <input
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              minLength={8}
+              placeholder="Zelf een wachtwoord kiezen (min. 8 tekens)"
+              className="rounded-md border border-border bg-surface px-3 py-2 text-sm"
+            />
+            <input
+              name="passwordConfirm"
+              type="password"
+              autoComplete="new-password"
+              placeholder="Herhaal het wachtwoord"
+              className="rounded-md border border-border bg-surface px-3 py-2 text-sm"
+            />
+            <label className="flex items-center gap-2 text-xs">
+              <input type="checkbox" name="mustChange" defaultChecked className="h-4 w-4" />
+              Gebruiker moet het wachtwoord bij de eerste keer inloggen wijzigen
+            </label>
+            <p className="text-xs text-foreground-muted">
+              Laat beide velden leeg om een tijdelijk wachtwoord te laten genereren.
+            </p>
+          </fieldset>
+
           {state && "error" in state && (
-            <p className="text-xs text-red-600">{state.error}</p>
+            <p role="alert" className="text-xs text-red-600">{state.error}</p>
           )}
 
           <button

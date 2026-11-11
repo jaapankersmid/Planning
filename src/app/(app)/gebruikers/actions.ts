@@ -16,8 +16,22 @@ async function requireAdmin() {
 
 export type CreateUserState =
   | { error: string }
-  | { success: { email: string; tempPassword: string } }
+  | { success: { email: string; tempPassword: string | null; mustChange: boolean } }
   | undefined;
+
+/**
+ * Leest een door de planner gekozen wachtwoord uit het formulier. Leeg laten
+ * betekent: laat de app er een genereren (geeft dan null terug).
+ */
+function readChosenPassword(formData: FormData): { password: string | null } | { error: string } {
+  const password = String(formData.get("password") ?? "");
+  const confirm = String(formData.get("passwordConfirm") ?? "");
+  if (!password && !confirm) return { password: null };
+  if (password.length < 8) return { error: "Een wachtwoord moet minstens 8 tekens zijn." };
+  if (password.length > 128) return { error: "Een wachtwoord mag maximaal 128 tekens zijn." };
+  if (password !== confirm) return { error: "De twee wachtwoorden komen niet overeen." };
+  return { password };
+}
 
 /**
  * Maakt een account aan met een gegenereerd tijdelijk wachtwoord. Dat
@@ -45,7 +59,12 @@ export async function createUser(
     return { error: "Er bestaat al een account met dit e-mailadres." };
   }
 
-  const tempPassword = generateTempPassword();
+  const chosen = readChosenPassword(formData);
+  if ("error" in chosen) return chosen;
+  const tempPassword = chosen.password ?? generateTempPassword();
+  // Een gegenereerd wachtwoord moet altijd gewijzigd worden; bij een zelf gekozen wachtwoord
+  // beslist het vinkje (standaard aan).
+  const mustChange = chosen.password === null ? true : formData.get("mustChange") === "on";
 
   await prisma.user.create({
     data: {
@@ -54,32 +73,41 @@ export async function createUser(
       role,
       employeeId,
       passwordHash: hashPassword(tempPassword),
-      mustChangePassword: true,
+      mustChangePassword: mustChange,
     },
   });
 
   revalidatePath("/gebruikers");
   revalidatePath("/medewerkers");
-  return { success: { email, tempPassword } };
+  return {
+    success: { email, tempPassword: chosen.password === null ? tempPassword : null, mustChange },
+  };
 }
 
-export type ResetPasswordState = { tempPassword: string } | { error: string } | undefined;
+export type ResetPasswordState =
+  | { tempPassword: string | null }
+  | { error: string }
+  | undefined;
 
 export async function resetPassword(
   userId: string,
   _prevState: ResetPasswordState,
-  _formData: FormData,
+  formData: FormData,
 ): Promise<ResetPasswordState> {
   await requireAdmin();
 
-  const tempPassword = generateTempPassword();
+  const chosen = readChosenPassword(formData);
+  if ("error" in chosen) return chosen;
+  const password = chosen.password ?? generateTempPassword();
+  const mustChange = chosen.password === null ? true : formData.get("mustChange") === "on";
+
   await prisma.user.update({
     where: { id: userId },
-    data: { passwordHash: hashPassword(tempPassword), mustChangePassword: true },
+    data: { passwordHash: hashPassword(password), mustChangePassword: mustChange },
   });
 
   revalidatePath("/gebruikers");
-  return { tempPassword };
+  return { tempPassword: chosen.password === null ? password : null };
 }
 
 export async function setUserActive(userId: string, active: boolean) {
