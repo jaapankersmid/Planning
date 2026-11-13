@@ -71,3 +71,38 @@ export async function deleteAllowance(input: { employeeId: string; year: number 
     return { error: error instanceof Error ? error.message : "Verwijderen is niet gelukt." };
   }
 }
+
+/** Boekt een correctie (+/− uren) op het tegoed van een jaar, met datum en verplichte reden. Corrigeren kan alleen door een nieuwe correctie. */
+export async function addAdjustment(input: {
+  employeeId: string;
+  year: number;
+  hours: string;
+  date: string;
+  reason: string;
+}): Promise<AllowanceResult> {
+  try {
+    const session = await requireAdmin();
+    const year = Math.trunc(input.year);
+    if (!Number.isFinite(year) || year < 2000 || year > 2100) return { error: "Ongeldig jaar." };
+    const text = input.hours.trim().replace(",", ".").replace("−", "-");
+    const hours = Number(text);
+    if (text === "" || !Number.isFinite(hours) || hours === 0 || Math.abs(hours) > 5000) {
+      return { error: "Vul het aantal uren in als getal, met een min voor uren eraf (bijvoorbeeld 8 of -4)." };
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(input.date.trim())) return { error: "Vul de datum van de correctie in." };
+    const date = new Date(`${input.date.trim()}T00:00:00.000Z`);
+    if (Number.isNaN(date.getTime())) return { error: "Ongeldige datum." };
+    const reason = input.reason.trim().slice(0, 300);
+    if (reason.length < 3) return { error: "Vul een reden in." };
+    const employee = await prisma.employee.findUnique({ where: { id: input.employeeId }, select: { id: true } });
+    if (!employee) return { error: "Medewerker niet gevonden." };
+
+    await prisma.leaveAdjustment.create({
+      data: { employeeId: employee.id, year, hours: Math.round(hours * 100) / 100, date, reason, createdById: session.user.id },
+    });
+    revalidate();
+    return undefined;
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Opslaan is niet gelukt." };
+  }
+}

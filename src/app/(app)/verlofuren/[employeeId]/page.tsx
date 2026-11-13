@@ -6,6 +6,7 @@ import { dateFromISO, formatDayMonth, toISODate, weekdayShort } from "@/lib/form
 import { fmtHours, loadBalance } from "@/lib/leave-balance";
 import { canManageHours } from "@/lib/roles";
 import { todayAmsterdam } from "@/lib/schedule";
+import { AdjustmentForm } from "@/components/adjustment-form";
 import { AllowanceEditor } from "@/components/allowance-editor";
 import { LeaveBalanceCard } from "@/components/leave-balance-card";
 
@@ -69,6 +70,8 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
           );
         })}
       </div>
+
+      <AdjustmentForm employeeId={employeeId} years={years} todayISO={todayISO} />
 
       <div className="overflow-x-auto rounded-lg border border-border bg-surface">
         <table className="w-full text-sm">

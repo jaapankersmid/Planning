@@ -77,7 +77,14 @@ export function LeaveBalanceCard({ balance, todayISO }: { balance: Balance & { n
             {visible.map((b) => (
               <tr key={b.year} className="border-b border-border last:border-0">
                 <td className="py-1.5 pr-4 font-medium">{b.year}</td>
-                <td className="py-1.5 pr-4 text-right tabular-nums">{fmtHours(b.hours)}</td>
+                <td className="py-1.5 pr-4 text-right tabular-nums">
+                  {fmtHours(b.hours + (b.adjustment ?? 0))}
+                  {!!b.adjustment && (
+                    <div className="text-xs text-foreground-muted">
+                      {fmtHours(b.hours)} {b.adjustment > 0 ? "+" : "−"} {fmtHours(Math.abs(b.adjustment))} correctie
+                    </div>
+                  )}
+                </td>
                 <td className="py-1.5 pr-4 text-right tabular-nums">{fmtHours(b.used)}</td>
                 <td className={`py-1.5 pr-4 text-right tabular-nums ${b.remaining < 0 ? "text-bad-text" : ""}`}>
                   {b.expired && b.lost > 0 ? <span className="text-foreground-muted line-through">{fmtHours(b.lost)}</span> : fmtHours(b.remaining)}
@@ -92,6 +99,28 @@ export function LeaveBalanceCard({ balance, todayISO }: { balance: Balance & { n
           </tbody>
         </table>
       </div>
+      {balance.adjustments.length > 0 && (
+        <div className="overflow-x-auto">
+          <h3 className="mb-1 text-xs font-medium uppercase tracking-wide text-foreground-muted">Correcties</h3>
+          <table className="w-full text-sm">
+            <tbody>
+              {balance.adjustments.map((a) => (
+                <tr key={a.id} className="border-b border-border align-top last:border-0">
+                  <td className="whitespace-nowrap py-1.5 pr-4 text-foreground-muted">{dayMonthYear(a.dateISO)}</td>
+                  <td className={`py-1.5 pr-4 text-right font-medium tabular-nums ${a.hours < 0 ? "text-bad-text" : ""}`}>
+                    {a.hours > 0 ? "+" : "−"}{fmtHours(Math.abs(a.hours))}
+                  </td>
+                  <td className="py-1.5 pr-4 text-foreground-muted">tegoed {a.year}</td>
+                  <td className="py-1.5">
+                    {a.reason}
+                    {a.byName && <span className="ml-1 text-xs text-foreground-muted">— {a.byName}</span>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       <p className="text-xs text-foreground-muted">
         Verlofuren van een jaar gelden van 1 januari tot en met 30 juni van het jaar erna. Een V in het rooster telt
         voor de uren die je die weekdag normaal werkt en gaat eerst van het oudste tegoed af.

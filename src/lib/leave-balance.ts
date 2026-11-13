@@ -18,6 +18,8 @@ export type VacationDay = { dateISO: string; hours: number };
 export type BucketInput = {
   year: number;
   hours: number;
+  /** Som van de correcties (+/−) op dit jaar. */
+  adjustment?: number;
   note?: string | null;
   /** Peildatum (ISO): het tegoed is de stand op die dag; verlof ervoor telt niet mee. */
   countFromISO?: string | null;
@@ -42,6 +44,15 @@ export type DayAllocation = VacationDay & {
   ignored?: boolean;
 };
 
+export type AdjustmentEntry = {
+  id: string;
+  year: number;
+  hours: number;
+  dateISO: string;
+  reason: string;
+  byName: string | null;
+};
+
 export type Balance = {
   buckets: Bucket[];
   /** Nu op te nemen: tegoed dat is ingegaan en nog niet vervallen, min alles wat al in het rooster staat. */
@@ -53,6 +64,8 @@ export type Balance = {
   /** Eerstvolgende datum waarop uren vervallen, met het aantal uren dat dan nog over is. */
   expiring: { dateISO: string; hours: number } | null;
   days: DayAllocation[];
+  /** Alle correcties, nieuwste eerst. */
+  adjustments: AdjustmentEntry[];
 };
 
 /** Bepaalt welke tegoed-jaren een verlofdag mag gebruiken. */
@@ -63,12 +76,17 @@ function eligibleYears(dateISO: string) {
 
 const round = (n: number) => Math.round(n * 100) / 100;
 
-export function computeBalance(inputs: BucketInput[], vacationDays: VacationDay[], todayISO: string): Balance {
+export function computeBalance(
+  inputs: BucketInput[],
+  vacationDays: VacationDay[],
+  todayISO: string,
+  adjustments: AdjustmentEntry[] = [],
+): Balance {
   const map = new Map<number, Bucket>();
   const make = (input: BucketInput): Bucket => ({
     ...input,
     used: 0,
-    remaining: input.hours,
+    remaining: input.hours + (input.adjustment ?? 0),
     future: false,
     expired: false,
     lost: 0,
@@ -132,7 +150,8 @@ export function computeBalance(inputs: BucketInput[], vacationDays: VacationDay[
     else plannedFuture += hours;
   }
 
-  return { buckets, available: round(available), takenPast: round(takenPast), plannedFuture: round(plannedFuture), expiring, days };
+  const sortedAdjustments = [...adjustments].sort((a, b) => b.dateISO.localeCompare(a.dateISO));
+  return { buckets, available: round(available), takenPast: round(takenPast), plannedFuture: round(plannedFuture), expiring, days, adjustments: sortedAdjustments };
 }
 
 /**
@@ -142,7 +161,10 @@ export function computeBalance(inputs: BucketInput[], vacationDays: VacationDay[
  */
 export async function loadBalances(todayISO: string, employeeIds?: string[]) {
   const filter = employeeIds ? { employeeId: { in: employeeIds } } : {};
-  const allowances = await prisma.leaveAllowance.findMany({ where: filter, include: { updatedBy: { select: { name: true, email: true } } } });
+  const [allowances, adjustmentRows] = await Promise.all([
+    prisma.leaveAllowance.findMany({ where: filter, include: { updatedBy: { select: { name: true, email: true } } } }),
+    prisma.leaveAdjustment.findMany({ where: filter, include: { createdBy: { select: { name: true, email: true } } }, orderBy: { date: "desc" } }),
+  ]);
   const byEmployee = new Map<string, BucketInput[]>();
   for (const a of allowances) {
     const list = byEmployee.get(a.employeeId) ?? [];
@@ -150,7 +172,24 @@ export async function loadBalances(todayISO: string, employeeIds?: string[]) {
     byEmployee.set(a.employeeId, list);
   }
 
-  const earliest = allowances.length ? Math.min(...allowances.map((a) => a.year)) : null;
+  // Correcties tellen mee bij het tegoed van hun jaar; staat er voor dat jaar nog geen tegoed, dan begint het bij 0 uur.
+  const adjustmentsByEmployee = new Map<string, AdjustmentEntry[]>();
+  for (const a of adjustmentRows) {
+    const list = adjustmentsByEmployee.get(a.employeeId) ?? [];
+    list.push({ id: a.id, year: a.year, hours: a.hours, dateISO: toISODate(a.date), reason: a.reason, byName: a.createdBy ? (a.createdBy.name ?? a.createdBy.email) : null });
+    adjustmentsByEmployee.set(a.employeeId, list);
+    const buckets = byEmployee.get(a.employeeId) ?? [];
+    let bucket = buckets.find((b) => b.year === a.year);
+    if (!bucket) {
+      bucket = { year: a.year, hours: 0 };
+      buckets.push(bucket);
+    }
+    bucket.adjustment = (bucket.adjustment ?? 0) + a.hours;
+    byEmployee.set(a.employeeId, buckets);
+  }
+
+  const years = [...allowances.map((a) => a.year), ...adjustmentRows.map((a) => a.year)];
+  const earliest = years.length ? Math.min(...years) : null;
   const [assignments, templates] = earliest
     ? await Promise.all([
         prisma.shiftAssignment.findMany({
@@ -174,7 +213,7 @@ export async function loadBalances(todayISO: string, employeeIds?: string[]) {
     const days: VacationDay[] = assignments
       .filter((a) => a.employeeId === id)
       .map((a) => ({ dateISO: toISODate(a.date), hours: hoursPerWeekday.get(`${id}_${weekdayNumber(a.date)}`) ?? 0 }));
-    const balance = computeBalance(byEmployee.get(id) ?? [], days, todayISO);
+    const balance = computeBalance(byEmployee.get(id) ?? [], days, todayISO, adjustmentsByEmployee.get(id) ?? []);
     result.set(id, { ...balance, noTemplate: !hasTemplate.has(id) && days.length > 0 });
   }
   return result;

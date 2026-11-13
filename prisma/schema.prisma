@@ -58,6 +58,7 @@ model User {
   timesheetsDecided Timesheet[] @relation("TimesheetDecidedBy")
   leaveAllowancesUpdated LeaveAllowance[] @relation("LeaveAllowanceUpdatedBy")
   weekSubmissionsDecided WeekSubmission[] @relation("WeekSubmissionDecidedBy")
+  leaveAdjustmentsMade LeaveAdjustment[] @relation("LeaveAdjustmentCreatedBy")
   timeEntriesEdited TimeEntry[] @relation("TimeEntryEditedBy")
 
   // --- Google Calendar-koppeling (los van inloggen) ---------------------
@@ -97,6 +98,7 @@ model Employee {
   timeEntries         TimeEntry[]
   leaveAllowances     LeaveAllowance[]
   weekSubmissions     WeekSubmission[]
+  leaveAdjustments    LeaveAdjustment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -441,4 +443,28 @@ model WeekSubmission {
 
   @@unique([employeeId, weekStart])
   @@index([status])
+}
+
+// Correctie op het verlofsaldo van een jaar (bv. +8 of -4 uur), met datum en reden. Alleen toevoegen, geen aanpassen:
+// een vergissing herstel je met een tegengestelde correctie, zodat het logboek klopt.
+model LeaveAdjustment {
+  id String @id @default(cuid())
+
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId String
+
+  // Het tegoed-jaar waarop de correctie wordt verrekend.
+  year   Int
+  // Positief = erbij, negatief = eraf.
+  hours  Float
+  // De datum van de correctie (de dag waarop de verrekening geldt).
+  date   DateTime @db.Date
+  reason String
+
+  createdBy   User?   @relation("LeaveAdjustmentCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdById String?
+
+  createdAt DateTime @default(now())
+
+  @@index([employeeId, year])
 }
