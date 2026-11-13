@@ -1,9 +1,11 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { formatHours } from "@/lib/hours";
 import { canManageHours } from "@/lib/roles";
 import { loadOverview, parseMonth } from "@/lib/timesheets";
+import { GroupHeaderRow } from "@/components/group-header-row";
 import { MonthNav } from "@/components/month-nav";
 import { TimesheetStatusBadge } from "@/components/timesheet-status";
 
@@ -62,8 +64,10 @@ export default async function UrenOverzichtPage({
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
-              <tr key={r.employeeId} className="border-b border-border last:border-0">
+            {rows.map((r, i) => (
+              <Fragment key={r.employeeId}>
+              {(i === 0 || rows[i - 1].colorGroup !== r.colorGroup) && <GroupHeaderRow group={r.colorGroup} colSpan={6} />}
+              <tr className="border-b border-border last:border-0">
                 <td className="px-4 py-2 font-medium">{r.name}</td>
                 <td className="px-4 py-2 text-right tabular-nums text-foreground-muted">{formatHours(r.planned)}</td>
                 <td className="px-4 py-2 text-right tabular-nums">
@@ -86,6 +90,7 @@ export default async function UrenOverzichtPage({
                   </Link>
                 </td>
               </tr>
+              </Fragment>
             ))}
           </tbody>
           <tfoot>

@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { daysInMonth, toISODate } from "@/lib/format";
 import { shiftHours } from "@/lib/hours";
-import { todayAmsterdam } from "@/lib/schedule";
+import { ensureColorGroups, sortEmployees, todayAmsterdam } from "@/lib/schedule";
 import type { TimesheetStatus } from "@prisma/client";
 
 export const STATUS_LABEL: Record<TimesheetStatus | "NONE", string> = {
@@ -133,6 +133,7 @@ export async function confirmPlannedDays(employeeId: string, year: number, month
 export type OverviewRow = {
   employeeId: string;
   name: string;
+  colorGroup: string | null;
   planned: number;
   worked: number;
   status: TimesheetStatus | "NONE";
@@ -147,13 +148,16 @@ export async function loadOverview(year: number, month: number): Promise<Overvie
   to.setUTCDate(to.getUTCDate() + 1);
   const todayISO = toISODate(todayAmsterdam());
 
-  const [employees, assignments, entries, sheets] = await Promise.all([
-    prisma.employee.findMany({ select: { id: true, name: true, active: true }, orderBy: { name: "asc" } }),
+  const [employeesRaw, groups, assignments, entries, sheets] = await Promise.all([
+    prisma.employee.findMany({ select: { id: true, name: true, active: true, colorGroup: true, experience: true } }),
+    ensureColorGroups(),
     prisma.shiftAssignment.findMany({ where: { date: { gte: from, lt: to } }, include: { shiftType: true } }),
     prisma.timeEntry.findMany({ where: { date: { gte: from, lt: to } } }),
     prisma.timesheet.findMany({ where: { year, month } }),
   ]);
 
+  // Zelfde volgorde als in het rooster: kleurgroep, dan ervaring, dan naam.
+  const employees = sortEmployees(employeesRaw, groups);
   const rows: OverviewRow[] = [];
   for (const employee of employees) {
     const mine = assignments.filter((a) => a.employeeId === employee.id);
@@ -180,7 +184,7 @@ export async function loadOverview(year: number, month: number): Promise<Overvie
     // Inactieve medewerkers zonder uren of planning in deze maand laten we weg.
     if (!employee.active && planned === 0 && worked === 0) continue;
     if (planned === 0 && worked === 0 && status === "NONE" && !employee.active) continue;
-    rows.push({ employeeId: employee.id, name: employee.name, planned, worked, status, unconfirmedDays });
+    rows.push({ employeeId: employee.id, name: employee.name, colorGroup: employee.colorGroup, planned, worked, status, unconfirmedDays });
   }
   return rows;
 }

@@ -25,12 +25,12 @@ export async function GET(request: Request) {
 
   const lines: string[] = [];
   if (kind === "totalen") {
-    lines.push(["Medewerker", "Gepland (uur)", "Gewerkt (uur)", "Verschil (uur)", "Status"].map(cell).join(";"));
+    lines.push(["Medewerker", "Gepland (uur)", "Gewerkt (uur)", "Verschil (uur)", "Status", "Kleurgroep"].map(cell).join(";"));
     for (const r of await loadOverview(year, month)) {
-      lines.push([cell(r.name), num(r.planned), num(r.worked), num(r.worked - r.planned), cell(STATUS_LABEL[r.status])].join(";"));
+      lines.push([cell(r.name), num(r.planned), num(r.worked), num(r.worked - r.planned), cell(STATUS_LABEL[r.status]), cell(r.colorGroup ?? "")].join(";"));
     }
   } else {
-    lines.push(["Medewerker", "Datum", "Dienst", "Gepland (uur)", "Gewerkt (uur)", "Opmerking", "Status"].map(cell).join(";"));
+    lines.push(["Medewerker", "Datum", "Dienst", "Gepland (uur)", "Gewerkt (uur)", "Opmerking", "Status", "Kleurgroep"].map(cell).join(";"));
     const overview = await loadOverview(year, month);
     const employees = await prisma.employee.findMany({ where: { id: { in: overview.map((o) => o.employeeId) } }, select: { id: true, name: true } });
     const names = new Map(employees.map((e) => [e.id, e.name]));
@@ -40,7 +40,7 @@ export async function GET(request: Request) {
         const worked = effectiveHours(r, todayISO);
         if (!r.code && !r.entry && worked === 0) continue;
         lines.push(
-          [cell(names.get(o.employeeId) ?? ""), r.dateISO, cell(r.code ?? ""), num(r.planned), num(worked), cell(r.entry?.note ?? ""), cell(STATUS_LABEL[sheet.status])].join(";"),
+          [cell(names.get(o.employeeId) ?? ""), r.dateISO, cell(r.code ?? ""), num(r.planned), num(worked), cell(r.entry?.note ?? ""), cell(STATUS_LABEL[sheet.status]), cell(o.colorGroup ?? "")].join(";"),
         );
       }
     }

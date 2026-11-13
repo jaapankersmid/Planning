@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
@@ -5,18 +6,23 @@ import { prisma } from "@/lib/prisma";
 import { dateFromISO, formatDayMonth, toISODate } from "@/lib/format";
 import { fmtHours, loadBalances } from "@/lib/leave-balance";
 import { canManageHours } from "@/lib/roles";
-import { todayAmsterdam } from "@/lib/schedule";
+import { ensureColorGroups, sortEmployees, todayAmsterdam } from "@/lib/schedule";
+import { GroupHeaderRow } from "@/components/group-header-row";
 
 export default async function VerlofurenPage() {
   const session = await auth();
   if (!session?.user || !canManageHours(session.user.role)) redirect("/rooster");
 
   const todayISO = toISODate(todayAmsterdam());
-  const employees = await prisma.employee.findMany({
-    where: { active: true },
-    select: { id: true, name: true },
-    orderBy: { name: "asc" },
-  });
+  const [employeesRaw, groups] = await Promise.all([
+    prisma.employee.findMany({
+      where: { active: true },
+      select: { id: true, name: true, colorGroup: true, experience: true },
+    }),
+    ensureColorGroups(),
+  ]);
+  // Zelfde volgorde als in het rooster: kleurgroep, dan ervaring, dan naam.
+  const employees = sortEmployees(employeesRaw, groups);
   const balances = await loadBalances(todayISO, employees.map((e) => e.id));
 
   const dayBefore = (iso: string) => {
@@ -48,11 +54,13 @@ export default async function VerlofurenPage() {
             </tr>
           </thead>
           <tbody>
-            {employees.map((e) => {
+            {employees.map((e, i) => {
               const b = balances.get(e.id)!;
               const empty = b.buckets.length === 0;
               return (
-                <tr key={e.id} className="border-b border-border last:border-0">
+                <Fragment key={e.id}>
+                {(i === 0 || employees[i - 1].colorGroup !== e.colorGroup) && <GroupHeaderRow group={e.colorGroup} colSpan={6} />}
+                <tr className="border-b border-border last:border-0">
                   <td className="px-4 py-2 font-medium">{e.name}</td>
                   {empty ? (
                     <td colSpan={4} className="px-4 py-2 text-foreground-muted">
@@ -76,6 +84,7 @@ export default async function VerlofurenPage() {
                     </Link>
                   </td>
                 </tr>
+                </Fragment>
               );
             })}
           </tbody>
