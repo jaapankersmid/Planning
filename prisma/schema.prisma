@@ -56,6 +56,7 @@ model User {
   leaveDecided   LeaveRequest[] @relation("LeaveDecidedBy")
 
   timesheetsDecided Timesheet[] @relation("TimesheetDecidedBy")
+  leaveAllowancesUpdated LeaveAllowance[] @relation("LeaveAllowanceUpdatedBy")
   timeEntriesEdited TimeEntry[] @relation("TimeEntryEditedBy")
 
   // --- Google Calendar-koppeling (los van inloggen) ---------------------
@@ -93,6 +94,7 @@ model Employee {
   availabilityChanges AvailabilityChange[]
   timesheets          Timesheet[]
   timeEntries         TimeEntry[]
+  leaveAllowances     LeaveAllowance[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -387,4 +389,25 @@ model TimeEntry {
 
   @@unique([employeeId, date])
   @@index([date])
+}
+
+// Verlofuren die een medewerker voor een kalenderjaar krijgt (bv. 2026 = 1 jan 2026 t/m 30 juni 2027).
+// De administratie vult dit in en kan het later aanpassen (contractwijziging e.d.).
+model LeaveAllowance {
+  id String @id @default(cuid())
+
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId String
+
+  year  Int
+  hours Float
+  note  String?
+
+  updatedBy   User?   @relation("LeaveAllowanceUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  updatedById String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([employeeId, year])
 }

@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { formatRange, toISODate } from "@/lib/format";
 import { leaveDates } from "@/lib/leave";
 import { todayAmsterdam } from "@/lib/schedule";
+import { loadBalance } from "@/lib/leave-balance";
+import { LeaveBalanceCard } from "@/components/leave-balance-card";
 import { LeaveForm } from "@/components/leave-form";
 import { LeaveStatusBadge } from "@/components/leave-status";
 import { cancelOwnRequest, requestLeave } from "./actions";
@@ -44,6 +46,7 @@ export default async function VerlofPage() {
     orderBy: { startDate: "desc" },
   });
   const todayISO = toISODate(todayAmsterdam());
+  const balance = await loadBalance(employeeId, todayISO);
 
   return (
     <div className="flex max-w-3xl flex-col gap-6">
@@ -53,6 +56,11 @@ export default async function VerlofPage() {
           Vraag hier vrij aan. Een planner moet het goedkeuren; daarna staan de dagen als V (Vrij) in
           het rooster.
         </p>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <h2 className="text-sm font-semibold">Mijn verlofuren</h2>
+        <LeaveBalanceCard balance={balance} todayISO={todayISO} />
       </div>
 
       <div className="rounded-lg border border-border bg-surface p-5">

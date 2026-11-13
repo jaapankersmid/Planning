@@ -17,6 +17,7 @@ const links: { href: string; label: string; roles: Role[] }[] = [
   { href: "/beschikbaarheid", label: "Beschikbaarheid", roles: PERSONAL },
   { href: "/uren", label: "Mijn uren", roles: PERSONAL },
   { href: "/uren/overzicht", label: "Uren", roles: HOURS_ADMIN },
+  { href: "/verlofuren", label: "Verlofuren", roles: HOURS_ADMIN },
   { href: "/verlof/overzicht", label: "Verlofoverzicht", roles: PLANNER },
   { href: "/vast-rooster", label: "Vast rooster", roles: PLANNER },
   { href: "/vakanties", label: "Vakanties", roles: PLANNER },

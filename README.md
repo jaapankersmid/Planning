@@ -159,7 +159,9 @@ Nieuwe tabellen: na het updaten eenmalig `docker compose -f docker-compose.prod.
 
 **Uren registreren.** Onder *Mijn uren* staat per dag het geplande aantal uren (zonder pauzes) als voorstel. Klopt het, dan hoeft de medewerker niets te doen; anders past hij of zij de uren aan en zet er eventueel een opmerking bij. Vanaf de laatste dag van de maand dient de medewerker de maand in (dagen die niet zijn aangepast worden dan bevestigd zoals gepland). Onder *Uren* ziet de administratie of planner per medewerker gepland en gewerkt, opent de details, past dagen aan, keurt goed of stuurt terug met een opmerking, en kan een goedgekeurde maand heropenen. De export (*Download totalen* of *per dag*) is een CSV met puntkomma's en decimale komma's, direct te openen in Excel.
 
-> Na deze update eenmalig `npx prisma db push` draaien: er komen twee tabellen (Timesheet, TimeEntry) en een rol (ACCOUNTING) bij. Bestaande gegevens blijven onaangeroerd.
+**Verlofuren.** De administratie (of een planner) vult onder *Verlofuren* per medewerker het aantal uren per jaar in en kan dat later aanpassen, bijvoorbeeld bij een contractwijziging (met een opmerking erbij). Het tegoed van jaar Y geldt van 1 januari Y tot en met 30 juni Y+1, dus anderhalf jaar; wat dan niet is opgenomen vervalt. Een V in het rooster gaat direct van het saldo af, voor de uren die iemand op die weekdag volgens het vaste rooster werkt (dagen waarop iemand normaal niet werkt kosten niets), en eerst van het oudste tegoed. Medewerkers zien hun eigen saldo onder *Mijn verlof*, inclusief wat er binnenkort vervalt. Zonder vast rooster telt een V voor 0 uur; het overzicht waarschuwt daar dan voor.
+
+> Na deze update eenmalig `npx prisma db push` draaien: er komen drie tabellen (Timesheet, TimeEntry, LeaveAllowance) en een rol (ACCOUNTING) bij. Bestaande gegevens blijven onaangeroerd.
 
 ## 3. Een echte omgeving hosten
 
