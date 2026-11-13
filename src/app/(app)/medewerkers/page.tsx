@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { colorGroupSwatch } from "@/lib/format";
 import { ensureColorGroups, sortEmployees } from "@/lib/schedule";
 import { AutoSelect } from "@/components/auto-select";
+import { WeeklyHoursEditor } from "@/components/weekly-hours-editor";
 import {
   addEmployee,
   moveColorGroup,
@@ -113,6 +114,7 @@ export default async function MedewerkersPage() {
             <tr className="border-b border-border bg-surface-muted text-left text-xs font-medium uppercase tracking-wide text-foreground-muted">
               <th className="px-4 py-2">Naam</th>
               <th className="px-4 py-2">Kleurgroep</th>
+              <th className="px-4 py-2">Uren per week</th>
               <th className="px-4 py-2">Account</th>
               <th className="px-4 py-2">Status</th>
               <th className="px-4 py-2" />
@@ -141,6 +143,9 @@ export default async function MedewerkersPage() {
                       action={setEmployeeColorGroup.bind(null, e.id)}
                     />
                   </span>
+                </td>
+                <td className="px-4 py-2">
+                  <WeeklyHoursEditor key={`${e.id}_${e.weeklyHours}`} employeeId={e.id} hours={e.weeklyHours} label={`Standaard uren per week van ${e.name}`} />
                 </td>
                 <td className="px-4 py-2 text-foreground-muted">
                   {e.user ? (

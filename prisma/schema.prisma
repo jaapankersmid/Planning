@@ -85,6 +85,8 @@ model Employee {
   colorGroup String?
   active     Boolean @default(true)
   experience Float?
+  // Standaard (contract)uren per week; de basis voor het berekenen van opgenomen verlof.
+  weeklyHours Float?
 
   user         User?
   assignments  ShiftAssignment[]

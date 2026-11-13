@@ -7,6 +7,7 @@ import { fmtHours, loadBalance } from "@/lib/leave-balance";
 import { canManageHours } from "@/lib/roles";
 import { todayAmsterdam } from "@/lib/schedule";
 import { AdjustmentForm } from "@/components/adjustment-form";
+import { WeeklyHoursEditor } from "@/components/weekly-hours-editor";
 import { AllowanceEditor } from "@/components/allowance-editor";
 import { LeaveBalanceCard } from "@/components/leave-balance-card";
 
@@ -31,7 +32,7 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
   const allowanceYears = new Set(balance.buckets.filter((b) => b.updatedAt || b.hours > 0).map((b) => b.year));
   const bucketByYear = new Map(balance.buckets.map((b) => [b.year, b]));
 
-  const recentDays = [...balance.days].sort((a, b) => b.dateISO.localeCompare(a.dateISO)).filter((d) => d.hours > 0 || d.dateISO >= `${thisYear - 1}-01-01`);
+  const recentDays = [...balance.days].sort((a, b) => b.dateISO.localeCompare(a.dateISO));
 
   return (
     <div className="flex max-w-4xl flex-col gap-5">
@@ -43,6 +44,16 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
       </div>
 
       <LeaveBalanceCard balance={balance} todayISO={todayISO} />
+
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-border bg-surface p-5">
+        <div>
+          <h2 className="text-sm font-semibold">Standaard uren per week</h2>
+          <p className="text-xs text-foreground-muted">
+            Opgenomen verlof per week = deze uren min de uren die in die week zijn gewerkt (of gepland staan). Pas dit aan als het contract verandert.
+          </p>
+        </div>
+        <WeeklyHoursEditor key={`${employeeId}_${balance.weeklyHours}`} employeeId={employeeId} hours={balance.weeklyHours} label={`Standaard uren per week van ${employee.name}`} />
+      </div>
 
       <div className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5">
         <div>
@@ -77,7 +88,7 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-surface-muted text-left text-xs font-medium uppercase tracking-wide text-foreground-muted">
-              <th className="px-4 py-2">Verlofdag (V)</th>
+              <th className="px-4 py-2">Verlof per week</th>
               <th className="px-4 py-2 text-right">Uren</th>
               <th className="px-4 py-2">Van tegoed</th>
             </tr>
@@ -86,7 +97,7 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
             {recentDays.length === 0 && (
               <tr>
                 <td colSpan={3} className="px-4 py-6 text-center text-foreground-muted">
-                  Nog geen verlofdagen in het rooster.
+                  Nog geen verlof berekend. Vul de standaard uren per week in; weken waarin minder is gewerkt of gepland dan dat aantal tellen als verlof.
                 </td>
               </tr>
             )}
@@ -95,10 +106,14 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
               return (
                 <tr key={d.dateISO} className="border-b border-border last:border-0">
                   <td className="px-4 py-1.5">
-                    {weekdayShort(date)} {formatDayMonth(date)} {date.getUTCFullYear()}
-                    {d.dateISO > todayISO && <span className="ml-2 text-xs text-foreground-muted">gepland</span>}
+                    <span className="font-medium">{d.label ?? ""}</span>{" "}
+                    <span className="text-foreground-muted">
+                      vanaf {weekdayShort(date)} {formatDayMonth(date)} {date.getUTCFullYear()}
+                    </span>
+                    {d.planned && <span className="ml-2 text-xs text-foreground-muted">ingepland</span>}
+                    {d.detail && <div className="text-xs text-foreground-muted">{d.detail}</div>}
                   </td>
-                  <td className="px-4 py-1.5 text-right tabular-nums">{d.ignored ? <span className="text-foreground-muted">telt niet mee</span> : d.hours === 0 ? <span className="text-foreground-muted">0 (geen werkdag)</span> : fmtHours(d.hours)}</td>
+                  <td className="px-4 py-1.5 text-right tabular-nums">{d.ignored ? <span className="text-foreground-muted">telt niet mee</span> : fmtHours(d.hours)}</td>
                   <td className="px-4 py-1.5 text-foreground-muted">{d.ignored ? "voor de peildatum" : d.taken.map((t) => `${t.year}: ${fmtHours(t.hours)}`).join(", ") || "–"}</td>
                 </tr>
               );

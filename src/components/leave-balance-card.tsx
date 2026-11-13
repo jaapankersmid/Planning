@@ -14,7 +14,7 @@ const dayMonthYear = (iso: string) => {
 const lastDay = (year: number) => dayBefore(expiryISO(year));
 
 /** Overzicht van verlofuren: wat er nog is, wat er is opgenomen en wanneer uren vervallen. Voor medewerker en administratie. */
-export function LeaveBalanceCard({ balance, todayISO }: { balance: Balance & { noTemplate?: boolean }; todayISO: string }) {
+export function LeaveBalanceCard({ balance, todayISO }: { balance: Balance & { weeklyHours?: number | null }; todayISO: string }) {
   const { buckets } = balance;
   if (buckets.length === 0) {
     return (
@@ -42,23 +42,28 @@ export function LeaveBalanceCard({ balance, todayISO }: { balance: Balance & { n
             <dd className="tabular-nums">{fmtHours(balance.takenPast)} uur</dd>
           </div>
           <div>
-            <dt className="text-xs text-foreground-muted">Al ingepland, nog te komen</dt>
+            <dt className="text-xs text-foreground-muted">Ingepland (rest van {balance.forecastISO.slice(0, 4)})</dt>
             <dd className="tabular-nums">{fmtHours(balance.plannedFuture)} uur</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-foreground-muted">Verwacht over op 31 december {balance.forecastISO.slice(0, 4)}</dt>
+            <dd className={`font-semibold tabular-nums ${balance.forecast < 0 ? "text-bad-text" : ""}`}>{fmtHours(balance.forecast)} uur</dd>
           </div>
         </dl>
       </div>
 
-      {balance.available < 0 && (
-        <p className="text-sm text-bad-text">Er is meer verlof ingepland dan er tegoed is.</p>
+      {balance.available < 0 && <p className="text-sm text-bad-text">Er is meer verlof opgenomen dan er tegoed was.</p>}
+      {balance.available >= 0 && balance.forecast < 0 && (
+        <p className="text-sm text-bad-text">Met het ingeplande verlof komt het saldo aan het eind van het jaar onder nul.</p>
       )}
       {balance.expiring && (
         <p className={`text-sm ${soon ? "text-amber-700 dark:text-amber-300" : "text-foreground-muted"}`}>
           {fmtHours(balance.expiring.hours)} uur vervalt na {dayBefore(balance.expiring.dateISO)} als dat niet wordt opgenomen.
         </p>
       )}
-      {balance.noTemplate && (
+      {(balance.weeklyHours ?? 0) <= 0 && (
         <p className="text-sm text-amber-700 dark:text-amber-300">
-          Voor deze medewerker is geen vast rooster ingesteld, dus de verlofdagen tellen voor 0 uur mee.
+          De standaard uren per week zijn nog niet ingevuld, dus er kan geen opgenomen verlof worden berekend.
         </p>
       )}
 
@@ -70,6 +75,7 @@ export function LeaveBalanceCard({ balance, todayISO }: { balance: Balance & { n
               <th className="py-1.5 pr-4 text-right">Uren</th>
               <th className="py-1.5 pr-4 text-right">Opgenomen</th>
               <th className="py-1.5 pr-4 text-right">Over</th>
+              <th className="py-1.5 pr-4 text-right">Ingepland</th>
               <th className="py-1.5">Geldig</th>
             </tr>
           </thead>
@@ -89,6 +95,7 @@ export function LeaveBalanceCard({ balance, todayISO }: { balance: Balance & { n
                 <td className={`py-1.5 pr-4 text-right tabular-nums ${b.remaining < 0 ? "text-bad-text" : ""}`}>
                   {b.expired && b.lost > 0 ? <span className="text-foreground-muted line-through">{fmtHours(b.lost)}</span> : fmtHours(b.remaining)}
                 </td>
+                <td className="py-1.5 pr-4 text-right tabular-nums text-foreground-muted">{b.plannedUsed > 0 ? fmtHours(b.plannedUsed) : "–"}</td>
                 <td className="py-1.5 text-foreground-muted">
                   {b.future ? `vanaf 1 januari ${b.year}` : b.expired ? `verlopen op ${lastDay(b.year)}` : `t/m ${lastDay(b.year)}`}
                   {b.countFromISO && <div className="text-xs">stand per {dayMonthYear(b.countFromISO)}</div>}
@@ -122,8 +129,9 @@ export function LeaveBalanceCard({ balance, todayISO }: { balance: Balance & { n
         </div>
       )}
       <p className="text-xs text-foreground-muted">
-        Verlofuren van een jaar gelden van 1 januari tot en met 30 juni van het jaar erna. Een V in het rooster telt
-        voor de uren die je die weekdag normaal werkt en gaat eerst van het oudste tegoed af.
+        Verlofuren van een jaar gelden van 1 januari tot en met 30 juni van het jaar erna. Opgenomen verlof per week is de
+        standaard uren per week{balance.weeklyHours ? ` (${fmtHours(balance.weeklyHours)} uur)` : ""} min de uren die je die week hebt gewerkt;
+        voor weken die nog komen de uren uit het rooster. Het gaat eerst van het oudste tegoed af.
       </p>
     </div>
   );

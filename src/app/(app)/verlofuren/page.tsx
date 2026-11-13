@@ -46,9 +46,11 @@ export default async function VerlofurenPage() {
           <thead>
             <tr className="border-b border-border bg-surface-muted text-left text-xs font-medium uppercase tracking-wide text-foreground-muted">
               <th className="px-4 py-2">Medewerker</th>
+              <th className="px-4 py-2 text-right">Uren/week</th>
               <th className="px-4 py-2 text-right">Opgenomen</th>
               <th className="px-4 py-2 text-right">Ingepland</th>
-              <th className="px-4 py-2 text-right">Nog op te nemen</th>
+              <th className="px-4 py-2 text-right">Nu over</th>
+              <th className="px-4 py-2 text-right">Eind {todayISO.slice(0, 4)}</th>
               <th className="px-4 py-2">Vervalt</th>
               <th className="px-4 py-2" />
             </tr>
@@ -59,20 +61,24 @@ export default async function VerlofurenPage() {
               const empty = b.buckets.length === 0;
               return (
                 <Fragment key={e.id}>
-                {(i === 0 || employees[i - 1].colorGroup !== e.colorGroup) && <GroupHeaderRow group={e.colorGroup} colSpan={6} />}
+                {(i === 0 || employees[i - 1].colorGroup !== e.colorGroup) && <GroupHeaderRow group={e.colorGroup} colSpan={8} />}
                 <tr className="border-b border-border last:border-0">
                   <td className="px-4 py-2 font-medium">{e.name}</td>
                   {empty ? (
-                    <td colSpan={4} className="px-4 py-2 text-foreground-muted">
+                    <td colSpan={6} className="px-4 py-2 text-foreground-muted">
                       nog geen verlofuren ingevuld
                     </td>
                   ) : (
                     <>
+                      <td className="px-4 py-2 text-right tabular-nums text-foreground-muted">
+                        {b.weeklyHours ? fmtHours(b.weeklyHours) : <span className="text-amber-700 dark:text-amber-300" title="Standaard uren per week ontbreken">ontbreekt</span>}
+                      </td>
                       <td className="px-4 py-2 text-right tabular-nums text-foreground-muted">{fmtHours(b.takenPast)}</td>
                       <td className="px-4 py-2 text-right tabular-nums text-foreground-muted">{fmtHours(b.plannedFuture)}</td>
                       <td className={`px-4 py-2 text-right font-semibold tabular-nums ${b.available < 0 ? "text-bad-text" : ""}`}>
                         {fmtHours(b.available)}
                       </td>
+                      <td className={`px-4 py-2 text-right tabular-nums ${b.forecast < 0 ? "text-bad-text" : ""}`}>{fmtHours(b.forecast)}</td>
                       <td className="px-4 py-2 text-foreground-muted">
                         {b.expiring ? `${fmtHours(b.expiring.hours)} uur na ${dayBefore(b.expiring.dateISO)}` : "–"}
                       </td>
@@ -91,8 +97,8 @@ export default async function VerlofurenPage() {
         </table>
       </div>
       <p className="text-xs text-foreground-muted">
-        Een V in het rooster telt direct mee voor de uren die iemand op die weekdag volgens het vaste rooster werkt,
-        ook als de dag nog moet komen. Uren in uren (netto, zonder pauzes).
+        Opgenomen verlof per week is de standaard uren per week min de gewerkte uren; voor weken die nog komen de geplande
+        uren. De kolom Eind {todayISO.slice(0, 4)} is wat er naar verwachting overblijft als dat ingeplande verlof wordt opgenomen.
       </p>
     </div>
   );

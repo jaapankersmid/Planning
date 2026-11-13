@@ -1,19 +1,31 @@
 import { prisma } from "@/lib/prisma";
 import { shiftHours } from "@/lib/hours";
-import { toISODate } from "@/lib/format";
+import { addDays, dateFromISO, isoWeek, startOfWeek, toISODate } from "@/lib/format";
 import { weekdayNumber } from "@/lib/schedule";
 
 /**
  * Verlofuren: het tegoed van kalenderjaar Y geldt van 1 januari Y tot en met 30 juni Y+1
- * (anderhalf jaar). Opgenomen verlof (een V in het rooster) gaat eerst van het oudste tegoed af,
- * zodat wat het eerst vervalt het eerst op is.
+ * (anderhalf jaar). Opgenomen verlof gaat eerst van het oudste tegoed af, zodat wat het eerst
+ * vervalt het eerst op is.
+ *
+ * Wat is opgenomen verlof? Niet de V in de planning, maar per week: de standaard uren per week
+ * (contract) min de uren die iemand echt heeft gewerkt (of, voor weken die nog komen, is ingepland).
  */
 
 /** Eerste dag dat het tegoed van dit jaar niet meer geldt: 1 juli van het jaar erna. */
 export const expiryISO = (year: number) => `${year + 1}-07-01`;
 export const startISO = (year: number) => `${year}-01-01`;
 
-export type VacationDay = { dateISO: string; hours: number };
+/** Verlof dat van het tegoed afgaat (in de praktijk: één week). */
+export type VacationDay = {
+  /** Datum waarop het verlof telt (bij een week: de maandag). */
+  dateISO: string;
+  hours: number;
+  /** Nog niet voorbij (huidige of toekomstige week): telt als "ingepland", niet als "opgenomen". */
+  planned?: boolean;
+  label?: string;
+  detail?: string;
+};
 
 export type BucketInput = {
   year: number;
@@ -28,8 +40,14 @@ export type BucketInput = {
 };
 
 export type Bucket = BucketInput & {
+  /** Opgenomen (voorbije weken). */
   used: number;
+  /** Nu nog over: tegoed min opgenomen. */
   remaining: number;
+  /** Ingepland verlof (huidige en komende weken) dat van dit tegoed afgaat. */
+  plannedUsed: number;
+  /** Verwachte rest als ook het ingeplande verlof is opgenomen. */
+  forecastRemaining: number;
   /** Het tegoed is nog niet ingegaan (jaar moet nog beginnen). */
   future: boolean;
   /** Het tegoed is verlopen. */
@@ -55,12 +73,15 @@ export type AdjustmentEntry = {
 
 export type Balance = {
   buckets: Bucket[];
-  /** Nu op te nemen: tegoed dat is ingegaan en nog niet vervallen, min alles wat al in het rooster staat. */
+  /** Nu op te nemen: tegoed dat is ingegaan en nog niet vervallen, min wat al is opgenomen. */
   available: number;
-  /** Opgenomen tot en met vandaag, binnen geldige tegoeden. */
+  /** Opgenomen in voorbije weken. */
   takenPast: number;
-  /** Al in het rooster ingepland maar nog niet geweest. */
+  /** Ingepland in de huidige en komende weken (t/m het einde van het jaar van de verwachting). */
   plannedFuture: number;
+  /** Verwachte rest op {forecastISO}: nu beschikbaar min het ingeplande verlof, zonder uren die dan vervallen zijn. */
+  forecast: number;
+  forecastISO: string;
   /** Eerstvolgende datum waarop uren vervallen, met het aantal uren dat dan nog over is. */
   expiring: { dateISO: string; hours: number } | null;
   days: DayAllocation[];
@@ -68,7 +89,7 @@ export type Balance = {
   adjustments: AdjustmentEntry[];
 };
 
-/** Bepaalt welke tegoed-jaren een verlofdag mag gebruiken. */
+/** Bepaalt welke tegoed-jaren verlof op deze datum mag gebruiken. */
 function eligibleYears(dateISO: string) {
   const year = Number(dateISO.slice(0, 4));
   return dateISO < `${year}-07-01` ? [year - 1, year] : [year];
@@ -81,21 +102,28 @@ export function computeBalance(
   vacationDays: VacationDay[],
   todayISO: string,
   adjustments: AdjustmentEntry[] = [],
+  forecastISO: string = `${todayISO.slice(0, 4)}-12-31`,
 ): Balance {
-  const map = new Map<number, Bucket>();
-  const make = (input: BucketInput): Bucket => ({
+  type Work = Bucket & { total: number };
+  const map = new Map<number, Work>();
+  const make = (input: BucketInput): Work => ({
     ...input,
+    total: input.hours + (input.adjustment ?? 0),
     used: 0,
-    remaining: input.hours + (input.adjustment ?? 0),
+    remaining: 0,
+    plannedUsed: 0,
+    forecastRemaining: 0,
     future: false,
     expired: false,
     lost: 0,
   });
   for (const input of inputs) map.set(input.year, make(input));
+  const left = (b: Work) => b.total - b.used - b.plannedUsed;
 
   const days: DayAllocation[] = [];
   for (const day of [...vacationDays].sort((a, b) => a.dateISO.localeCompare(b.dateISO))) {
-    const allocation: DayAllocation = { ...day, taken: [] };
+    const planned = day.planned ?? day.dateISO > todayISO;
+    const allocation: DayAllocation = { ...day, planned, taken: [] };
     let todo = day.hours;
     const years = eligibleYears(day.dateISO);
     // Heeft het nieuwste tegoed een peildatum na deze dag, dan is de stand al ingevuld zonder deze dag.
@@ -105,13 +133,16 @@ export function computeBalance(
       days.push(allocation);
       continue;
     }
+    const add = (bucket: Work, hours: number) => {
+      if (planned) bucket.plannedUsed += hours;
+      else bucket.used += hours;
+    };
     for (const year of years) {
       const bucket = map.get(year);
-      if (!bucket || todo <= 0 || bucket.remaining <= 0) continue;
+      if (!bucket || todo <= 0 || left(bucket) <= 0) continue;
       if (bucket.countFromISO && day.dateISO < bucket.countFromISO) continue;
-      const take = Math.min(todo, bucket.remaining);
-      bucket.used += take;
-      bucket.remaining -= take;
+      const take = Math.min(todo, left(bucket));
+      add(bucket, take);
       allocation.taken.push({ year, hours: take });
       todo -= take;
     }
@@ -120,8 +151,7 @@ export function computeBalance(
       const year = years[years.length - 1];
       const bucket = map.get(year) ?? make({ hours: 0, year });
       map.set(year, bucket);
-      bucket.used += todo;
-      bucket.remaining -= todo;
+      add(bucket, todo);
       allocation.taken.push({ year, hours: todo });
     }
     days.push(allocation);
@@ -129,10 +159,13 @@ export function computeBalance(
 
   const buckets = [...map.values()].sort((a, b) => a.year - b.year);
   let available = 0;
+  let forecast = 0;
   let expiring: Balance["expiring"] = null;
   for (const bucket of buckets) {
     bucket.used = round(bucket.used);
-    bucket.remaining = round(bucket.remaining);
+    bucket.plannedUsed = round(bucket.plannedUsed);
+    bucket.remaining = round(bucket.total - bucket.used);
+    bucket.forecastRemaining = round(bucket.total - bucket.used - bucket.plannedUsed);
     bucket.future = startISO(bucket.year) > todayISO;
     bucket.expired = expiryISO(bucket.year) <= todayISO;
     if (bucket.expired && bucket.remaining > 0) bucket.lost = bucket.remaining;
@@ -140,31 +173,52 @@ export function computeBalance(
     if (!bucket.expired && !bucket.future && bucket.remaining > 0 && !expiring) {
       expiring = { dateISO: expiryISO(bucket.year), hours: bucket.remaining };
     }
+    // Verwachting: alleen tegoed dat op de verwachtingsdatum al is ingegaan en nog niet vervallen is (tekorten blijven staan).
+    const started = startISO(bucket.year) <= forecastISO;
+    const stillValid = expiryISO(bucket.year) > forecastISO;
+    if (started && (stillValid || bucket.forecastRemaining < 0)) forecast += bucket.forecastRemaining;
   }
 
   let takenPast = 0;
   let plannedFuture = 0;
   for (const day of days) {
     const hours = day.taken.reduce((sum, t) => sum + t.hours, 0);
-    if (day.dateISO <= todayISO) takenPast += hours;
-    else plannedFuture += hours;
+    if (day.planned) plannedFuture += hours;
+    else takenPast += hours;
   }
 
   const sortedAdjustments = [...adjustments].sort((a, b) => b.dateISO.localeCompare(a.dateISO));
-  return { buckets, available: round(available), takenPast: round(takenPast), plannedFuture: round(plannedFuture), expiring, days, adjustments: sortedAdjustments };
+  return {
+    buckets: buckets as Bucket[],
+    available: round(available),
+    takenPast: round(takenPast),
+    plannedFuture: round(plannedFuture),
+    forecast: round(forecast),
+    forecastISO,
+    expiring,
+    days,
+    adjustments: sortedAdjustments,
+  };
 }
 
 /**
- * Laadt tegoeden en verlofdagen uit de database en rekent het saldo uit voor de gevraagde medewerkers
- * (of iedereen). Een verlofdag telt voor de uren die iemand op die weekdag volgens het vaste rooster
- * zou werken; dagen waarop iemand normaal niet werkt (zoals het weekend) kosten niets.
+ * Laadt tegoeden, standaard weekuren, rooster en urenregistratie uit de database en rekent het saldo uit
+ * voor de gevraagde medewerkers (of iedereen).
+ *
+ * Opgenomen verlof per week = standaard uren per week − uren in die week (min 0). Een dag telt voor de
+ * geregistreerde uren; zonder registratie voor de uren van de geplande dienst (V telt dus 0 uur). Een
+ * ziektedag (Z) telt voor de uren die iemand op die weekdag volgens het vaste rooster werkt, zodat ziekte geen verlof kost.
+ * Weken zonder enige dienst of registratie tellen niet mee: daar is nog niets gepland.
  */
 export async function loadBalances(todayISO: string, employeeIds?: string[]) {
   const filter = employeeIds ? { employeeId: { in: employeeIds } } : {};
-  const [allowances, adjustmentRows] = await Promise.all([
+  const [allowances, adjustmentRows, employees] = await Promise.all([
     prisma.leaveAllowance.findMany({ where: filter, include: { updatedBy: { select: { name: true, email: true } } } }),
     prisma.leaveAdjustment.findMany({ where: filter, include: { createdBy: { select: { name: true, email: true } } }, orderBy: { date: "desc" } }),
+    prisma.employee.findMany({ where: employeeIds ? { id: { in: employeeIds } } : {}, select: { id: true, weeklyHours: true } }),
   ]);
+  const weeklyHours = new Map(employees.map((e) => [e.id, e.weeklyHours]));
+
   const byEmployee = new Map<string, BucketInput[]>();
   for (const a of allowances) {
     const list = byEmployee.get(a.employeeId) ?? [];
@@ -190,31 +244,62 @@ export async function loadBalances(todayISO: string, employeeIds?: string[]) {
 
   const years = [...allowances.map((a) => a.year), ...adjustmentRows.map((a) => a.year)];
   const earliest = years.length ? Math.min(...years) : null;
-  const [assignments, templates] = earliest
+  const forecastISO = `${todayISO.slice(0, 4)}-12-31`;
+  const rangeStart = earliest ? startOfWeek(dateFromISO(startISO(earliest))) : null;
+  const rangeEnd = addDays(startOfWeek(dateFromISO(forecastISO)), 7);
+
+  const [assignments, entries, templates] = rangeStart
     ? await Promise.all([
-        prisma.shiftAssignment.findMany({
-          where: { ...filter, shiftType: { code: "V" }, date: { gte: new Date(`${startISO(earliest)}T00:00:00.000Z`) } },
-          select: { employeeId: true, date: true },
-        }),
+        prisma.shiftAssignment.findMany({ where: { ...filter, date: { gte: rangeStart, lt: rangeEnd } }, include: { shiftType: true } }),
+        prisma.timeEntry.findMany({ where: { ...filter, date: { gte: rangeStart, lt: rangeEnd } }, select: { employeeId: true, date: true, hours: true } }),
         prisma.weeklyScheduleEntry.findMany({ where: filter, include: { shiftType: true } }),
       ])
-    : [[], []];
+    : [[], [], []];
 
-  const hoursPerWeekday = new Map<string, number>();
-  const hasTemplate = new Set<string>();
-  for (const t of templates) {
-    hasTemplate.add(t.employeeId);
-    hoursPerWeekday.set(`${t.employeeId}_${t.weekday}`, t.shiftType.code === "V" ? 0 : shiftHours(t.shiftType));
-  }
+  const templateHours = new Map<string, number>();
+  for (const t of templates) templateHours.set(`${t.employeeId}_${t.weekday}`, t.shiftType.code === "V" ? 0 : shiftHours(t.shiftType));
 
-  const result = new Map<string, Balance & { noTemplate: boolean }>();
-  const ids = employeeIds ?? [...byEmployee.keys()];
+  const assignmentsBy = new Map<string, (typeof assignments)[number]>();
+  for (const a of assignments) assignmentsBy.set(`${a.employeeId}_${toISODate(a.date)}`, a);
+  const entriesBy = new Map<string, number>();
+  for (const e of entries) entriesBy.set(`${e.employeeId}_${toISODate(e.date)}`, e.hours);
+
+  const result = new Map<string, Balance & { weeklyHours: number | null }>();
+  const ids = employeeIds ?? [...new Set([...byEmployee.keys(), ...adjustmentsByEmployee.keys()])];
   for (const id of ids) {
-    const days: VacationDay[] = assignments
-      .filter((a) => a.employeeId === id)
-      .map((a) => ({ dateISO: toISODate(a.date), hours: hoursPerWeekday.get(`${id}_${weekdayNumber(a.date)}`) ?? 0 }));
-    const balance = computeBalance(byEmployee.get(id) ?? [], days, todayISO, adjustmentsByEmployee.get(id) ?? []);
-    result.set(id, { ...balance, noTemplate: !hasTemplate.has(id) && days.length > 0 });
+    const contract = weeklyHours.get(id) ?? null;
+    const weeks: VacationDay[] = [];
+    if (contract !== null && contract > 0 && rangeStart && earliest !== null) {
+      for (let monday = rangeStart; toISODate(monday) <= forecastISO; monday = addDays(monday, 7)) {
+        const mondayISO = toISODate(monday);
+        if (mondayISO < startISO(earliest)) continue;
+        let worked = 0;
+        let active = false;
+        for (let i = 0; i < 7; i++) {
+          const day = addDays(monday, i);
+          const key = `${id}_${toISODate(day)}`;
+          const assignment = assignmentsBy.get(key);
+          const entry = entriesBy.get(key);
+          if (assignment || entry !== undefined) active = true;
+          if (entry !== undefined) worked += entry;
+          else if (assignment?.shiftType.code === "Z") worked += templateHours.get(`${id}_${weekdayNumber(day)}`) ?? 0;
+          else if (assignment) worked += shiftHours(assignment.shiftType);
+        }
+        if (!active) continue;
+        const leave = round(Math.max(0, contract - worked));
+        if (leave <= 0) continue;
+        const sundayISO = toISODate(addDays(monday, 6));
+        weeks.push({
+          dateISO: mondayISO,
+          hours: leave,
+          planned: sundayISO >= todayISO,
+          label: `Week ${isoWeek(monday)}`,
+          detail: `${round(contract)} uur contract, ${round(worked)} uur ${sundayISO >= todayISO ? "gepland/gewerkt" : "gewerkt"}`,
+        });
+      }
+    }
+    const balance = computeBalance(byEmployee.get(id) ?? [], weeks, todayISO, adjustmentsByEmployee.get(id) ?? [], forecastISO);
+    result.set(id, { ...balance, weeklyHours: contract });
   }
   return result;
 }
