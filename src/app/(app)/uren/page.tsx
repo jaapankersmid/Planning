@@ -31,7 +31,7 @@ export default async function MijnUrenPage({
   }
 
   const { year, month } = parseMonth(await searchParams);
-  const [employee, { rows, sheet }] = await Promise.all([
+  const [employee, { rows, sheet, weeks }] = await Promise.all([
     prisma.employee.findUnique({ where: { id: employeeId }, select: { name: true } }),
     loadEmployeeMonth(employeeId, year, month),
   ]);
@@ -78,15 +78,18 @@ export default async function MijnUrenPage({
       <p className="text-sm text-foreground-muted">
         De uren zijn voorgevuld met je geplande diensten (zonder pauzes). Klopt een dag, dan hoef je niets te doen;
         was je korter of langer aan het werk, pas dan de uren aan en zet er eventueel een opmerking bij. Cursieve
-        uren zijn nog niet bevestigd.
+        uren zijn nog niet bevestigd. Je kunt per week indienen (vanaf de zondag, bij de weekregel) of de hele maand in één keer; kies wat jou het beste uitkomt.
       </p>
 
       <TimesheetTable
-        key={`${year}-${month}-${sheet.status}-${rows.filter((r) => r.entry).length}`}
+        key={`${year}-${month}-${sheet.status}-${rows.filter((r) => r.entry).length}-${weeks.map((w) => w.status).join("")}`}
         rows={rows}
         todayISO={todayISO}
         editable={!locked}
         save={saveOwnEntry}
+        weeks={weeks}
+        weekMode="employee"
+        monthLocked={locked}
       />
 
       <TimesheetActions year={year} month={month} locked={locked} canSubmit={canSubmit} />

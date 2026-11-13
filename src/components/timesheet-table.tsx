@@ -1,11 +1,16 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { weekdayShort } from "@/lib/format";
+import { Fragment } from "react";
+import { formatDayMonth, weekdayShort } from "@/lib/format";
 import { formatHours } from "@/lib/hours";
+import { isLockedStatus, type WeekInfo } from "@/lib/timesheets";
+import { TimesheetStatusBadge } from "@/components/timesheet-status";
+import { WeekControls } from "@/components/week-controls";
 
 export type TimesheetRow = {
   dateISO: string;
+  weekStartISO: string;
   code: string | null;
   label: string | null;
   planned: number;
@@ -33,6 +38,10 @@ export function TimesheetTable({
   editable,
   allowFuture = false,
   save,
+  weeks,
+  weekMode,
+  employeeId,
+  monthLocked = false,
 }: {
   rows: TimesheetRow[];
   todayISO: string;
@@ -40,7 +49,15 @@ export function TimesheetTable({
   /** Administratie mag ook uren voor later invullen; medewerkers alleen tot en met vandaag. */
   allowFuture?: boolean;
   save: Save;
+  /** Per week een subtotaalregel met status en knoppen. */
+  weeks: WeekInfo[];
+  /** Medewerker: ingediende weken zijn vergrendeld en de week kan worden ingediend. Admin: beoordelen. */
+  weekMode: "employee" | "admin";
+  employeeId?: string;
+  /** Medewerker: de hele maand is al ingediend of goedgekeurd. */
+  monthLocked?: boolean;
 }) {
+  const weekByStart = new Map(weeks.map((w) => [w.startISO, w]));
   const proposal = (r: TimesheetRow) => (r.dateISO <= todayISO && r.planned > 0 ? fmt(r.planned) : "");
   const [cells, setCells] = useState<Record<string, Cell>>(() =>
     Object.fromEntries(
@@ -57,7 +74,13 @@ export function TimesheetTable({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [, startTransition] = useTransition();
 
-  const editableDay = (r: TimesheetRow) => editable && (allowFuture || r.dateISO <= todayISO);
+  const weekLocked = (r: TimesheetRow) => weekMode === "employee" && isLockedStatus(weekByStart.get(r.weekStartISO)?.status);
+  const editableDay = (r: TimesheetRow) => editable && !weekLocked(r) && (allowFuture || r.dateISO <= todayISO);
+
+  const liveHours = (r: TimesheetRow) => {
+    const value = Number((cells[r.dateISO]?.hours ?? "").replace(",", "."));
+    return Number.isFinite(value) ? value : 0;
+  };
 
   function patch(iso: string, change: Partial<Cell>) {
     setCells((c) => ({ ...c, [iso]: { ...c[iso], ...change } }));
@@ -108,15 +131,19 @@ export function TimesheetTable({
           </tr>
         </thead>
         <tbody>
-          {rows.map((r) => {
+          {rows.map((r, index) => {
             const cell = cells[r.dateISO];
+            const nextRow = rows[index + 1];
+            const endOfWeek = !nextRow || nextRow.weekStartISO !== r.weekStartISO;
+            const week = weekByStart.get(r.weekStartISO);
+            const weekRows = rows.filter((x) => x.weekStartISO === r.weekStartISO);
             const date = new Date(`${r.dateISO}T00:00:00Z`);
             const weekend = date.getUTCDay() === 0 || date.getUTCDay() === 6;
             const canEdit = editableDay(r);
             const future = r.dateISO > todayISO;
             return (
+              <Fragment key={r.dateISO}>
               <tr
-                key={r.dateISO}
                 className={`border-b border-border last:border-0 ${weekend ? "bg-weekend" : ""} ${future && !allowFuture ? "opacity-50" : ""}`}
               >
                 <td className={`whitespace-nowrap px-3 py-1.5 ${r.dateISO === todayISO ? "font-semibold" : ""}`}>
@@ -167,6 +194,50 @@ export function TimesheetTable({
                   )}
                 </td>
               </tr>
+              {endOfWeek && week && (() => {
+                const liveInMonth = weekRows.reduce((sum, x) => sum + liveHours(x), 0);
+                const plannedInMonth = weekRows.reduce((sum, x) => sum + x.planned, 0);
+                const outsideMonth = week.worked - week.workedInMonth;
+                const start = new Date(`${week.startISO}T00:00:00Z`);
+                const end = new Date(`${week.endISO}T00:00:00Z`);
+                return (
+                  <tr className="border-b border-border bg-surface-muted/70 text-xs">
+                    <td className="px-3 py-1.5 font-semibold" colSpan={2}>
+                      Week {week.weekNo}
+                      <span className="ml-1.5 font-normal text-foreground-muted">
+                        {formatDayMonth(start)} – {formatDayMonth(end)}
+                      </span>
+                    </td>
+                    <td className="px-3 py-1.5 text-right tabular-nums text-foreground-muted">{formatHours(plannedInMonth)}</td>
+                    <td className="px-3 py-1.5 font-semibold tabular-nums" colSpan={2}>
+                      <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                        <span>
+                          {formatHours(liveInMonth)} uur
+                          {week.partial && (
+                            <span className="ml-1.5 font-normal text-foreground-muted">
+                              (hele week: {formatHours(liveInMonth + outsideMonth)})
+                            </span>
+                          )}
+                        </span>
+                        {week.status !== "DRAFT" && <TimesheetStatusBadge status={week.status} />}
+                        <WeekControls
+                          mode={weekMode}
+                          employeeId={employeeId}
+                          weekStartISO={week.startISO}
+                          status={week.status}
+                          canSubmit={!monthLocked && todayISO >= week.endISO}
+                        />
+                        {week.status === "RETURNED" && week.decisionNote && (
+                          <span className="w-full font-normal text-bad-text">
+                            Teruggestuurd{week.decidedByName ? ` door ${week.decidedByName}` : ""}: {week.decisionNote}
+                          </span>
+                        )}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })()}
+              </Fragment>
             );
           })}
         </tbody>

@@ -24,6 +24,7 @@ export default async function UrenOverzichtPage({
   const counts = {
     SUBMITTED: rows.filter((r) => r.status === "SUBMITTED").length,
     APPROVED: rows.filter((r) => r.status === "APPROVED").length,
+    WEEKS: rows.reduce((sum, r) => sum + r.weeksSubmitted, 0),
   };
   const diff = (n: number) => (n === 0 ? "–" : `${n > 0 ? "+" : "−"}${formatHours(Math.abs(n))}`);
   const query = `year=${year}&month=${month}`;
@@ -35,7 +36,8 @@ export default async function UrenOverzichtPage({
         <div>
           <h1 className="text-lg font-semibold">Uren</h1>
           <p className="text-sm text-foreground-muted">
-            {counts.SUBMITTED > 0 ? `${counts.SUBMITTED} wacht${counts.SUBMITTED === 1 ? "" : "en"} op beoordeling · ` : ""}
+            {counts.SUBMITTED > 0 ? `${counts.SUBMITTED} maand${counts.SUBMITTED === 1 ? "" : "en"} wacht${counts.SUBMITTED === 1 ? "" : "en"} op beoordeling · ` : ""}
+            {counts.WEEKS > 0 ? `${counts.WEEKS} ingediende we${counts.WEEKS === 1 ? "ek" : "ken"} te beoordelen · ` : ""}
             {counts.APPROVED} van {rows.length} goedgekeurd
           </p>
         </div>
@@ -59,14 +61,15 @@ export default async function UrenOverzichtPage({
               <th className="px-4 py-2 text-right">Gepland</th>
               <th className="px-4 py-2 text-right">Gewerkt</th>
               <th className="px-4 py-2 text-right">Verschil</th>
-              <th className="px-4 py-2">Status</th>
+              <th className="px-4 py-2">Maand</th>
+              <th className="px-4 py-2">Weken</th>
               <th className="px-4 py-2" />
             </tr>
           </thead>
           <tbody>
             {rows.map((r, i) => (
               <Fragment key={r.employeeId}>
-              {(i === 0 || rows[i - 1].colorGroup !== r.colorGroup) && <GroupHeaderRow group={r.colorGroup} colSpan={6} />}
+              {(i === 0 || rows[i - 1].colorGroup !== r.colorGroup) && <GroupHeaderRow group={r.colorGroup} colSpan={7} />}
               <tr className="border-b border-border last:border-0">
                 <td className="px-4 py-2 font-medium">{r.name}</td>
                 <td className="px-4 py-2 text-right tabular-nums text-foreground-muted">{formatHours(r.planned)}</td>
@@ -84,6 +87,21 @@ export default async function UrenOverzichtPage({
                 <td className="px-4 py-2">
                   <TimesheetStatusBadge status={r.status} />
                 </td>
+                <td className="px-4 py-2 text-xs">
+                  {r.weeksSubmitted > 0 && (
+                    <span className="mr-1.5 inline-block rounded-full bg-amber-200 px-2 py-0.5 font-medium text-amber-950 dark:bg-amber-900 dark:text-amber-100">
+                      {r.weeksSubmitted} ingediend
+                    </span>
+                  )}
+                  {r.weeksReturned > 0 && (
+                    <span className="mr-1.5 inline-block rounded-full bg-bad px-2 py-0.5 font-medium text-bad-text">
+                      {r.weeksReturned} teruggestuurd
+                    </span>
+                  )}
+                  <span className="text-foreground-muted">
+                    {r.weeksApproved}/{r.weeksTotal} goedgekeurd
+                  </span>
+                </td>
                 <td className="px-4 py-2 text-right">
                   <Link href={`/uren/overzicht/${r.employeeId}?${query}`} className="text-xs underline hover:no-underline">
                     openen
@@ -98,7 +116,7 @@ export default async function UrenOverzichtPage({
               <td className="px-4 py-2">Totaal</td>
               <td className="px-4 py-2 text-right tabular-nums">{formatHours(totals.planned)}</td>
               <td className="px-4 py-2 text-right tabular-nums">{formatHours(totals.worked)}</td>
-              <td className="px-4 py-2" colSpan={3} />
+              <td className="px-4 py-2" colSpan={4} />
             </tr>
           </tfoot>
         </table>

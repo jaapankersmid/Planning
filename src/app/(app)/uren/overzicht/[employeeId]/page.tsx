@@ -28,7 +28,7 @@ export default async function UrenDetailPage({
   const employee = await prisma.employee.findUnique({ where: { id: employeeId }, select: { name: true } });
   if (!employee) notFound();
 
-  const { rows, sheet } = await loadEmployeeMonth(employeeId, year, month);
+  const { rows, sheet, weeks } = await loadEmployeeMonth(employeeId, year, month);
   const todayISO = toISODate(todayAmsterdam());
   const worked = rows.reduce((sum, r) => sum + effectiveHours(r, todayISO), 0);
   const planned = rows.reduce((sum, r) => sum + r.planned, 0);
@@ -63,15 +63,18 @@ export default async function UrenDetailPage({
 
       <p className="text-sm text-foreground-muted">
         Je kunt de uren van een dag aanpassen; dat is ook mogelijk in een ingediende of goedgekeurde maand. Cursieve uren
-        zijn nog niet door de medewerker bevestigd.
+        zijn nog niet door de medewerker bevestigd. Bij elke weekregel zie je het weektotaal en keur je de week goed of stuur je hem terug.
       </p>
 
       <TimesheetTable
-        key={`${year}-${month}-${sheet.status}-${rows.filter((r) => r.entry).length}`}
+        key={`${year}-${month}-${sheet.status}-${rows.filter((r) => r.entry).length}-${weeks.map((w) => w.status).join("")}`}
         rows={rows}
         todayISO={todayISO}
         editable
         save={saveEntryForEmployee.bind(null, employeeId)}
+        weeks={weeks}
+        weekMode="admin"
+        employeeId={employeeId}
       />
     </div>
   );

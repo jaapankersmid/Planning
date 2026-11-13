@@ -30,17 +30,18 @@ export async function GET(request: Request) {
       lines.push([cell(r.name), num(r.planned), num(r.worked), num(r.worked - r.planned), cell(STATUS_LABEL[r.status]), cell(r.colorGroup ?? "")].join(";"));
     }
   } else {
-    lines.push(["Medewerker", "Datum", "Dienst", "Gepland (uur)", "Gewerkt (uur)", "Opmerking", "Status", "Kleurgroep"].map(cell).join(";"));
+    lines.push(["Medewerker", "Datum", "Dienst", "Gepland (uur)", "Gewerkt (uur)", "Opmerking", "Status", "Kleurgroep", "Week", "Weekstatus"].map(cell).join(";"));
     const overview = await loadOverview(year, month);
     const employees = await prisma.employee.findMany({ where: { id: { in: overview.map((o) => o.employeeId) } }, select: { id: true, name: true } });
     const names = new Map(employees.map((e) => [e.id, e.name]));
     for (const o of overview) {
-      const { rows, sheet } = await loadEmployeeMonth(o.employeeId, year, month);
+      const { rows, sheet, weeks } = await loadEmployeeMonth(o.employeeId, year, month);
+      const weekByStart = new Map(weeks.map((w) => [w.startISO, w]));
       for (const r of rows) {
         const worked = effectiveHours(r, todayISO);
         if (!r.code && !r.entry && worked === 0) continue;
         lines.push(
-          [cell(names.get(o.employeeId) ?? ""), r.dateISO, cell(r.code ?? ""), num(r.planned), num(worked), cell(r.entry?.note ?? ""), cell(STATUS_LABEL[sheet.status]), cell(o.colorGroup ?? "")].join(";"),
+          [cell(names.get(o.employeeId) ?? ""), r.dateISO, cell(r.code ?? ""), num(r.planned), num(worked), cell(r.entry?.note ?? ""), cell(STATUS_LABEL[sheet.status]), cell(o.colorGroup ?? ""), String(weekByStart.get(r.weekStartISO)?.weekNo ?? ""), cell(STATUS_LABEL[weekByStart.get(r.weekStartISO)?.status ?? "DRAFT"])].join(";"),
         );
       }
     }

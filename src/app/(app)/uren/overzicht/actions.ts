@@ -3,9 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { dateFromISO } from "@/lib/format";
+import { addDays, dateFromISO, startOfWeek, toISODate } from "@/lib/format";
 import { canManageHours } from "@/lib/roles";
-import { confirmPlannedDays, writeEntry } from "@/lib/timesheets";
+import { confirmPlannedDays, confirmPlannedRange, writeEntry } from "@/lib/timesheets";
 import type { ActionResult } from "../actions";
 
 async function requireHoursAdmin() {
@@ -80,6 +80,50 @@ export async function decideTimesheet(input: {
     }
     revalidate();
     return { ok: input.decision === "APPROVE" ? "Goedgekeurd." : input.decision === "RETURN" ? "Teruggestuurd naar de medewerker." : "Heropend." };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Opslaan is niet gelukt." };
+  }
+}
+
+/** Zelfde beoordeling als bij een maand, maar voor één week (maandag t/m zondag). */
+export async function decideWeek(input: {
+  employeeId: string;
+  weekStartISO: string;
+  decision: "APPROVE" | "RETURN" | "REOPEN";
+  note: string;
+}): Promise<ActionResult> {
+  try {
+    const session = await requireHoursAdmin();
+    const { employeeId } = input;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(input.weekStartISO)) return { error: "Ongeldige week." };
+    const monday = dateFromISO(input.weekStartISO);
+    if (toISODate(startOfWeek(monday)) !== input.weekStartISO) return { error: "Ongeldige week." };
+    const note = input.note.trim().slice(0, 500) || null;
+    const key = { employeeId_weekStart: { employeeId, weekStart: monday } };
+    const status = (await prisma.weekSubmission.findUnique({ where: key }))?.status ?? "DRAFT";
+    const now = new Date();
+
+    if (input.decision === "APPROVE") {
+      if (status === "APPROVED") return { error: "Deze week is al goedgekeurd." };
+      await confirmPlannedRange(employeeId, monday, addDays(monday, 6), session.user.id);
+      await prisma.weekSubmission.upsert({
+        where: key,
+        update: { status: "APPROVED", decidedById: session.user.id, decidedAt: now, decisionNote: note },
+        create: { employeeId, weekStart: monday, status: "APPROVED", decidedById: session.user.id, decidedAt: now, decisionNote: note },
+      });
+    } else if (input.decision === "RETURN") {
+      if (status !== "SUBMITTED") return { error: "Alleen een ingediende week kun je terugsturen." };
+      if (!note) return { error: "Geef een opmerking mee, zodat de medewerker weet wat er moet veranderen." };
+      await prisma.weekSubmission.update({ where: key, data: { status: "RETURNED", decidedById: session.user.id, decidedAt: now, decisionNote: note } });
+    } else {
+      if (status !== "APPROVED") return { error: "Alleen een goedgekeurde week kun je heropenen." };
+      await prisma.weekSubmission.update({
+        where: key,
+        data: { status: "RETURNED", decidedById: session.user.id, decidedAt: now, decisionNote: note ?? "Heropend door de administratie." },
+      });
+    }
+    revalidate();
+    return { ok: input.decision === "APPROVE" ? "Week goedgekeurd." : input.decision === "RETURN" ? "Week teruggestuurd naar de medewerker." : "Week heropend." };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Opslaan is niet gelukt." };
   }
