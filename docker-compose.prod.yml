@@ -53,6 +53,9 @@ services:
       DOMAIN: ${DOMAIN:?zet DOMAIN in .env — ":80" als je nog geen domein hebt, anders bv. rooster.jouwbedrijf.nl}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Bréborgh prijstools (hub + aanvraagformulier): de site-map uit de Hub-repository,
+      # op de server uitgecheckt in /srv/hub (zie README van de Hub-repository).
+      - /srv/hub/site:/srv/sign:ro
       - caddy_data:/data
       - caddy_config:/config
     depends_on:

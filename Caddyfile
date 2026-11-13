@@ -16,6 +16,36 @@
 	reverse_proxy app:3000
 }
 
+# ── Bréborgh prijstools: hub (intern) en aanvraagformulier (klanten) ─────────
+# Statische bestanden uit /srv/sign op de server (in de caddy-container
+# gemount op dezelfde plek, zie docker-compose.prod.yml). Eén domein, twee
+# paden:  /hub/  en  /aanvraag/.  Het A-record van sign.breborgh.nl moet naar
+# dit server-IP wijzen; Caddy regelt het HTTPS-certificaat vanzelf.
+# Later naar een ander (sub)domein? Alleen de naam hieronder aanpassen.
+sign.breborgh.nl {
+	root * /srv/sign
+	encode zstd gzip
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+	}
+
+	# Prijzen en rekenregels: browser controleert bij elk bezoek of er een
+	# nieuwere versie is (ETag), dus een prijswijziging is meteen zichtbaar.
+	@core path /breborgh-core.js
+	header @core Cache-Control "no-cache"
+
+	# Het interne deel niet laten indexeren door zoekmachines.
+	@hub path /hub /hub/*
+	header @hub X-Robots-Tag "noindex, nofollow"
+
+	# De kale hoofdpagina stuurt door naar het klantformulier.
+	redir / /aanvraag/ 302
+
+	file_server
+}
+
 # Wanneer het verhuurplatform later op dezelfde server bijkomt, voeg je er
 # hier gewoon een tweede domein/subdomein-blok bij, bv.:
 #
