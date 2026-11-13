@@ -4,7 +4,8 @@ import { useState, useTransition } from "react";
 import { Fragment } from "react";
 import { formatDayMonth, weekdayShort } from "@/lib/format";
 import { formatHours } from "@/lib/hours";
-import { isLockedStatus, type WeekInfo } from "@/lib/timesheets";
+import { isLockedStatus } from "@/lib/timesheet-labels";
+import type { WeekInfo } from "@/lib/timesheets";
 import { TimesheetStatusBadge } from "@/components/timesheet-status";
 import { WeekControls } from "@/components/week-controls";
 

@@ -4,13 +4,7 @@ import { shiftHours } from "@/lib/hours";
 import { ensureColorGroups, sortEmployees, todayAmsterdam } from "@/lib/schedule";
 import type { TimesheetStatus } from "@prisma/client";
 
-export const STATUS_LABEL: Record<TimesheetStatus | "NONE", string> = {
-  NONE: "Niet ingediend",
-  DRAFT: "Niet ingediend",
-  SUBMITTED: "Ingediend",
-  APPROVED: "Goedgekeurd",
-  RETURNED: "Teruggestuurd",
-};
+export { STATUS_LABEL, isLockedStatus } from "@/lib/timesheet-labels";
 
 /** Jaar en maand uit de URL, met de huidige maand als standaard. */
 export function parseMonth(params: { year?: string; month?: string }) {
@@ -67,9 +61,6 @@ export type WeekInfo = {
   /** De week loopt over de maandgrens. */
   partial: boolean;
 };
-
-/** Een ingediende of goedgekeurde week/maand kan de medewerker zelf niet meer wijzigen. */
-export const isLockedStatus = (status: TimesheetStatus | "NONE" | undefined) => status === "SUBMITTED" || status === "APPROVED";
 
 const EMPTY_SHEET: SheetInfo = { status: "DRAFT", submittedAt: null, decidedAt: null, decidedByName: null, decisionNote: null };
 

@@ -1,5 +1,5 @@
 import type { TimesheetStatus } from "@prisma/client";
-import { STATUS_LABEL } from "@/lib/timesheets";
+import { STATUS_LABEL } from "@/lib/timesheet-labels";
 
 const STYLE: Record<TimesheetStatus | "NONE", string> = {
   NONE: "bg-surface-muted text-foreground-muted",
