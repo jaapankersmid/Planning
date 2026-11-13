@@ -28,7 +28,7 @@ export default async function UrenDetailPage({
   const employee = await prisma.employee.findUnique({ where: { id: employeeId }, select: { name: true } });
   if (!employee) notFound();
 
-  const { rows, sheet, weeks } = await loadEmployeeMonth(employeeId, year, month);
+  const { rows, weekRows, sheet, weeks } = await loadEmployeeMonth(employeeId, year, month);
   const todayISO = toISODate(todayAmsterdam());
   const worked = rows.reduce((sum, r) => sum + effectiveHours(r, todayISO), 0);
   const planned = rows.reduce((sum, r) => sum + r.planned, 0);
@@ -67,8 +67,8 @@ export default async function UrenDetailPage({
       </p>
 
       <TimesheetTable
-        key={`${year}-${month}-${sheet.status}-${rows.filter((r) => r.entry).length}-${weeks.map((w) => w.status).join("")}`}
-        rows={rows}
+        key={`${year}-${month}-${sheet.status}-${weekRows.filter((r) => r.entry).length}-${weeks.map((w) => w.status).join("")}`}
+        rows={weekRows}
         todayISO={todayISO}
         editable
         save={saveEntryForEmployee.bind(null, employeeId)}

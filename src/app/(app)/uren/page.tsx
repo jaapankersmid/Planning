@@ -31,7 +31,7 @@ export default async function MijnUrenPage({
   }
 
   const { year, month } = parseMonth(await searchParams);
-  const [employee, { rows, sheet, weeks }] = await Promise.all([
+  const [employee, { rows, weekRows, sheet, weeks }] = await Promise.all([
     prisma.employee.findUnique({ where: { id: employeeId }, select: { name: true } }),
     loadEmployeeMonth(employeeId, year, month),
   ]);
@@ -82,8 +82,8 @@ export default async function MijnUrenPage({
       </p>
 
       <TimesheetTable
-        key={`${year}-${month}-${sheet.status}-${rows.filter((r) => r.entry).length}-${weeks.map((w) => w.status).join("")}`}
-        rows={rows}
+        key={`${year}-${month}-${sheet.status}-${weekRows.filter((r) => r.entry).length}-${weeks.map((w) => w.status).join("")}`}
+        rows={weekRows}
         todayISO={todayISO}
         editable={!locked}
         save={saveOwnEntry}

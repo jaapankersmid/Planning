@@ -34,6 +34,8 @@ export type DayRow = {
   label: string | null;
   planned: number;
   entry: { hours: number; note: string | null; editedByName: string | null } | null;
+  /** Valt de dag in de getoonde maand? Voor de dagen van een halve week uit de buurmaand is dit false. */
+  inMonth: boolean;
 };
 
 export type SheetInfo = {
@@ -105,6 +107,8 @@ export async function loadEmployeeMonth(employeeId: string, year: number, month:
   const entryByDate = new Map(entries.map((e) => [toISODate(e.date), e]));
   const todayISO = toISODate(todayAmsterdam());
 
+  const monthStartISO = toISODate(days[0]);
+  const monthEndISO = toISODate(days[days.length - 1]);
   const buildRow = (day: Date): DayRow => {
     const dateISO = toISODate(day);
     const assignment = byDate.get(dateISO);
@@ -112,6 +116,7 @@ export async function loadEmployeeMonth(employeeId: string, year: number, month:
     return {
       dateISO,
       weekStartISO: toISODate(startOfWeek(day)),
+      inMonth: dateISO >= monthStartISO && dateISO <= monthEndISO,
       code: assignment?.shiftType.code ?? null,
       label: assignment?.shiftType.label ?? null,
       planned: assignment ? shiftHours(assignment.shiftType) : 0,
@@ -125,10 +130,11 @@ export async function loadEmployeeMonth(employeeId: string, year: number, month:
     };
   };
   const rows = days.map(buildRow);
+  // Alle dagen van de weken die de maand raken, ook die van de buurmaanden; voor de weergave per week.
+  const weekRows: DayRow[] = [];
+  for (let day = first; day <= last; day = addDays(day, 1)) weekRows.push(buildRow(day));
 
   const sheetByWeek = new Map(weekSheets.map((w) => [toISODate(w.weekStart), w]));
-  const monthStart = toISODate(days[0]);
-  const monthEnd = toISODate(days[days.length - 1]);
   const weeks: WeekInfo[] = [];
   for (let monday = first; monday <= last; monday = addDays(monday, 7)) {
     const startISO = toISODate(monday);
@@ -148,7 +154,7 @@ export async function loadEmployeeMonth(employeeId: string, year: number, month:
     };
     for (let i = 0; i < 7; i++) {
       const row = buildRow(addDays(monday, i));
-      const inMonth = row.dateISO >= monthStart && row.dateISO <= monthEnd;
+      const inMonth = row.inMonth;
       const worked = effectiveHours(row, todayISO);
       info.planned += row.planned;
       info.worked += worked;
@@ -171,7 +177,7 @@ export async function loadEmployeeMonth(employeeId: string, year: number, month:
         decisionNote: sheet.decisionNote,
       }
     : EMPTY_SHEET;
-  return { rows, sheet: info, weeks };
+  return { rows, weekRows, sheet: info, weeks };
 }
 
 /** Maakt voor alle dagen van de periode (tot en met vandaag) zonder registratie een regel met de geplande uren. */

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Fragment } from "react";
-import { formatDayMonth, weekdayShort } from "@/lib/format";
+import { formatDayMonth, monthName, weekdayShort } from "@/lib/format";
 import { formatHours } from "@/lib/hours";
 import { isLockedStatus } from "@/lib/timesheet-labels";
 import type { WeekInfo } from "@/lib/timesheets";
@@ -15,6 +15,8 @@ export type TimesheetRow = {
   code: string | null;
   label: string | null;
   planned: number;
+  /** Dag valt in de getoonde maand; anders hoort hij bij de buurmaand (halve week). */
+  inMonth?: boolean;
   entry: { hours: number; note: string | null; editedByName: string | null } | null;
 };
 
@@ -112,12 +114,14 @@ export function TimesheetTable({
     });
   }
 
+  // Het maandtotaal telt alleen de dagen van deze maand; de weekregels tellen de hele week.
   const total = rows.reduce((sum, r) => {
+    if (r.inMonth === false) return sum;
     const cell = cells[r.dateISO];
     const value = Number((cell?.hours ?? "").replace(",", "."));
     return sum + (Number.isFinite(value) ? value : 0);
   }, 0);
-  const plannedTotal = rows.reduce((sum, r) => sum + r.planned, 0);
+  const plannedTotal = rows.reduce((sum, r) => sum + (r.inMonth === false ? 0 : r.planned), 0);
 
   return (
     <div className="overflow-x-auto rounded-lg border border-border bg-surface">
@@ -145,10 +149,11 @@ export function TimesheetTable({
             return (
               <Fragment key={r.dateISO}>
               <tr
-                className={`border-b border-border last:border-0 ${weekend ? "bg-weekend" : ""} ${future && !allowFuture ? "opacity-50" : ""}`}
+                className={`border-b border-border last:border-0 ${weekend ? "bg-weekend" : ""} ${future && !allowFuture ? "opacity-50" : ""} ${r.inMonth === false ? "bg-surface-muted/40 text-foreground-muted" : ""}`}
               >
                 <td className={`whitespace-nowrap px-3 py-1.5 ${r.dateISO === todayISO ? "font-semibold" : ""}`}>
                   {weekdayShort(date)} {date.getUTCDate()}
+                  {r.inMonth === false && <span className="ml-1 text-xs font-normal">{monthName(date.getUTCMonth() + 1).slice(0, 3)}</span>}
                 </td>
                 <td className="px-3 py-1.5" title={r.label ?? undefined}>
                   {r.code ?? <span className="text-foreground-muted">–</span>}
@@ -196,9 +201,9 @@ export function TimesheetTable({
                 </td>
               </tr>
               {endOfWeek && week && (() => {
-                const liveInMonth = weekRows.reduce((sum, x) => sum + liveHours(x), 0);
-                const plannedInMonth = weekRows.reduce((sum, x) => sum + x.planned, 0);
-                const outsideMonth = week.worked - week.workedInMonth;
+                const liveWeek = weekRows.reduce((sum, x) => sum + liveHours(x), 0);
+                const plannedWeek = weekRows.reduce((sum, x) => sum + x.planned, 0);
+                const liveInMonth = weekRows.filter((x) => x.inMonth !== false).reduce((sum, x) => sum + liveHours(x), 0);
                 const start = new Date(`${week.startISO}T00:00:00Z`);
                 const end = new Date(`${week.endISO}T00:00:00Z`);
                 return (
@@ -209,14 +214,14 @@ export function TimesheetTable({
                         {formatDayMonth(start)} – {formatDayMonth(end)}
                       </span>
                     </td>
-                    <td className="px-3 py-1.5 text-right tabular-nums text-foreground-muted">{formatHours(plannedInMonth)}</td>
+                    <td className="px-3 py-1.5 text-right tabular-nums text-foreground-muted">{formatHours(plannedWeek)}</td>
                     <td className="px-3 py-1.5 font-semibold tabular-nums" colSpan={2}>
                       <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-1.5">
                         <span>
-                          {formatHours(liveInMonth)} uur
+                          {formatHours(liveWeek)} uur
                           {week.partial && (
                             <span className="ml-1.5 font-normal text-foreground-muted">
-                              (hele week: {formatHours(liveInMonth + outsideMonth)})
+                              (waarvan {formatHours(liveInMonth)} in deze maand)
                             </span>
                           )}
                         </span>
