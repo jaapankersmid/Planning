@@ -46,8 +46,12 @@ export type Bucket = BucketInput & {
   remaining: number;
   /** Ingepland verlof (huidige en komende weken) dat van dit tegoed afgaat. */
   plannedUsed: number;
-  /** Verwachte rest als ook het ingeplande verlof is opgenomen. */
+  /** Verwachte rest als ook het ingeplande verlof (t/m de verwachtingsdatum) is opgenomen. */
   forecastRemaining: number;
+  /** Verwachte rest op 31 december van dit jaar (alleen ingepland verlof t/m die dag). */
+  remainingAtYearEnd: number;
+  /** Gebruik van dit tegoed per kalenderjaar waarin het verlof valt: wat is opgenomen en wat staat nog gepland. */
+  usage: { year: number; taken: number; planned: number }[];
   /** Het tegoed is nog niet ingegaan (jaar moet nog beginnen). */
   future: boolean;
   /** Het tegoed is verlopen. */
@@ -79,11 +83,14 @@ export type Balance = {
   takenPast: number;
   /** Ingepland in de huidige en komende weken (t/m het einde van het jaar van de verwachting). */
   plannedFuture: number;
-  /** Verwachte rest op {forecastISO}: nu beschikbaar min het ingeplande verlof, zonder uren die dan vervallen zijn. */
+  /** Verwachte rest op {forecastISO} (30 juni van volgend jaar): wat er dan nog over is en daarna vervalt. */
   forecast: number;
   forecastISO: string;
-  /** Eerstvolgende datum waarop uren vervallen, met het aantal uren dat dan nog over is. */
-  expiring: { dateISO: string; hours: number } | null;
+  /** Verwachte rest op 31 december van dit jaar. */
+  forecastYearEnd: number;
+  yearEndISO: string;
+  /** Eerstvolgende datum waarop uren vervallen: nu nog over, en de verwachting als het ingeplande verlof is opgenomen. */
+  expiring: { dateISO: string; hours: number; forecastHours: number } | null;
   days: DayAllocation[];
   /** Alle correcties, nieuwste eerst. */
   adjustments: AdjustmentEntry[];
@@ -97,14 +104,24 @@ function eligibleYears(dateISO: string) {
 
 const round = (n: number) => Math.round(n * 100) / 100;
 
+/** Laat de rekenvelden weg, zodat alleen gewone gegevens overblijven. */
+function toBucket(work: Bucket & { total: number; plannedUntilYearEnd: number; byYear: unknown }): Bucket {
+  const copy: Partial<typeof work> = { ...work };
+  delete copy.total;
+  delete copy.plannedUntilYearEnd;
+  delete copy.byYear;
+  return copy as Bucket;
+}
+
 export function computeBalance(
   inputs: BucketInput[],
   vacationDays: VacationDay[],
   todayISO: string,
   adjustments: AdjustmentEntry[] = [],
-  forecastISO: string = `${todayISO.slice(0, 4)}-12-31`,
+  forecastISO: string = `${Number(todayISO.slice(0, 4)) + 1}-06-30`,
 ): Balance {
-  type Work = Bucket & { total: number };
+  type Work = Bucket & { total: number; plannedUntilYearEnd: number; byYear: Map<number, { taken: number; planned: number }> };
+  const yearEndISO = `${todayISO.slice(0, 4)}-12-31`;
   const map = new Map<number, Work>();
   const make = (input: BucketInput): Work => ({
     ...input,
@@ -112,7 +129,11 @@ export function computeBalance(
     used: 0,
     remaining: 0,
     plannedUsed: 0,
+    plannedUntilYearEnd: 0,
+    byYear: new Map(),
     forecastRemaining: 0,
+    remainingAtYearEnd: 0,
+    usage: [],
     future: false,
     expired: false,
     lost: 0,
@@ -134,8 +155,17 @@ export function computeBalance(
       continue;
     }
     const add = (bucket: Work, hours: number) => {
-      if (planned) bucket.plannedUsed += hours;
-      else bucket.used += hours;
+      const year = Number(day.dateISO.slice(0, 4));
+      const usage = bucket.byYear.get(year) ?? { taken: 0, planned: 0 };
+      if (planned) {
+        bucket.plannedUsed += hours;
+        usage.planned += hours;
+        if (day.dateISO <= yearEndISO) bucket.plannedUntilYearEnd += hours;
+      } else {
+        bucket.used += hours;
+        usage.taken += hours;
+      }
+      bucket.byYear.set(year, usage);
     };
     for (const year of years) {
       const bucket = map.get(year);
@@ -160,23 +190,31 @@ export function computeBalance(
   const buckets = [...map.values()].sort((a, b) => a.year - b.year);
   let available = 0;
   let forecast = 0;
+  let forecastYearEnd = 0;
   let expiring: Balance["expiring"] = null;
   for (const bucket of buckets) {
     bucket.used = round(bucket.used);
     bucket.plannedUsed = round(bucket.plannedUsed);
     bucket.remaining = round(bucket.total - bucket.used);
     bucket.forecastRemaining = round(bucket.total - bucket.used - bucket.plannedUsed);
+    bucket.remainingAtYearEnd = round(bucket.total - bucket.used - bucket.plannedUntilYearEnd);
+    bucket.usage = [...bucket.byYear.entries()]
+      .sort((a, b) => a[0] - b[0])
+      .map(([year, u]) => ({ year, taken: round(u.taken), planned: round(u.planned) }));
     bucket.future = startISO(bucket.year) > todayISO;
     bucket.expired = expiryISO(bucket.year) <= todayISO;
     if (bucket.expired && bucket.remaining > 0) bucket.lost = bucket.remaining;
     if (!bucket.future && !(bucket.expired && bucket.remaining >= 0)) available += bucket.remaining;
     if (!bucket.expired && !bucket.future && bucket.remaining > 0 && !expiring) {
-      expiring = { dateISO: expiryISO(bucket.year), hours: bucket.remaining };
+      expiring = { dateISO: expiryISO(bucket.year), hours: bucket.remaining, forecastHours: bucket.forecastRemaining };
     }
     // Verwachting: alleen tegoed dat op de verwachtingsdatum al is ingegaan en nog niet vervallen is (tekorten blijven staan).
     const started = startISO(bucket.year) <= forecastISO;
     const stillValid = expiryISO(bucket.year) > forecastISO;
     if (started && (stillValid || bucket.forecastRemaining < 0)) forecast += bucket.forecastRemaining;
+    const startedYearEnd = startISO(bucket.year) <= yearEndISO;
+    const validYearEnd = expiryISO(bucket.year) > yearEndISO;
+    if (startedYearEnd && (validYearEnd || bucket.remainingAtYearEnd < 0)) forecastYearEnd += bucket.remainingAtYearEnd;
   }
 
   let takenPast = 0;
@@ -189,12 +227,14 @@ export function computeBalance(
 
   const sortedAdjustments = [...adjustments].sort((a, b) => b.dateISO.localeCompare(a.dateISO));
   return {
-    buckets: buckets as Bucket[],
+    buckets: buckets.map(toBucket),
     available: round(available),
     takenPast: round(takenPast),
     plannedFuture: round(plannedFuture),
     forecast: round(forecast),
     forecastISO,
+    forecastYearEnd: round(forecastYearEnd),
+    yearEndISO,
     expiring,
     days,
     adjustments: sortedAdjustments,
@@ -244,7 +284,8 @@ export async function loadBalances(todayISO: string, employeeIds?: string[]) {
 
   const years = [...allowances.map((a) => a.year), ...adjustmentRows.map((a) => a.year)];
   const earliest = years.length ? Math.min(...years) : null;
-  const forecastISO = `${todayISO.slice(0, 4)}-12-31`;
+  // Verwachting tot 30 juni van volgend jaar: dan vervalt het tegoed van dit jaar, dus ingepland verlof t/m die dag telt mee.
+  const forecastISO = `${Number(todayISO.slice(0, 4)) + 1}-06-30`;
   const rangeStart = earliest ? startOfWeek(dateFromISO(startISO(earliest))) : null;
   const rangeEnd = addDays(startOfWeek(dateFromISO(forecastISO)), 7);
 

@@ -50,7 +50,8 @@ export default async function VerlofurenPage() {
               <th className="px-4 py-2 text-right">Opgenomen</th>
               <th className="px-4 py-2 text-right">Ingepland</th>
               <th className="px-4 py-2 text-right">Nu over</th>
-              <th className="px-4 py-2 text-right">Eind {todayISO.slice(0, 4)}</th>
+              <th className="px-4 py-2 text-right">31 dec {todayISO.slice(0, 4)}</th>
+              <th className="px-4 py-2 text-right">30 juni {Number(todayISO.slice(0, 4)) + 1}</th>
               <th className="px-4 py-2">Vervalt</th>
               <th className="px-4 py-2" />
             </tr>
@@ -61,11 +62,11 @@ export default async function VerlofurenPage() {
               const empty = b.buckets.length === 0;
               return (
                 <Fragment key={e.id}>
-                {(i === 0 || employees[i - 1].colorGroup !== e.colorGroup) && <GroupHeaderRow group={e.colorGroup} colSpan={8} />}
+                {(i === 0 || employees[i - 1].colorGroup !== e.colorGroup) && <GroupHeaderRow group={e.colorGroup} colSpan={9} />}
                 <tr className="border-b border-border last:border-0">
                   <td className="px-4 py-2 font-medium">{e.name}</td>
                   {empty ? (
-                    <td colSpan={6} className="px-4 py-2 text-foreground-muted">
+                    <td colSpan={7} className="px-4 py-2 text-foreground-muted">
                       nog geen verlofuren ingevuld
                     </td>
                   ) : (
@@ -78,9 +79,10 @@ export default async function VerlofurenPage() {
                       <td className={`px-4 py-2 text-right font-semibold tabular-nums ${b.available < 0 ? "text-bad-text" : ""}`}>
                         {fmtHours(b.available)}
                       </td>
+                      <td className={`px-4 py-2 text-right tabular-nums ${b.forecastYearEnd < 0 ? "text-bad-text" : ""}`}>{fmtHours(b.forecastYearEnd)}</td>
                       <td className={`px-4 py-2 text-right tabular-nums ${b.forecast < 0 ? "text-bad-text" : ""}`}>{fmtHours(b.forecast)}</td>
                       <td className="px-4 py-2 text-foreground-muted">
-                        {b.expiring ? `${fmtHours(b.expiring.hours)} uur na ${dayBefore(b.expiring.dateISO)}` : "–"}
+                        {b.expiring ? `${fmtHours(b.expiring.forecastHours)} uur na ${dayBefore(b.expiring.dateISO)}` : "–"}
                       </td>
                     </>
                   )}
@@ -98,7 +100,8 @@ export default async function VerlofurenPage() {
       </div>
       <p className="text-xs text-foreground-muted">
         Opgenomen verlof per week is de standaard uren per week min de gewerkte uren; voor weken die nog komen de geplande
-        uren. De kolom Eind {todayISO.slice(0, 4)} is wat er naar verwachting overblijft als dat ingeplande verlof wordt opgenomen.
+        uren. De kolommen 31 dec en 30 juni zijn wat er naar verwachting overblijft als het ingeplande verlof tot die dag wordt
+        opgenomen; wat er op 30 juni nog over is, vervalt daarna. Bij Vervalt staat de verwachting, dus na aftrek van ingepland verlof.
       </p>
     </div>
   );
