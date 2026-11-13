@@ -8,7 +8,9 @@ import { isMailConfigured } from "@/lib/mail";
 import { pendingNotificationCount } from "@/lib/notifications";
 import { pendingAvailabilityCount } from "@/lib/planner-alerts";
 import { AutoSelect } from "@/components/auto-select";
-import { linkEmployee, setUserActive, setUserRole } from "./actions";
+import { RoleSelect } from "@/components/role-select";
+import { ROLE_OPTIONS } from "@/lib/roles";
+import { linkEmployee, setUserActive } from "./actions";
 
 export default async function GebruikersPage() {
   const session = await auth();
@@ -44,6 +46,21 @@ export default async function GebruikersPage() {
         </p>
       </div>
 
+      <div className="rounded-lg border border-border bg-surface p-4">
+        <h2 className="text-sm font-semibold">Rechten per rol</h2>
+        <p className="mt-1 text-sm text-foreground-muted">
+          Alleen planners kunnen hier rollen wijzigen en gebruikers beheren.
+        </p>
+        <dl className="mt-2 grid gap-x-4 gap-y-1 text-sm sm:grid-cols-[8rem_1fr]">
+          {ROLE_OPTIONS.map((r) => (
+            <div key={r.value} className="contents">
+              <dt className="font-medium">{r.label}</dt>
+              <dd className="text-foreground-muted">{r.description}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+
       <MailStatusPanel configured={isMailConfigured()} pending={pendingMails} delayMinutes={delayMinutes} />
 
       <div className="overflow-x-auto rounded-lg border border-border bg-surface">
@@ -64,18 +81,13 @@ export default async function GebruikersPage() {
                 <td className="px-4 py-2 font-medium">{u.name}</td>
                 <td className="px-4 py-2 text-foreground-muted">{u.email}</td>
                 <td className="px-4 py-2">
-                  <form action={setUserRole.bind(null, u.id, u.role === "ADMIN" ? "EMPLOYEE" : "ADMIN")}>
-                    <button
-                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                        u.role === "ADMIN"
-                          ? "bg-accent-soft text-accent"
-                          : "bg-surface-muted text-foreground-muted"
-                      }`}
-                      title="Klik om te wisselen"
-                    >
-                      {u.role === "ADMIN" ? "planner" : "medewerker"}
-                    </button>
-                  </form>
+                  <RoleSelect
+                    key={`${u.id}_${u.role}`}
+                    userId={u.id}
+                    userName={u.name ?? u.email}
+                    initialRole={u.role}
+                    disabled={u.id === session.user.id}
+                  />
                 </td>
                 <td className="px-4 py-2">
                   <AutoSelect

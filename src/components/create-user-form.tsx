@@ -63,7 +63,8 @@ export function CreateUserForm({
             defaultValue="ADMIN"
             className="rounded-md border border-border bg-surface px-3 py-2 text-sm"
           >
-            <option value="ADMIN">Leidinggevende / planner</option>
+            <option value="ADMIN">Planner (volledige rechten)</option>
+            <option value="ACCOUNTING">Administratie</option>
             <option value="EMPLOYEE">Medewerker</option>
           </select>
           <select

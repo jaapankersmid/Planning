@@ -14,7 +14,14 @@ function nearestStep(value: number) {
  * om in en uit te zoomen (naast knijpen met twee vingers). De bovenste balk
  * verschijnt alleen als de inhoud breder is dan het scherm.
  */
-export function DualScroll({ children }: { children: React.ReactNode }) {
+export function DualScroll({
+  children,
+  stickyHeader = false,
+}: {
+  children: React.ReactNode;
+  /** Begrens de hoogte en laat het rooster zelf verticaal scrollen, zodat een `sticky` tabelkop in beeld blijft. */
+  stickyHeader?: boolean;
+}) {
   const topRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const [contentWidth, setContentWidth] = useState(0);
@@ -140,7 +147,10 @@ export function DualScroll({ children }: { children: React.ReactNode }) {
         ref={bottomRef}
         onScroll={() => sync(bottomRef.current, topRef.current)}
         className="overflow-x-auto"
-        style={{ touchAction: "pan-x pan-y pinch-zoom" }}
+        style={{
+          touchAction: "pan-x pan-y pinch-zoom",
+          ...(stickyHeader ? { maxHeight: "calc(100dvh - 11rem)", minHeight: "18rem", overflowY: "auto" } : {}),
+        }}
       >
         <div style={{ zoom }}>{children}</div>
       </div>

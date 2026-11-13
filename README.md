@@ -153,6 +153,14 @@ krijgen, anders stopt de agenda-koppeling na een uur.
 
 Nieuwe tabellen: na het updaten eenmalig `docker compose -f docker-compose.prod.yml exec app npx prisma db push` draaien.
 
+## Rechten en urenregistratie
+
+**Rollen.** Er zijn drie vaste rollen. De *planner* (technisch `ADMIN`) beheert rooster, diensten, verlof en gebruikers, en is de enige die rollen van anderen kan aanpassen (*Gebruikers*; een wijziging werkt direct, ook als iemand ingelogd is). Er blijft altijd minstens één actieve planner over en je kunt je eigen rol niet wijzigen. De *administratie* ziet het rooster (alleen lezen, inclusief de uren per maand), kan de uren van iedereen inzien, corrigeren, goedkeuren en exporteren, maar kan niets in het rooster of bij gebruikers wijzigen. De *medewerker* ziet het eigen rooster, vraagt verlof aan en registreert eigen uren.
+
+**Uren registreren.** Onder *Mijn uren* staat per dag het geplande aantal uren (zonder pauzes) als voorstel. Klopt het, dan hoeft de medewerker niets te doen; anders past hij of zij de uren aan en zet er eventueel een opmerking bij. Vanaf de laatste dag van de maand dient de medewerker de maand in (dagen die niet zijn aangepast worden dan bevestigd zoals gepland). Onder *Uren* ziet de administratie of planner per medewerker gepland en gewerkt, opent de details, past dagen aan, keurt goed of stuurt terug met een opmerking, en kan een goedgekeurde maand heropenen. De export (*Download totalen* of *per dag*) is een CSV met puntkomma's en decimale komma's, direct te openen in Excel.
+
+> Na deze update eenmalig `npx prisma db push` draaien: er komen twee tabellen (Timesheet, TimeEntry) en een rol (ACCOUNTING) bij. Bestaande gegevens blijven onaangeroerd.
+
 ## 3. Een echte omgeving hosten
 
 > **Let op als je bij Hetzner host:** Hetzner heeft twee verschillende

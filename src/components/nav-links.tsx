@@ -3,26 +3,35 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const links = [
-  { href: "/rooster", label: "Rooster", adminOnly: false },
-  { href: "/rooster/mijn", label: "Mijn rooster", adminOnly: false },
-  { href: "/verlof", label: "Mijn verlof", adminOnly: false },
-  { href: "/beschikbaarheid", label: "Beschikbaarheid", adminOnly: false },
-  { href: "/verlof/overzicht", label: "Verlofoverzicht", adminOnly: true },
-  { href: "/vast-rooster", label: "Vast rooster", adminOnly: true },
-  { href: "/vakanties", label: "Vakanties", adminOnly: true },
-  { href: "/bezetting", label: "Bezetting", adminOnly: true },
-  { href: "/medewerkers", label: "Medewerkers", adminOnly: true },
-  { href: "/diensten", label: "Diensten", adminOnly: true },
-  { href: "/gebruikers", label: "Gebruikers", adminOnly: true },
+type Role = "ADMIN" | "ACCOUNTING" | "EMPLOYEE";
+
+const ALL: Role[] = ["ADMIN", "ACCOUNTING", "EMPLOYEE"];
+const PERSONAL: Role[] = ["ADMIN", "EMPLOYEE"];
+const HOURS_ADMIN: Role[] = ["ADMIN", "ACCOUNTING"];
+const PLANNER: Role[] = ["ADMIN"];
+
+const links: { href: string; label: string; roles: Role[] }[] = [
+  { href: "/rooster", label: "Rooster", roles: ALL },
+  { href: "/rooster/mijn", label: "Mijn rooster", roles: PERSONAL },
+  { href: "/verlof", label: "Mijn verlof", roles: PERSONAL },
+  { href: "/beschikbaarheid", label: "Beschikbaarheid", roles: PERSONAL },
+  { href: "/uren", label: "Mijn uren", roles: PERSONAL },
+  { href: "/uren/overzicht", label: "Uren", roles: HOURS_ADMIN },
+  { href: "/verlof/overzicht", label: "Verlofoverzicht", roles: PLANNER },
+  { href: "/vast-rooster", label: "Vast rooster", roles: PLANNER },
+  { href: "/vakanties", label: "Vakanties", roles: PLANNER },
+  { href: "/bezetting", label: "Bezetting", roles: PLANNER },
+  { href: "/medewerkers", label: "Medewerkers", roles: PLANNER },
+  { href: "/diensten", label: "Diensten", roles: PLANNER },
+  { href: "/gebruikers", label: "Gebruikers", roles: PLANNER },
 ];
 
 export function NavLinks({
-  isAdmin,
+  role,
   pendingLeave = 0,
   className = "",
 }: {
-  isAdmin: boolean;
+  role: Role;
   pendingLeave?: number;
   className?: string;
 }) {
@@ -32,7 +41,7 @@ export function NavLinks({
     // Op een telefoon één rij die zijwaarts schuift, zodat het menu niet de helft van het scherm opeet.
     <nav className={`flex items-center gap-1 overflow-x-auto whitespace-nowrap pb-1 text-sm sm:flex-wrap sm:overflow-visible sm:pb-0 ${className}`}>
       {links
-        .filter((l) => !l.adminOnly || isAdmin)
+        .filter((l) => l.roles.includes(role))
         .map((l) => {
           const active = pathname === l.href;
           return (

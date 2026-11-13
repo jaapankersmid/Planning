@@ -7,6 +7,7 @@ import { generateTempPassword, hashPassword } from "@/lib/password";
 import { isMailConfigured, sendMail } from "@/lib/mail";
 import { pendingNotificationCount, processDueNotifications } from "@/lib/notifications";
 import { pendingAvailabilityCount, processAvailabilityAlerts } from "@/lib/planner-alerts";
+import { ROLE_OPTIONS } from "@/lib/roles";
 import type { Role } from "@prisma/client";
 
 async function requireAdmin() {
@@ -51,6 +52,7 @@ export async function createUser(
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const role = String(formData.get("role") ?? "EMPLOYEE") as Role;
+  if (!ROLE_OPTIONS.some((r) => r.value === role)) return { error: "Kies een geldige rol." };
   const employeeId = String(formData.get("employeeId") ?? "").trim() || null;
 
   if (!name || !email) {
@@ -114,13 +116,31 @@ export async function resetPassword(
 }
 
 export async function setUserActive(userId: string, active: boolean) {
-  await requireAdmin();
+  const session = await requireAdmin();
+  // Je eigen account uitzetten zou je buitensluiten; dat negeren we.
+  if (!active && userId === session.user.id) return;
   await prisma.user.update({ where: { id: userId }, data: { active } });
   revalidatePath("/gebruikers");
 }
 
-export async function setUserRole(userId: string, role: Role) {
-  await requireAdmin();
+/**
+ * Wijzigt de rol (en daarmee de rechten) van een gebruiker. Alleen planners mogen dit. Je kunt je
+ * eigen rol niet wijzigen, en er moet altijd minstens één actieve planner overblijven.
+ */
+export async function setUserRole(userId: string, role: Role): Promise<{ error: string } | void> {
+  const session = await requireAdmin();
+  if (!ROLE_OPTIONS.some((r) => r.value === role)) return { error: "Onbekende rol." };
+  if (userId === session.user.id) return { error: "Je kunt je eigen rol niet wijzigen." };
+
+  const target = await prisma.user.findUnique({ where: { id: userId } });
+  if (!target) return { error: "Gebruiker niet gevonden." };
+  if (target.role === "ADMIN" && role !== "ADMIN") {
+    const otherPlanners = await prisma.user.count({
+      where: { role: "ADMIN", active: true, NOT: { id: userId } },
+    });
+    if (otherPlanners === 0) return { error: "Er moet minstens één actieve planner overblijven." };
+  }
+
   await prisma.user.update({ where: { id: userId }, data: { role } });
   revalidatePath("/gebruikers");
 }

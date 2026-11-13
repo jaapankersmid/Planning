@@ -21,6 +21,7 @@ import {
 } from "@/lib/format";
 import { holidayOn, holidaySegments } from "@/lib/holidays";
 import { formatHours, shiftHours } from "@/lib/hours";
+import { canManageHours, isPlanner } from "@/lib/roles";
 import { ShiftCell } from "@/components/shift-cell";
 import { DualScroll } from "@/components/dual-scroll";
 import {
@@ -43,7 +44,9 @@ export default async function RoosterPage({
 }) {
   const params = await searchParams;
   const session = await auth();
-  const isAdmin = session?.user.role === "ADMIN";
+  const isAdmin = isPlanner(session?.user.role);
+  // Planners en administratie zien de uren per medewerker; alleen planners kunnen het rooster wijzigen.
+  const showHours = canManageHours(session?.user.role);
 
   const today = todayAmsterdam();
   const todayISO = toISODate(today);
@@ -165,7 +168,7 @@ export default async function RoosterPage({
   }
   // Uren per medewerker in de getoonde periode (alleen voor de planner), uit de tijden van de diensttypen.
   const hoursByEmployee = new Map<string, number>();
-  if (isAdmin) {
+  if (showHours) {
     for (const a of assignments) {
       hoursByEmployee.set(a.employeeId, (hoursByEmployee.get(a.employeeId) ?? 0) + shiftHours(a.shiftType));
     }
@@ -233,13 +236,13 @@ export default async function RoosterPage({
         </div>
       </div>
 
-      <DualScroll>
+      <DualScroll stickyHeader>
         <table
           className="w-full min-w-(--min-phone) table-fixed border-collapse text-sm sm:min-w-(--min-desktop)"
           style={
             {
-              "--min-desktop": `${NAME_COLUMN + days.length * cellMin + (isAdmin ? HOURS_COLUMN : 0)}px`,
-              "--min-phone": `${NAME_COLUMN_PHONE + days.length * cellMinPhone + (isAdmin ? HOURS_COLUMN : 0)}px`,
+              "--min-desktop": `${NAME_COLUMN + days.length * cellMin + (showHours ? HOURS_COLUMN : 0)}px`,
+              "--min-phone": `${NAME_COLUMN_PHONE + days.length * cellMinPhone + (showHours ? HOURS_COLUMN : 0)}px`,
             } as CSSProperties
           }
         >
@@ -248,11 +251,11 @@ export default async function RoosterPage({
             {days.map((day) => (
               <col key={toISODate(day)} />
             ))}
-            {isAdmin && <col style={{ width: HOURS_COLUMN }} />}
+            {showHours && <col style={{ width: HOURS_COLUMN }} />}
           </colgroup>
-          <thead>
+          <thead className="sticky top-0 z-20 bg-surface">
             {holidays.length > 0 && (
-              <tr>
+              <tr className="bg-surface">
                 <th className="sticky left-0 z-10 border-b border-r border-border bg-surface-muted px-3 py-1 text-left text-xs font-medium text-holiday-strong">
                   Vakantie
                 </th>
@@ -270,10 +273,10 @@ export default async function RoosterPage({
                     <th key={`h${i}`} colSpan={segment.span} className="border-b border-border" />
                   ),
                 )}
-                {isAdmin && <th className="sticky right-0 z-10 border-b border-l border-border bg-surface-muted" />}
+                {showHours && <th className="sticky right-0 z-10 border-b border-l border-border bg-surface-muted" />}
               </tr>
             )}
-            <tr>
+            <tr className="bg-surface">
               <th className="sticky left-0 z-10 border-b border-r border-border bg-surface-muted px-3 py-2 text-left font-medium">
                 Medewerker
               </th>
@@ -315,7 +318,7 @@ export default async function RoosterPage({
                   </th>
                 );
               })}
-              {isAdmin && (
+              {showHours && (
                 <th
                   title={hoursLabel}
                   className="sticky right-0 z-10 border-b border-l border-border bg-surface-muted px-1 py-1.5 text-center text-xs font-semibold"
@@ -331,7 +334,7 @@ export default async function RoosterPage({
                 { label: "Middag", hours: "15:30–19:30", key: "afternoon" },
               ] as const
             ).map((row) => (
-              <tr key={row.key} className="border-b border-border bg-surface-muted/50">
+              <tr key={row.key} className="border-b border-border bg-surface-muted">
                 <th className="sticky left-0 z-10 border-r border-border bg-surface-muted px-2 py-1 text-left text-[13px] font-semibold leading-tight">
                   Bezetting {row.label.toLowerCase()}
                   <span className="block text-[11px] font-normal text-foreground-muted">{row.hours}</span>
@@ -373,7 +376,7 @@ export default async function RoosterPage({
                     </td>
                   );
                 })}
-                {isAdmin && <td className="sticky right-0 z-10 border-l border-border bg-surface-muted" />}
+                {showHours && <td className="sticky right-0 z-10 border-l border-border bg-surface-muted" />}
               </tr>
             ))}
           </thead>
@@ -422,7 +425,7 @@ export default async function RoosterPage({
                     </td>
                   );
                 })}
-                {isAdmin && (
+                {showHours && (
                   <td
                     title={`${hoursLabel}: ${formatHours(hoursByEmployee.get(employee.id) ?? 0)}`}
                     className="sticky right-0 z-10 border-l border-border bg-surface px-1 text-center text-[13px] font-semibold tabular-nums"
@@ -443,7 +446,7 @@ export default async function RoosterPage({
         </p>
       )}
 
-      {isAdmin && (
+      {showHours && (
         <p className="text-xs text-foreground-muted">
           De uren rechts zijn het totaal van de getoonde {weekView ? "week" : "maand"}, berekend uit de tijden van de
           diensten, zonder de pauzes van 10:00–10:30, 12:30–13:00 en 15:00–15:30. O en CrA tellen als 8 uur (aan te passen bij Diensten); V en Z tellen niet mee.

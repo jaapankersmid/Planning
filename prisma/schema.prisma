@@ -22,6 +22,7 @@ datasource db {
 enum Role {
   ADMIN // leidinggevende / planner: mag rooster en stamgegevens bewerken
   EMPLOYEE // medewerker: ziet (in elk geval) het eigen rooster, kan agenda-sync aanzetten
+  ACCOUNTING // administratie: ziet het rooster (alleen lezen), beheert en keurt de urenregistratie goed
 }
 
 model User {
@@ -53,6 +54,9 @@ model User {
   // Verlofaanvragen die dit account heeft ingediend resp. beoordeeld.
   leaveRequested LeaveRequest[] @relation("LeaveRequestedBy")
   leaveDecided   LeaveRequest[] @relation("LeaveDecidedBy")
+
+  timesheetsDecided Timesheet[] @relation("TimesheetDecidedBy")
+  timeEntriesEdited TimeEntry[] @relation("TimeEntryEditedBy")
 
   // --- Google Calendar-koppeling (los van inloggen) ---------------------
   // Staat de gebruiker toe dat hun diensten automatisch naar hun Google
@@ -87,6 +91,8 @@ model Employee {
   availability  Availability[]
   rosterChanges RosterChange[]
   availabilityChanges AvailabilityChange[]
+  timesheets          Timesheet[]
+  timeEntries         TimeEntry[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -328,4 +334,57 @@ model AvailabilityChange {
 
   @@unique([employeeId, date])
   @@index([updatedAt])
+}
+
+enum TimesheetStatus {
+  DRAFT // medewerker is nog bezig
+  SUBMITTED // ingediend, wacht op administratie
+  APPROVED // goedgekeurd
+  RETURNED // teruggestuurd met opmerking; medewerker past aan en dient opnieuw in
+}
+
+// Urenregistratie per medewerker per maand: de status van het hele maandoverzicht.
+model Timesheet {
+  id         String   @id @default(cuid())
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId String
+  year       Int
+  month      Int
+
+  status      TimesheetStatus @default(DRAFT)
+  submittedAt DateTime?
+
+  decidedBy    User?     @relation("TimesheetDecidedBy", fields: [decidedById], references: [id])
+  decidedById  String?
+  decidedAt    DateTime?
+  decisionNote String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([employeeId, year, month])
+  @@index([status])
+}
+
+// Gewerkte uren van een medewerker op één dag (netto, dus zonder pauzes).
+// Zonder regel gelden de geplande uren uit het rooster als voorstel.
+model TimeEntry {
+  id         String   @id @default(cuid())
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId String
+  date       DateTime @db.Date
+
+  hours        Float
+  // Geplande uren op het moment van registreren, om afwijkingen te kunnen tonen.
+  plannedHours Float  @default(0)
+  note         String?
+
+  editedBy   User?   @relation("TimeEntryEditedBy", fields: [editedById], references: [id])
+  editedById String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([employeeId, date])
+  @@index([date])
 }

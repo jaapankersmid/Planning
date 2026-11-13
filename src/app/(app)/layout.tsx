@@ -37,7 +37,7 @@ export default async function AppLayout({
           <div className="order-2 ml-auto flex items-center gap-3 text-sm text-foreground-muted sm:order-3">
             <span className="max-w-[45vw] truncate">
               {session.user.name}
-              {session.user.role === "ADMIN" ? " · planner" : ""}
+              {session.user.role === "ADMIN" ? " · planner" : session.user.role === "ACCOUNTING" ? " · administratie" : ""}
             </span>
             <form
               action={async () => {
@@ -51,7 +51,7 @@ export default async function AppLayout({
             </form>
           </div>
           <NavLinks
-            isAdmin={session.user.role === "ADMIN"}
+            role={session.user.role}
             pendingLeave={pendingLeave}
             className="order-3 w-full sm:order-2 sm:w-auto sm:flex-1"
           />
