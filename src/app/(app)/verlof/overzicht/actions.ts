@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import {
@@ -10,6 +11,7 @@ import {
   revokeApprovedLeave,
 } from "@/lib/leave";
 import { formatRange } from "@/lib/format";
+import { notifyEmployeeOfLeaveOutcome } from "@/lib/leave-mail";
 import type { LeaveFormState } from "../actions";
 
 async function requireAdmin() {
@@ -34,7 +36,7 @@ export async function decideLeave(requestId: string, formData: FormData) {
   const note = String(formData.get("note") ?? "").trim().slice(0, 300) || null;
 
   if (formData.get("decision") === "reject") {
-    await prisma.leaveRequest.updateMany({
+    const result = await prisma.leaveRequest.updateMany({
       where: { id: requestId, status: "PENDING" },
       data: {
         status: "REJECTED",
@@ -43,8 +45,10 @@ export async function decideLeave(requestId: string, formData: FormData) {
         decisionNote: note,
       },
     });
+    if (result.count > 0) after(() => notifyEmployeeOfLeaveOutcome(requestId, "REJECTED"));
   } else {
     await approveLeave(requestId, session.user.id, note);
+    after(() => notifyEmployeeOfLeaveOutcome(requestId, "APPROVED"));
   }
   revalidateAll();
 }
@@ -53,6 +57,7 @@ export async function decideLeave(requestId: string, formData: FormData) {
 export async function revokeLeave(requestId: string) {
   await requireAdmin();
   await revokeApprovedLeave(requestId);
+  after(() => notifyEmployeeOfLeaveOutcome(requestId, "REVOKED"));
   revalidateAll();
 }
 
@@ -86,6 +91,8 @@ export async function addLeaveForEmployee(
       },
     });
     await approveLeave(request.id, session.user.id, "Door planner vastgelegd");
+    // De planner die verlof voor zichzelf vastlegt hoeft daar geen mail van te krijgen.
+    if (session.user.employeeId !== employeeId) after(() => notifyEmployeeOfLeaveOutcome(request.id, "RECORDED"));
     revalidateAll();
     return { ok: `Vastgelegd: ${formatRange(startDate, endDate)}.` };
   } catch (error) {

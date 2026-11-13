@@ -149,7 +149,7 @@ krijgen, anders stopt de agenda-koppeling na een uur.
 2. Herstart de app: `docker compose -f docker-compose.prod.yml up -d --force-recreate app`.
 3. Open *Gebruikers* in de app en klik op *Stuur testmail naar mezelf*.
 
-**Mail aan planners.** Planners krijgen meteen een mail bij een nieuwe verlofaanvraag, en één gebundelde mail (zelfde wachttijd) als een medewerker zijn beschikbaarheid heeft aangepast, met een waarschuwing als iemand al is ingepland op een dag waarop hij of zij zich niet beschikbaar meldt. Een planner kan dit voor zichzelf uitzetten bij *Mijn rooster*.
+**Mail aan planners.** Planners krijgen meteen een mail bij een nieuwe verlofaanvraag, en één gebundelde mail (zelfde wachttijd) als een medewerker zijn beschikbaarheid heeft aangepast, met een waarschuwing als iemand al is ingepland op een dag waarop hij of zij zich niet beschikbaar meldt. Een planner kan dit voor zichzelf uitzetten bij *Mijn rooster*. Omgekeerd krijgt de medewerker meteen een mail als verlof wordt goedgekeurd, afgewezen of ingetrokken, of als een planner verlof voor hem of haar vastlegt (met de opmerking van de planner erbij); dit volgt dezelfde schakelaar bij *Mijn rooster* als de roostermails.
 
 Nieuwe tabellen: na het updaten eenmalig `docker compose -f docker-compose.prod.yml exec app npx prisma db push` draaien.
 
