@@ -9,6 +9,9 @@ import { todayAmsterdam } from "@/lib/schedule";
 import { AllowanceEditor } from "@/components/allowance-editor";
 import { LeaveBalanceCard } from "@/components/leave-balance-card";
 
+/** De planning is pas ingevuld vanaf augustus 2026: voor 2026 geldt het tegoed als stand per 1 november. */
+const defaultCountFrom = (year: number) => (year === 2026 ? "2026-11-01" : null);
+
 export default async function VerlofurenDetailPage({ params }: { params: Promise<{ employeeId: string }> }) {
   const session = await auth();
   if (!session?.user || !canManageHours(session.user.role)) redirect("/rooster");
@@ -61,7 +64,7 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
                   </span>
                 )}
               </div>
-              <AllowanceEditor key={`${year}-${b?.hours}-${b?.note}`} employeeId={employeeId} year={year} hours={b ? b.hours : null} note={b?.note ?? null} exists={allowanceYears.has(year)} />
+              <AllowanceEditor key={`${year}-${b?.hours}-${b?.note}-${b?.countFromISO}`} employeeId={employeeId} year={year} hours={b ? b.hours : null} note={b?.note ?? null} countFrom={b ? (b.countFromISO ?? null) : defaultCountFrom(year)} exists={allowanceYears.has(year)} />
             </div>
           );
         })}
@@ -92,8 +95,8 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
                     {weekdayShort(date)} {formatDayMonth(date)} {date.getUTCFullYear()}
                     {d.dateISO > todayISO && <span className="ml-2 text-xs text-foreground-muted">gepland</span>}
                   </td>
-                  <td className="px-4 py-1.5 text-right tabular-nums">{d.hours === 0 ? <span className="text-foreground-muted">0 (geen werkdag)</span> : fmtHours(d.hours)}</td>
-                  <td className="px-4 py-1.5 text-foreground-muted">{d.taken.map((t) => `${t.year}: ${fmtHours(t.hours)}`).join(", ") || "–"}</td>
+                  <td className="px-4 py-1.5 text-right tabular-nums">{d.ignored ? <span className="text-foreground-muted">telt niet mee</span> : d.hours === 0 ? <span className="text-foreground-muted">0 (geen werkdag)</span> : fmtHours(d.hours)}</td>
+                  <td className="px-4 py-1.5 text-foreground-muted">{d.ignored ? "voor de peildatum" : d.taken.map((t) => `${t.year}: ${fmtHours(t.hours)}`).join(", ") || "–"}</td>
                 </tr>
               );
             })}

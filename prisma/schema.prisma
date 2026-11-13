@@ -404,6 +404,9 @@ model LeaveAllowance {
   year  Int
   hours Float
   note  String?
+  // Peildatum: het tegoed is de stand op deze datum, verlof (V) van vóór die dag telt niet mee.
+  // Leeg = het tegoed geldt vanaf 1 januari.
+  countFrom DateTime? @db.Date
 
   updatedBy   User?   @relation("LeaveAllowanceUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
   updatedById String?

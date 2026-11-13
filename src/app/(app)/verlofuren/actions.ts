@@ -26,6 +26,8 @@ export async function saveAllowance(input: {
   year: number;
   hours: string;
   note: string;
+  /** Peildatum (JJJJ-MM-DD) of leeg. */
+  countFrom: string;
 }): Promise<AllowanceResult> {
   try {
     const session = await requireAdmin();
@@ -38,11 +40,18 @@ export async function saveAllowance(input: {
     const employee = await prisma.employee.findUnique({ where: { id: input.employeeId }, select: { id: true } });
     if (!employee) return { error: "Medewerker niet gevonden." };
     const note = input.note.trim().slice(0, 300) || null;
+    let countFrom: Date | null = null;
+    if (input.countFrom.trim()) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(input.countFrom.trim())) return { error: "Ongeldige peildatum." };
+      countFrom = new Date(`${input.countFrom.trim()}T00:00:00.000Z`);
+      if (Number.isNaN(countFrom.getTime())) return { error: "Ongeldige peildatum." };
+      if (countFrom.getUTCFullYear() !== year) return { error: `De peildatum moet in ${year} liggen.` };
+    }
     const rounded = Math.round(hours * 100) / 100;
     await prisma.leaveAllowance.upsert({
       where: { employeeId_year: { employeeId: employee.id, year } },
-      update: { hours: rounded, note, updatedById: session.user.id },
-      create: { employeeId: employee.id, year, hours: rounded, note, updatedById: session.user.id },
+      update: { hours: rounded, note, countFrom, updatedById: session.user.id },
+      create: { employeeId: employee.id, year, hours: rounded, note, countFrom, updatedById: session.user.id },
     });
     revalidate();
     return undefined;

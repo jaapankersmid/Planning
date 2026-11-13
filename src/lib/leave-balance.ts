@@ -19,6 +19,8 @@ export type BucketInput = {
   year: number;
   hours: number;
   note?: string | null;
+  /** Peildatum (ISO): het tegoed is de stand op die dag; verlof ervoor telt niet mee. */
+  countFromISO?: string | null;
   updatedByName?: string | null;
   updatedAt?: Date | null;
 };
@@ -34,7 +36,11 @@ export type Bucket = BucketInput & {
   lost: number;
 };
 
-export type DayAllocation = VacationDay & { taken: { year: number; hours: number }[] };
+export type DayAllocation = VacationDay & {
+  taken: { year: number; hours: number }[];
+  /** Valt voor de peildatum van het tegoed en telt daarom niet mee. */
+  ignored?: boolean;
+};
 
 export type Balance = {
   buckets: Bucket[];
@@ -74,9 +80,17 @@ export function computeBalance(inputs: BucketInput[], vacationDays: VacationDay[
     const allocation: DayAllocation = { ...day, taken: [] };
     let todo = day.hours;
     const years = eligibleYears(day.dateISO);
+    // Heeft het nieuwste tegoed een peildatum na deze dag, dan is de stand al ingevuld zonder deze dag.
+    const newest = map.get(years[years.length - 1]);
+    if (newest?.countFromISO && day.dateISO < newest.countFromISO) {
+      allocation.ignored = true;
+      days.push(allocation);
+      continue;
+    }
     for (const year of years) {
       const bucket = map.get(year);
       if (!bucket || todo <= 0 || bucket.remaining <= 0) continue;
+      if (bucket.countFromISO && day.dateISO < bucket.countFromISO) continue;
       const take = Math.min(todo, bucket.remaining);
       bucket.used += take;
       bucket.remaining -= take;
@@ -132,7 +146,7 @@ export async function loadBalances(todayISO: string, employeeIds?: string[]) {
   const byEmployee = new Map<string, BucketInput[]>();
   for (const a of allowances) {
     const list = byEmployee.get(a.employeeId) ?? [];
-    list.push({ year: a.year, hours: a.hours, note: a.note, updatedByName: a.updatedBy ? (a.updatedBy.name ?? a.updatedBy.email) : null, updatedAt: a.updatedAt });
+    list.push({ year: a.year, hours: a.hours, note: a.note, countFromISO: a.countFrom ? toISODate(a.countFrom) : null, updatedByName: a.updatedBy ? (a.updatedBy.name ?? a.updatedBy.email) : null, updatedAt: a.updatedAt });
     byEmployee.set(a.employeeId, list);
   }
 

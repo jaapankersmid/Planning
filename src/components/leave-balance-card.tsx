@@ -7,6 +7,10 @@ const dayBefore = (iso: string) => {
   d.setUTCDate(d.getUTCDate() - 1);
   return `${formatDayMonth(d)} ${d.getUTCFullYear()}`;
 };
+const dayMonthYear = (iso: string) => {
+  const d = dateFromISO(iso);
+  return `${formatDayMonth(d)} ${d.getUTCFullYear()}`;
+};
 const lastDay = (year: number) => dayBefore(expiryISO(year));
 
 /** Overzicht van verlofuren: wat er nog is, wat er is opgenomen en wanneer uren vervallen. Voor medewerker en administratie. */
@@ -80,6 +84,7 @@ export function LeaveBalanceCard({ balance, todayISO }: { balance: Balance & { n
                 </td>
                 <td className="py-1.5 text-foreground-muted">
                   {b.future ? `vanaf 1 januari ${b.year}` : b.expired ? `verlopen op ${lastDay(b.year)}` : `t/m ${lastDay(b.year)}`}
+                  {b.countFromISO && <div className="text-xs">stand per {dayMonthYear(b.countFromISO)}</div>}
                   {b.note && <div className="text-xs">{b.note}</div>}
                 </td>
               </tr>
