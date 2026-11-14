@@ -33,7 +33,15 @@ export default async function AppLayout({
     <div className="flex min-h-full flex-col">
       <header className="border-b border-border bg-surface">
         <WidthBox className="flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 sm:px-6">
-          <span className="order-1 text-sm font-semibold tracking-tight">Rooster</span>
+          <div className="order-1 flex items-center gap-2">
+            <span className="text-sm font-semibold tracking-tight">Bréborgh</span>
+            {(session.user.role === "ADMIN" || session.user.role === "ACCOUNTING") && (
+              <div className="flex overflow-hidden rounded-md border border-border text-xs font-medium">
+                <a href="/naar-hub" className="px-2.5 py-1 text-foreground-muted hover:bg-surface-muted">Crematorium</a>
+                <span className="bg-accent-soft px-2.5 py-1 text-accent">Rooster</span>
+              </div>
+            )}
+          </div>
           <div className="order-2 ml-auto flex items-center gap-3 text-sm text-foreground-muted sm:order-3">
             <span className="max-w-[45vw] truncate">
               {session.user.name}

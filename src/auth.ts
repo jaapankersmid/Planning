@@ -1,7 +1,8 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
-import { verifyPassword } from "@/lib/password";
+import { generateTempPassword, hashPassword, verifyPassword } from "@/lib/password";
+import { mapRole, verifySso } from "@/lib/sso";
 
 // Inloggen met een zelf aangemaakt account (e-mail + wachtwoord) i.p.v. een
 // externe provider zoals Google. Dit vereist de JWT-sessiestrategie — Auth.js
@@ -38,6 +39,35 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           employeeId: user.employeeId,
           calendarSyncEnabled: user.calendarSyncEnabled,
           mustChangePassword: user.mustChangePassword,
+        };
+      },
+    }),
+    // Doorklikken vanuit de Hub (crematorium): kort geldig, ondertekend bewijs (src/lib/sso.ts).
+    // Alleen beheerder/administratie; een nog onbekend account wordt automatisch aangemaakt.
+    Credentials({
+      id: "sso",
+      credentials: { token: { type: "text" } },
+      async authorize(credentials) {
+        const p = verifySso(credentials?.token, "rooster");
+        const role = p ? mapRole(p.role) : null;
+        if (!p || !role) return null;
+        const email = p.email.trim().toLowerCase();
+        let user = await prisma.user.findUnique({ where: { email } });
+        if (!user) {
+          user = await prisma.user.create({
+            data: { email, name: p.name || null, role, passwordHash: hashPassword(generateTempPassword()), mustChangePassword: false },
+          });
+        }
+        if (!user.active) return null;
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          active: user.active,
+          employeeId: user.employeeId,
+          calendarSyncEnabled: user.calendarSyncEnabled,
+          mustChangePassword: false,
         };
       },
     }),

@@ -35,6 +35,9 @@ services:
     build: .
     restart: unless-stopped
     env_file: .env
+    environment:
+      # Koppeling met de Hub (één inlog, twee afdelingen); SSO_SECRET staat in .env.
+      HUB_URL: https://${HUB_DOMAIN:-}
     depends_on:
       db:
         condition: service_healthy
@@ -70,6 +73,10 @@ services:
       AUTH_SECRET: ${HUB_AUTH_SECRET:?zet HUB_AUTH_SECRET in .env (maak er een met openssl rand -base64 32)}
       AUTH_URL: https://${HUB_DOMAIN:?zet HUB_DOMAIN in .env}
       AUTH_TRUST_HOST: "true"
+      # Koppeling met het rooster (één inlog, twee afdelingen)
+      SSO_SECRET: ${SSO_SECRET:-}
+      ROOSTER_URL: https://${DOMAIN:-}
+      ROOSTER_INTERNAL_URL: http://app:3000
       # Prijsbeheer in de Hub: de server praat met het prijzen-Apps Script (apps-script-prijzen.gs).
       # HUB_PRIJZEN_SLEUTEL = dezelfde geheime waarde als in dat script (stelHubSleutelIn); zie Hub/README.md.
       HUB_PRIJZEN_URL: ${HUB_PRIJZEN_URL:-https://script.google.com/macros/s/AKfycbyNfSgRH-jkyHCa5iU7kGbgmrTOmXgTPAjoKEf9ShlD0EgVGX4Wea-lX7X6_0pV8dPJ/exec}
