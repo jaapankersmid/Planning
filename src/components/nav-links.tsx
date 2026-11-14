@@ -12,6 +12,7 @@ const PLANNER: Role[] = ["ADMIN"];
 
 const links: { href: string; label: string; roles: Role[] }[] = [
   { href: "/rooster", label: "Rooster", roles: ALL },
+  { href: "/klanten", label: "Klanten", roles: ALL },
   { href: "/rooster/mijn", label: "Mijn rooster", roles: PERSONAL },
   { href: "/verlof", label: "Mijn verlof", roles: PERSONAL },
   { href: "/beschikbaarheid", label: "Beschikbaarheid", roles: PERSONAL },
@@ -44,7 +45,7 @@ export function NavLinks({
       {links
         .filter((l) => l.roles.includes(role))
         .map((l) => {
-          const active = pathname === l.href;
+          const active = pathname === l.href || (l.href === "/klanten" && pathname.startsWith("/klanten/"));
           return (
             <Link
               key={l.href}

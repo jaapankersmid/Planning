@@ -43,6 +43,13 @@
 	@hub path /hub /hub/*
 	header @hub X-Robots-Tag "noindex, nofollow"
 
+	# Hub als installeerbare app: de service worker moet altijd vers opgehaald
+	# worden en het manifest heeft een eigen content-type.
+	@hubsw path /hub/sw.js
+	header @hubsw Cache-Control "no-cache"
+	@hubmanifest path /hub/manifest.webmanifest
+	header @hubmanifest Content-Type "application/manifest+json"
+
 	# De kale hoofdpagina stuurt door naar het klantformulier.
 	redir / /aanvraag/ 302
 
