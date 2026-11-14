@@ -17,12 +17,15 @@
 }
 
 # ── Bréborgh prijstools: hub (intern) en aanvraagformulier (klanten) ─────────
-# Statische bestanden uit /srv/sign op de server (in de caddy-container
-# gemount op dezelfde plek, zie docker-compose.prod.yml). Eén domein, twee
-# paden:  /hub/  en  /aanvraag/.  Het A-record van sign.breborgh.nl moet naar
-# dit server-IP wijzen; Caddy regelt het HTTPS-certificaat vanzelf.
-# Later naar een ander (sub)domein? Alleen de naam hieronder aanpassen.
-sign.breborgh.nl {
+# Statische bestanden uit de Hub-repository (/srv/hub/site op de server, in de
+# caddy-container gemount op /srv/sign, zie docker-compose.prod.yml). Eén
+# domein, twee paden:  /hub/  en  /aanvraag/.
+# Het domein staat in .env als HUB_DOMAIN (bv. verhuur.breborgh.nl). Het
+# A-record van dat domein moet naar dit server-IP wijzen (en een eventueel
+# AAAA-record ook, of weg); Caddy regelt het HTTPS-certificaat vanzelf.
+# Van domein wisselen = alleen HUB_DOMAIN in .env aanpassen en daarna
+# `docker compose -f docker-compose.prod.yml up -d`; dit bestand blijft gelijk.
+{$HUB_DOMAIN} {
 	root * /srv/sign
 	encode zstd gzip
 

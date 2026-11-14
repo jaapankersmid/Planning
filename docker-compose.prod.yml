@@ -51,6 +51,10 @@ services:
       # Nog geen domein? Zet DOMAIN=":80" in .env (zie Caddyfile) om nu al
       # via platte HTTP op het server-IP te testen.
       DOMAIN: ${DOMAIN:?zet DOMAIN in .env — ":80" als je nog geen domein hebt, anders bv. rooster.jouwbedrijf.nl}
+      # Domein van de Bréborgh prijstools (hub + aanvraagformulier). Zonder waarde in
+      # .env valt dit terug op hub.localhost: dan is de site alleen lokaal bereikbaar
+      # en wordt er geen certificaat aangevraagd.
+      HUB_DOMAIN: ${HUB_DOMAIN:-hub.localhost}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       # Bréborgh prijstools (hub + aanvraagformulier): de site-map uit de Hub-repository,
