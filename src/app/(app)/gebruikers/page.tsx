@@ -10,7 +10,7 @@ import { pendingAvailabilityCount } from "@/lib/planner-alerts";
 import { AutoSelect } from "@/components/auto-select";
 import { RoleSelect } from "@/components/role-select";
 import { ROLE_OPTIONS } from "@/lib/roles";
-import { linkEmployee, setUserActive } from "./actions";
+import { linkEmployee, setHubAccess, setUserActive } from "./actions";
 
 export default async function GebruikersPage() {
   const session = await auth();
@@ -71,6 +71,7 @@ export default async function GebruikersPage() {
               <th className="px-4 py-2">E-mail</th>
               <th className="px-4 py-2">Rol</th>
               <th className="px-4 py-2">Medewerker</th>
+              <th className="px-4 py-2">Crematorium</th>
               <th className="px-4 py-2">Status</th>
               <th className="px-4 py-2" />
             </tr>
@@ -100,6 +101,20 @@ export default async function GebruikersPage() {
                       .filter((e) => !e.user || e.user.id === u.id)
                       .map((e) => ({ value: e.id, label: e.name }))}
                     action={linkEmployee.bind(null, u.id)}
+                  />
+                </td>
+                <td className="px-4 py-2">
+                  <AutoSelect
+                    key={`${u.id}_${u.hubRole ?? ""}`}
+                    ariaLabel={`Crematorium-toegang van ${u.name}`}
+                    initialValue={u.hubRole ?? ""}
+                    emptyLabel={u.role === "EMPLOYEE" ? "— geen toegang" : "— automatisch (eigen rol)"}
+                    options={[
+                      { value: "STAFF", label: "Medewerker" },
+                      { value: "ACCOUNTING", label: "Administratie" },
+                      { value: "ADMIN", label: "Beheerder" },
+                    ]}
+                    action={setHubAccess.bind(null, u.id)}
                   />
                 </td>
                 <td className="px-4 py-2">

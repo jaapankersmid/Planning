@@ -3,7 +3,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 // Korte, ondertekende "toegangsbewijzen" tussen de Hub en het rooster.
 // Beide apps kennen dezelfde geheime sleutel (SSO_SECRET). Een bewijs is
 // maar kort geldig en voor één bestemming (aud), zodat het niet misbruikt kan worden.
-export type SsoAudience = "hub" | "rooster" | "overzicht";
+export type SsoAudience = "hub" | "rooster" | "overzicht" | "hub-sync";
 export type SsoPayload = { aud: SsoAudience; email: string; name: string; role: string; exp: number };
 
 export function ssoSecret(): string | null {
@@ -38,7 +38,8 @@ export function verifySso(token: unknown, aud: SsoAudience): SsoPayload | null {
   }
 }
 
-/** Rol in het andere systeem; alleen beheerder en administratie komen door. */
-export function mapRole(role: string): "ADMIN" | "ACCOUNTING" | null {
-  return role === "ADMIN" || role === "ACCOUNTING" ? role : null;
+/** Rollen die via de koppeling mogen doorklikken (partners en onbekende rollen nooit). */
+export type LinkRole = "ADMIN" | "ACCOUNTING" | "STAFF";
+export function mapRole(role: string): LinkRole | null {
+  return role === "ADMIN" || role === "ACCOUNTING" || role === "STAFF" ? role : null;
 }

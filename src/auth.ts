@@ -54,6 +54,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const email = p.email.trim().toLowerCase();
         let user = await prisma.user.findUnique({ where: { email } });
         if (!user) {
+          // Een medewerker (rol STAFF in de Hub) moet al een rooster-account hebben; alleen
+          // beheerder/administratie wordt hier automatisch aangemaakt.
+          if (role === "STAFF") return null;
           user = await prisma.user.create({
             data: { email, name: p.name || null, role, passwordHash: hashPassword(generateTempPassword()), mustChangePassword: false },
           });

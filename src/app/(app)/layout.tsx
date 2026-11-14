@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth, signOut } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { effectiveHubRole } from "@/lib/hub-access";
 import { NavLinks } from "@/components/nav-links";
 import { WidthBox } from "@/components/width-box";
 
@@ -23,6 +24,10 @@ export default async function AppLayout({
     redirect("/onboarding");
   }
 
+  // Knop "Crematorium" alleen voor wie daar toegang toe heeft.
+  const me = await prisma.user.findUnique({ where: { id: session.user.id }, select: { role: true, active: true, hubRole: true } });
+  const hubAccess = !!me && effectiveHubRole(me) !== null && !!process.env.HUB_URL?.replace(/^https:\/\/$/, "");
+
   // Planners zien in het menu hoeveel verlofaanvragen op een beoordeling wachten.
   const pendingLeave =
     session.user.role === "ADMIN"
@@ -35,7 +40,7 @@ export default async function AppLayout({
         <WidthBox className="flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 sm:px-6">
           <div className="order-1 flex items-center gap-2">
             <span className="text-sm font-semibold tracking-tight">Bréborgh</span>
-            {(session.user.role === "ADMIN" || session.user.role === "ACCOUNTING") && (
+            {hubAccess && (
               <div className="flex overflow-hidden rounded-md border border-border text-xs font-medium">
                 <a href="/naar-hub" className="px-2.5 py-1 text-foreground-muted hover:bg-surface-muted">Crematorium</a>
                 <span className="bg-accent-soft px-2.5 py-1 text-accent">Rooster</span>

@@ -38,6 +38,7 @@ services:
     environment:
       # Koppeling met de Hub (één inlog, twee afdelingen); SSO_SECRET staat in .env.
       HUB_URL: https://${HUB_DOMAIN:-}
+      HUB_INTERNAL_URL: http://hub-app:3000
     depends_on:
       db:
         condition: service_healthy

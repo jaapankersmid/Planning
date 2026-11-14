@@ -46,6 +46,10 @@ model User {
   employee   Employee? @relation(fields: [employeeId], references: [id])
   employeeId String?   @unique
 
+  // Toegang tot het crematorium-programma (de Hub), met de rol daar: STAFF / ACCOUNTING / ADMIN.
+  // Leeg = geen extra toegang (planners en administratie komen standaard met hun eigen rol binnen).
+  hubRole String?
+
   // Mail sturen als er een dienst voor de gekoppelde medewerker wordt ingepland of gewijzigd?
   emailNotifications Boolean @default(true)
   // Alleen voor planners: mail bij een nieuwe verlofaanvraag of gewijzigde beschikbaarheid.

@@ -8,6 +8,7 @@ import { isMailConfigured, sendMail } from "@/lib/mail";
 import { pendingNotificationCount, processDueNotifications } from "@/lib/notifications";
 import { pendingAvailabilityCount, processAvailabilityAlerts } from "@/lib/planner-alerts";
 import { ROLE_OPTIONS } from "@/lib/roles";
+import { syncHubAccess } from "@/lib/hub-access";
 import type { Role } from "@prisma/client";
 
 async function requireAdmin() {
@@ -119,7 +120,8 @@ export async function setUserActive(userId: string, active: boolean) {
   const session = await requireAdmin();
   // Je eigen account uitzetten zou je buitensluiten; dat negeren we.
   if (!active && userId === session.user.id) return;
-  await prisma.user.update({ where: { id: userId }, data: { active } });
+  const updated = await prisma.user.update({ where: { id: userId }, data: { active } });
+  await syncHubAccess(updated);
   revalidatePath("/gebruikers");
 }
 
@@ -141,7 +143,20 @@ export async function setUserRole(userId: string, role: Role): Promise<{ error: 
     if (otherPlanners === 0) return { error: "Er moet minstens één actieve planner overblijven." };
   }
 
-  await prisma.user.update({ where: { id: userId }, data: { role } });
+  const updated = await prisma.user.update({ where: { id: userId }, data: { role } });
+  await syncHubAccess(updated);
+  revalidatePath("/gebruikers");
+}
+
+const HUB_ROLES = ["STAFF", "ACCOUNTING", "ADMIN"];
+
+/** Geeft een gebruiker toegang tot het crematorium-programma (met een rol daar) of haalt die weg (lege waarde). */
+export async function setHubAccess(userId: string, value: string | null): Promise<{ error: string } | void> {
+  await requireAdmin();
+  if (value && !HUB_ROLES.includes(value)) return { error: "Onbekende rol." };
+  const updated = await prisma.user.update({ where: { id: userId }, data: { hubRole: value || null } });
+  // Best effort: is de Hub even niet bereikbaar, dan geldt de nieuwe rol zodra het account de volgende keer doorklikt.
+  await syncHubAccess(updated);
   revalidatePath("/gebruikers");
 }
 
