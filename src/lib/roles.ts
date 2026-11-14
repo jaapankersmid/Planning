@@ -9,13 +9,6 @@ export const isAccounting = (role: Role | undefined | null) => role === "ACCOUNT
 /** Mag de uren van iedereen inzien, goedkeuren, corrigeren en exporteren. */
 export const canManageHours = (role: Role | undefined | null) => isPlanner(role) || isAccounting(role);
 
-/**
- * Mag de klantendatabase en de crematiedossiers inzien en bewerken. Nu voor alle
- * rollen (de crematoriummedewerkers werken er dagelijks in); wil je dit later
- * beperken, pas dan alleen deze functie aan.
- */
-export const canManageCustomers = (role: Role | undefined | null) => !!role;
-
 export const ROLE_LABEL: Record<Role, string> = {
   ADMIN: "Planner",
   ACCOUNTING: "Administratie",

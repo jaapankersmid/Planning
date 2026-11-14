@@ -19,14 +19,13 @@
 # ── Bréborgh prijstools: hub (intern) en aanvraagformulier (klanten) ─────────
 # Statische bestanden uit de Hub-repository (/srv/hub/site op de server, in de
 # caddy-container gemount op /srv/sign, zie docker-compose.prod.yml). Eén
-# domein, twee paden:  /hub/  en  /aanvraag/.
+# domein: /aanvraag/ en /hub/ (prijstools) zijn statisch, de rest is de Hub-app.
 # Het domein staat in .env als HUB_DOMAIN (bv. verhuur.breborgh.nl). Het
 # A-record van dat domein moet naar dit server-IP wijzen (en een eventueel
 # AAAA-record ook, of weg); Caddy regelt het HTTPS-certificaat vanzelf.
 # Van domein wisselen = alleen HUB_DOMAIN in .env aanpassen en daarna
 # `docker compose -f docker-compose.prod.yml up -d`; dit bestand blijft gelijk.
 {$HUB_DOMAIN} {
-	root * /srv/sign
 	encode zstd gzip
 
 	header {
@@ -34,26 +33,28 @@
 		Referrer-Policy strict-origin-when-cross-origin
 	}
 
-	# Prijzen en rekenregels: browser controleert bij elk bezoek of er een
-	# nieuwere versie is (ETag), dus een prijswijziging is meteen zichtbaar.
-	@core path /breborgh-core.js
-	header @core Cache-Control "no-cache"
+	# Statisch (uit /srv/hub/site): het klantformulier, de rekenregels en de doorverwijzing
+	# van de oude /hub/-link naar de Hub-app (de prijstools zelf staan in de app). Alles wat hier niet onder valt gaat naar de Hub-app.
+	@static path /aanvraag /aanvraag/* /hub /hub/* /breborgh-core.js
+	handle @static {
+		root * /srv/sign
 
-	# Het interne deel niet laten indexeren door zoekmachines.
-	@hub path /hub /hub/*
-	header @hub X-Robots-Tag "noindex, nofollow"
+		# Prijzen en rekenregels: browser controleert bij elk bezoek of er een
+		# nieuwere versie is (ETag), dus een prijswijziging is meteen zichtbaar.
+		@core path /breborgh-core.js
+		header @core Cache-Control "no-cache"
 
-	# Hub als installeerbare app: de service worker moet altijd vers opgehaald
-	# worden en het manifest heeft een eigen content-type.
-	@hubsw path /hub/sw.js
-	header @hubsw Cache-Control "no-cache"
-	@hubmanifest path /hub/manifest.webmanifest
-	header @hubmanifest Content-Type "application/manifest+json"
+		# Het interne deel niet laten indexeren door zoekmachines.
+		@hub path /hub /hub/*
+		header @hub X-Robots-Tag "noindex, nofollow"
 
-	# De kale hoofdpagina stuurt door naar het klantformulier.
-	redir / /aanvraag/ 302
+		file_server
+	}
 
-	file_server
+	# De Hub-app (klanten, partners, gebruikers; later facturen).
+	handle {
+		reverse_proxy hub-app:3000
+	}
 }
 
 # Wanneer het verhuurplatform later op dezelfde server bijkomt, voeg je er

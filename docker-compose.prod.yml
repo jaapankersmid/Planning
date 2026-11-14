@@ -41,6 +41,51 @@ services:
     # Ook hier geen "ports:" — Caddy hieronder praat er intern mee via
     # "app:3000" en is het enige dat van buitenaf bereikbaar is.
 
+  # ── Bréborgh Hub (crematorium): eigen app + eigen database, los van het rooster ──
+  # De broncode komt uit de Hub-repository (/srv/hub/app). Bouwen/bijwerken:
+  #   docker compose -f docker-compose.prod.yml up -d --build hub-app
+  # Vereist in .env:  HUB_DB_PASSWORD  en  HUB_AUTH_SECRET  (zie Hub/README.md).
+  hub-db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: hub
+      POSTGRES_PASSWORD: ${HUB_DB_PASSWORD:?zet HUB_DB_PASSWORD in .env (maak er een met openssl rand -hex 16)}
+      POSTGRES_DB: hub
+    volumes:
+      - hub_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hub"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # Geen "ports:": alleen bereikbaar vanuit hub-app.
+
+  hub-app:
+    build:
+      context: /srv/hub/app
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://hub:${HUB_DB_PASSWORD}@hub-db:5432/hub
+      AUTH_SECRET: ${HUB_AUTH_SECRET:?zet HUB_AUTH_SECRET in .env (maak er een met openssl rand -base64 32)}
+      AUTH_URL: https://${HUB_DOMAIN:?zet HUB_DOMAIN in .env}
+      AUTH_TRUST_HOST: "true"
+      # Prijsbeheer in de Hub: de server praat met het prijzen-Apps Script (apps-script-prijzen.gs).
+      # HUB_PRIJZEN_SLEUTEL = dezelfde geheime waarde als in dat script (stelHubSleutelIn); zie Hub/README.md.
+      HUB_PRIJZEN_URL: ${HUB_PRIJZEN_URL:-https://script.google.com/macros/s/AKfycbyNfSgRH-jkyHCa5iU7kGbgmrTOmXgTPAjoKEf9ShlD0EgVGX4Wea-lX7X6_0pV8dPJ/exec}
+      HUB_PRIJZEN_SLEUTEL: ${HUB_PRIJZEN_SLEUTEL:-}
+      # Mail aan partners (Vorab/Nach-meldingen). Zonder MAIL_HOST blijven de mails in de wachtrij staan.
+      MAIL_HOST: ${MAIL_HOST:-}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USER: ${MAIL_USER:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+    depends_on:
+      hub-db:
+        condition: service_healthy
+    # Geen "ports:": Caddy praat er intern mee via hub-app:3000. Caddy start bewust
+    # niet afhankelijk van hub-app, zodat het rooster blijft werken als de Hub stilstaat.
+
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped
@@ -67,5 +112,6 @@ services:
 
 volumes:
   rooster_db_data:
+  hub_db_data:
   caddy_data:
   caddy_config:
