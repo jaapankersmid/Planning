@@ -3,6 +3,7 @@ import { auth, signOut } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { effectiveHubRole } from "@/lib/hub-access";
 import { NavLinks } from "@/components/nav-links";
+import { FeedbackButton } from "@/components/feedback-button";
 import { WidthBox } from "@/components/width-box";
 
 export default async function AppLayout({
@@ -73,6 +74,7 @@ export default async function AppLayout({
       <main className="flex-1">
         <WidthBox className="px-4 py-6 sm:px-6">{children}</WidthBox>
       </main>
+      <FeedbackButton />
     </div>
   );
 }
