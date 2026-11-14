@@ -80,6 +80,21 @@ services:
       MAIL_USER: ${MAIL_USER:-}
       MAIL_PASSWORD: ${MAIL_PASSWORD:-}
       MAIL_FROM: ${MAIL_FROM:-}
+      # Gescande lijsten (alleen een plaatje) lezen met Claude. Zonder sleutel werken alleen PDF's met tekst.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      MOLLIE_API_KEY: ${MOLLIE_API_KEY:-}
+      COMPANY_NAME: ${COMPANY_NAME:-}
+      COMPANY_TRADE_NAME: ${COMPANY_TRADE_NAME:-}
+      COMPANY_STREET: ${COMPANY_STREET:-}
+      COMPANY_POSTAL_CITY: ${COMPANY_POSTAL_CITY:-}
+      COMPANY_EMAIL: ${COMPANY_EMAIL:-}
+      COMPANY_PHONE: ${COMPANY_PHONE:-}
+      COMPANY_WEBSITE: ${COMPANY_WEBSITE:-}
+      COMPANY_IBAN: ${COMPANY_IBAN:-}
+      COMPANY_KVK: ${COMPANY_KVK:-}
+      COMPANY_VAT: ${COMPANY_VAT:-}
+      INVOICE_PAYMENT_DAYS: ${INVOICE_PAYMENT_DAYS:-}
+      INVOICE_START: ${INVOICE_START:-}
     depends_on:
       hub-db:
         condition: service_healthy
