@@ -24,6 +24,7 @@ import { formatHours, shiftHours } from "@/lib/hours";
 import { canManageHours, isPlanner } from "@/lib/roles";
 import { ShiftCell } from "@/components/shift-cell";
 import { DualScroll } from "@/components/dual-scroll";
+import { TodayWorking } from "@/components/today-working";
 import {
   ensureColorGroups,
   ensureCoverageDefaults,
@@ -488,6 +489,8 @@ export default async function RoosterPage({
           </span>
         ))}
       </div>
+
+      <TodayWorking />
     </div>
   );
 }

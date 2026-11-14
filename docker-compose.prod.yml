@@ -76,6 +76,11 @@ services:
       AUTH_TRUST_HOST: "true"
       # Koppeling met het rooster (één inlog, twee afdelingen)
       SSO_SECRET: ${SSO_SECRET:-}
+      # Aanvragen van prijsaanvraag.html (Apps Script stuurt ze hierheen) en afstand opzoeken in de Rekentool.
+      AANVRAAG_SECRET: ${AANVRAAG_SECRET:-}
+      AANVRAAG_NOTIFY: ${AANVRAAG_NOTIFY:-}
+      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
+      PICKUP_ORIGIN: ${PICKUP_ORIGIN:-}
       ROOSTER_URL: https://${DOMAIN:-}
       ROOSTER_INTERNAL_URL: http://app:3000
       # Prijsbeheer in de Hub: de server praat met het prijzen-Apps Script (apps-script-prijzen.gs).
