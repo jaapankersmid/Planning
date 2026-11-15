@@ -67,6 +67,7 @@ export default async function AppLayout({
           <NavLinks
             role={session.user.role}
             pendingLeave={pendingLeave}
+            hasEmployee={!!session.user.employeeId}
             className="w-full"
           />
         </WidthBox>

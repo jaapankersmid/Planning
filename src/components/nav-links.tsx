@@ -11,14 +11,14 @@ const PERSONAL: Role[] = ["ADMIN", "EMPLOYEE"];
 const HOURS_ADMIN: Role[] = ["ADMIN", "ACCOUNTING"];
 const PLANNER: Role[] = ["ADMIN"];
 
-type Item = { href: string; label: string; roles: Role[] };
+type Item = { href: string; label: string; roles: Role[]; personal?: boolean };
 
 const links: Item[] = [
   { href: "/rooster", label: "Rooster", roles: ALL },
-  { href: "/rooster/mijn", label: "Mijn rooster", roles: PERSONAL },
-  { href: "/verlof", label: "Mijn verlof", roles: PERSONAL },
-  { href: "/beschikbaarheid", label: "Beschikbaarheid", roles: PERSONAL },
-  { href: "/uren", label: "Mijn uren", roles: PERSONAL },
+  { href: "/rooster/mijn", label: "Mijn rooster", roles: PERSONAL, personal: true },
+  { href: "/verlof", label: "Mijn verlof", roles: PERSONAL, personal: true },
+  { href: "/beschikbaarheid", label: "Beschikbaarheid", roles: PERSONAL, personal: true },
+  { href: "/uren", label: "Mijn uren", roles: PERSONAL, personal: true },
 ];
 
 /** Uitklapmenu's: Planner (planning en verlof), Administratie (uren) en Instellingen (beheer). */
@@ -112,9 +112,12 @@ function Group({ label, items, pathname, pendingLeave }: { label: string; items:
 export function NavLinks({
   role,
   pendingLeave = 0,
+  hasEmployee = true,
   className = "",
 }: {
   role: Role;
+  /** Is de gebruiker gekoppeld aan een medewerker in het rooster? Zo niet, dan vervallen de persoonlijke items. */
+  hasEmployee?: boolean;
   pendingLeave?: number;
   className?: string;
 }) {
@@ -127,7 +130,7 @@ export function NavLinks({
     // Op een telefoon één rij die zijwaarts schuift, zodat het menu niet de helft van het scherm opeet.
     <nav className={`flex items-center gap-1 overflow-x-auto whitespace-nowrap pb-1 text-sm sm:flex-wrap sm:overflow-visible sm:pb-0 ${className}`}>
       {links
-        .filter((l) => l.roles.includes(role))
+        .filter((l) => l.roles.includes(role) && (!l.personal || hasEmployee))
         .map((l) => (
           <Link key={l.href} href={l.href} className={`${cls(pathname === l.href)} shrink-0`}>
             {l.label}
