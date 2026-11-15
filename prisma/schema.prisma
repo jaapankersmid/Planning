@@ -105,6 +105,8 @@ model Employee {
   leaveAllowances     LeaveAllowance[]
   weekSubmissions     WeekSubmission[]
   leaveAdjustments    LeaveAdjustment[]
+  swapsRequested      ShiftSwapRequest[] @relation("SwapRequester")
+  swapsReceived       ShiftSwapRequest[] @relation("SwapTarget")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -140,6 +142,8 @@ model ShiftType {
   active        Boolean               @default(true)
   assignments   ShiftAssignment[]
   weeklyEntries WeeklyScheduleEntry[]
+  swapsGiven    ShiftSwapRequest[] @relation("SwapShift")
+  swapsReturned ShiftSwapRequest[] @relation("SwapReturnShift")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -473,4 +477,53 @@ model LeaveAdjustment {
   createdAt DateTime @default(now())
 
   @@index([employeeId, year])
+}
+
+// Dienst ruilen: een medewerker vraagt een collega zijn dienst (of alleen de ochtend of middag van een
+// gebroken dienst) over te nemen, eventueel in ruil voor een dienst van de collega. Pas na acceptatie
+// door de collega wordt het rooster aangepast; de planners krijgen dan een mail.
+enum ShiftSwapStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  CANCELLED
+}
+
+enum ShiftPart {
+  ALL
+  MORNING
+  AFTERNOON
+}
+
+model ShiftSwapRequest {
+  id String @id @default(cuid())
+
+  requester   Employee @relation("SwapRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  requesterId String
+  target      Employee @relation("SwapTarget", fields: [targetId], references: [id], onDelete: Cascade)
+  targetId    String
+
+  // De dienst die de aanvrager weggeeft (op deze dag, met dit dienst-type) en welk deel daarvan.
+  date        DateTime  @db.Date
+  shiftType   ShiftType @relation("SwapShift", fields: [shiftTypeId], references: [id])
+  shiftTypeId String
+  part        ShiftPart @default(ALL)
+
+  // Optioneel: de dienst van de collega die de aanvrager er voor terugkrijgt.
+  returnDate        DateTime?  @db.Date
+  returnShiftType   ShiftType? @relation("SwapReturnShift", fields: [returnShiftTypeId], references: [id])
+  returnShiftTypeId String?
+  returnPart        ShiftPart?
+
+  note         String?
+  status       ShiftSwapStatus @default(PENDING)
+  // Reden bij afwijzen, of waarom een geaccepteerde ruil niet doorging.
+  decisionNote String?
+  decidedAt    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([targetId, status])
+  @@index([requesterId, status])
 }

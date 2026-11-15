@@ -15,6 +15,7 @@ import {
 import { holidayOn } from "@/lib/holidays";
 import { CalendarSyncPanel } from "@/components/calendar-sync-panel";
 import { EmailNotificationsToggle } from "@/components/email-notifications-toggle";
+import { ShiftSwaps } from "@/components/shift-swaps";
 
 const CALENDAR_MESSAGES: Record<string, string> = {
   verbonden: "Google Calendar gekoppeld — de sync staat aan.",
@@ -120,6 +121,8 @@ export default async function MijnRoosterPage({
           </div>
         )}
       </div>
+
+      {employee && <ShiftSwaps employeeId={employee.id} />}
 
       <div>
         <div className="flex flex-wrap items-center justify-between gap-3">

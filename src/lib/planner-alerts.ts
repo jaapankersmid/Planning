@@ -11,13 +11,13 @@ function quietMinutes() {
   return Number.isFinite(value) && value >= 0 ? value : 10;
 }
 
-function appLink(path: string) {
+export function appLink(path: string) {
   const base = (process.env.AUTH_URL || "").replace(/\/$/, "");
   return base ? `${base}${path}` : "";
 }
 
 /** Actieve planners die meldingen willen, eventueel zonder één bepaalde gebruiker. */
-async function plannerRecipients(excludeEmployeeId?: string) {
+export async function plannerRecipients(excludeEmployeeId?: string) {
   const planners = await prisma.user.findMany({
     where: { role: "ADMIN", active: true, plannerNotifications: true },
     select: { email: true, name: true, employeeId: true },

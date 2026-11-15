@@ -153,6 +153,15 @@ krijgen, anders stopt de agenda-koppeling na een uur.
 
 Nieuwe tabellen: na het updaten eenmalig `docker compose -f docker-compose.prod.yml exec app npx prisma db push` draaien.
 
+## Dienst ruilen
+
+Op Mijn rooster kiest een medewerker een eigen dienst (komende 8 weken) en een collega. Optioneel kiest hij een dienst van die collega die hij er voor terugkrijgt. De collega krijgt een mail en ziet het verzoek bij Mijn rooster; pas bij **Accepteren** wordt het rooster aangepast (met agenda-sync en de gewone roostermail) en krijgen de aanvrager en de planners een mail. Bij **Afwijzen** hoort alleen de aanvrager het.
+
+- Gebroken dienst: ook alleen de ochtend of alleen de middag ruilen. Dat werkt via de losse dienst-typen met dezelfde tijden (X = XI + IX, Uit = UitO + UitA); bestaan die niet, dan kan alleen de hele dienst.
+- Het rooster kent één dienst per medewerker per dag. Heeft de ontvanger die dag al een ochtenddienst en krijgt hij de middag erbij (of andersom), dan wordt het één gebroken dienst (XI + IX = X, UitO + UitA = Uit). Elke andere botsing wordt geweigerd.
+- Staat de dienst bij het accepteren niet meer zoals bij het verzoek (de planner paste hem aan), dan vervalt het verzoek.
+- Code: `src/lib/shift-swap.ts` (regels), `shift-swap-mail.ts` (mails), `rooster/mijn/ruilen-actions.ts`, `components/shift-swaps.tsx`. Databasemodel `ShiftSwapRequest`: draai `npx prisma db push`.
+
 ## Rechten en urenregistratie
 
 **Rollen.** Er zijn drie vaste rollen. De *planner* (technisch `ADMIN`) beheert rooster, diensten, verlof en gebruikers, en is de enige die rollen van anderen kan aanpassen (*Gebruikers*; een wijziging werkt direct, ook als iemand ingelogd is). Er blijft altijd minstens één actieve planner over en je kunt je eigen rol niet wijzigen. De *administratie* ziet het rooster (alleen lezen, inclusief de uren per maand), kan de uren van iedereen inzien, corrigeren, goedkeuren en exporteren, maar kan niets in het rooster of bij gebruikers wijzigen. De *medewerker* ziet het eigen rooster, vraagt verlof aan en registreert eigen uren.
