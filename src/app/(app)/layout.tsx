@@ -38,8 +38,8 @@ export default async function AppLayout({
   return (
     <div className="flex min-h-full flex-col">
       <header className="border-b border-border bg-surface">
-        <WidthBox className="flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 sm:px-6">
-          <div className="order-1 flex items-center gap-2">
+        <WidthBox className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-2 sm:px-6">
+          <div className="flex items-center gap-2">
             <span className="text-sm font-semibold tracking-tight">Bréborgh</span>
             {hubAccess && (
               <div className="flex overflow-hidden rounded-md border border-border text-xs font-medium">
@@ -48,7 +48,7 @@ export default async function AppLayout({
               </div>
             )}
           </div>
-          <div className="order-2 ml-auto flex items-center gap-3 text-sm text-foreground-muted sm:order-3">
+          <div className="ml-auto flex items-center gap-3 text-sm text-foreground-muted">
             <span className="max-w-[45vw] truncate">
               {session.user.name}
               {session.user.role === "ADMIN" ? " · planner" : session.user.role === "ACCOUNTING" ? " · administratie" : ""}
@@ -67,7 +67,7 @@ export default async function AppLayout({
           <NavLinks
             role={session.user.role}
             pendingLeave={pendingLeave}
-            className="order-3 w-full sm:order-2 sm:w-auto sm:flex-1"
+            className="w-full"
           />
         </WidthBox>
       </header>
