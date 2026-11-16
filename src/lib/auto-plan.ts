@@ -128,6 +128,11 @@ export async function loadPlanInput(startISO: string, days: number): Promise<Pla
   };
 }
 
+/** Welke dienst bij een tag hoort voor de gegeven dagdelen (één dagdeel, of beide samen). null als die niet is ingesteld. */
+export function shiftTypeForParts(tag: { morningShiftTypeId: string | null; afternoonShiftTypeId: string | null; bothShiftTypeId: string | null }, parts: Set<Part>): string | null {
+  return parts.size === 2 ? tag.bothShiftTypeId : parts.has("MORNING") ? tag.morningShiftTypeId : tag.afternoonShiftTypeId;
+}
+
 /** Zet het (eventueel aangepaste) voorstel in het rooster. Bestaande diensten blijven onaangeroerd. Geeft terug wat er niet kon. */
 export async function applyPlan(items: PlanItem[]): Promise<{ applied: number; skipped: string[] }> {
   const tags = await prisma.planTag.findMany();
@@ -149,7 +154,7 @@ export async function applyPlan(items: PlanItem[]): Promise<{ applied: number; s
     if (tagIds.size > 1) { skipped.push(`${who}: twee verschillende taken op één dag past niet in één dienst.`); continue; }
     const tag = tagById.get(list[0].tagId);
     const parts = new Set(list.map((l) => l.part));
-    const shiftTypeId = !tag ? null : parts.size === 2 ? tag.bothShiftTypeId : parts.has("MORNING") ? tag.morningShiftTypeId : tag.afternoonShiftTypeId;
+    const shiftTypeId = tag ? shiftTypeForParts(tag, parts) : null;
     if (!shiftTypeId) { skipped.push(`${who}: er is geen dienst ingesteld bij de tag ${tag?.name ?? ""}.`); continue; }
     if (dateFromISO(date) < todayAmsterdam()) { skipped.push(`${who}: de dag is al geweest.`); continue; }
     // Opnieuw controleren vlak voor het toepassen: een bestaande dienst mag nooit overschreven worden.

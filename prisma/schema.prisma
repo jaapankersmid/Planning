@@ -573,3 +573,16 @@ model PlanNeed {
   @@unique([date, part, tagId])
   @@index([date])
 }
+
+// Het getoonde planvoorstel: staat gestippeld omrand in het rooster (alleen zichtbaar voor de eigenaar) tot het
+// wordt toegepast of gewist. Er is er maar één tegelijk.
+model PlanProposalItem {
+  id         String   @id @default(cuid())
+  date       DateTime @db.Date
+  part       DayPart
+  tagId      String
+  employeeId String
+  createdAt  DateTime @default(now())
+
+  @@index([date])
+}

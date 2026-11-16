@@ -170,6 +170,8 @@ Menu Planner > Planvoorstel, alleen zichtbaar en bereikbaar voor het account jaa
 2. **Behoefte**: per week per tag en dagdeel hoeveel mensen er nodig zijn (handmatig; later vanuit het boekingsprogramma).
 3. **Voorstel**: kies de periode; het voorstel verdeelt de plekken eerlijk: per kleurgroep krijgt degene met de minste uren eerst een dienst. Niet beschikbaar = geen opgave, onbeschikbaar, of al een dienst die dag (ook V/Z). Bestaande diensten worden nooit aangepast. Per regel kun je de persoon wijzigen of weghalen; pas bij "In het rooster zetten" verandert het rooster (met agenda-sync en roostermail).
 
+Met "Bekijk in het rooster" komt het voorstel gestippeld omrand in het gewone rooster (alleen voor de eigenaar, alleen op vrije vakjes); daar kun je het ook toepassen of wissen. Model `PlanProposalItem`.
+
 Een persoon krijgt per dag één taak; ochtend en middag samen alleen als de tag een dienst voor "samen" heeft. Code: `src/lib/auto-plan.ts` (algoritme), `app/(app)/planvoorstel/`, `components/plan-proposal.tsx`. Databasemodellen `PlanTag`, `PlanTagEmployee`, `PlanNeed` en `ColorGroup.planParticipates`: draai `npx prisma db push`.
 
 ## Rechten en urenregistratie

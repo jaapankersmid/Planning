@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { applyProposal } from "@/app/(app)/planvoorstel/actions";
+import { useRouter } from "next/navigation";
+import { applyProposal, showProposalInRoster } from "@/app/(app)/planvoorstel/actions";
 
 type Part = "MORNING" | "AFTERNOON";
 type Row = { id: number; date: string; part: Part; tagId: string; employeeId: string; gap: boolean };
@@ -39,6 +40,7 @@ export function PlanProposal({
   const [result, setResult] = useState<{ applied: number; skipped: string[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const router = useRouter();
   const tagName = (id: string) => tags.find((t) => t.id === id)?.name ?? "";
   const nameOf = (id: string) => employees.find((e) => e.id === id)?.name ?? "";
 
@@ -87,6 +89,22 @@ export function PlanProposal({
         setRows((rs) => rs.filter((r) => !r.employeeId));
       } catch (e) {
         setError(e instanceof Error ? e.message : "Toepassen is niet gelukt.");
+      }
+    });
+  };
+
+  const show = () => {
+    setError(null);
+    start(async () => {
+      try {
+        const list = filled.map((r) => ({ date: r.date, part: r.part, tagId: r.tagId, employeeId: r.employeeId }));
+        await showProposalInRoster(list);
+        const dates = list.map((l) => l.date).sort();
+        const first = dates[0];
+        const span = (new Date(`${dates[dates.length - 1]}T00:00:00Z`).getTime() - new Date(`${first}T00:00:00Z`).getTime()) / 86400000;
+        router.push(span <= 6 ? `/rooster?weergave=week&datum=${first}` : `/rooster?year=${first.slice(0, 4)}&month=${Number(first.slice(5, 7))}`);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Tonen is niet gelukt.");
       }
     });
   };
@@ -145,6 +163,9 @@ export function PlanProposal({
       <div className="flex flex-wrap items-center gap-3">
         <button type="button" onClick={apply} disabled={pending || filled.length === 0} className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 disabled:opacity-60">
           {pending ? "Bezig…" : `In het rooster zetten (${filled.length})`}
+        </button>
+        <button type="button" onClick={show} disabled={pending || filled.length === 0} className="rounded-md border border-border px-4 py-2 text-sm font-medium hover:bg-surface-muted disabled:opacity-60">
+          Bekijk in het rooster
         </button>
         <span className="text-xs text-foreground-muted">Bestaande diensten worden niet aangepast. Wie die dag al een dienst heeft, wordt overgeslagen.</span>
       </div>

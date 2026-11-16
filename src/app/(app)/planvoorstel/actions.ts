@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { assertAutoPlan } from "@/lib/auto-plan-guard";
 import { applyPlan, type Part, type PlanItem } from "@/lib/auto-plan";
@@ -92,4 +93,38 @@ export async function applyProposal(items: PlanItem[]): Promise<{ applied: numbe
   const res = await applyPlan(clean);
   refresh();
   return res;
+}
+
+/** Bewaart het voorstel zodat het gestippeld omrand in het rooster verschijnt. Vervangt een eerder getoond voorstel. */
+export async function showProposalInRoster(items: PlanItem[]) {
+  await assertAutoPlan();
+  const clean = items.filter((i) => i && ISO.test(i.date) && (i.part === "MORNING" || i.part === "AFTERNOON") && i.tagId && i.employeeId);
+  await prisma.$transaction([
+    prisma.planProposalItem.deleteMany({}),
+    prisma.planProposalItem.createMany({ data: clean.map((i) => ({ date: dateFromISO(i.date), part: i.part, tagId: i.tagId, employeeId: i.employeeId })) }),
+  ]);
+  refresh();
+}
+
+const backTo = (fd: FormData, message: string) => {
+  const raw = String(fd.get("terug") ?? "");
+  const base = raw.startsWith("/rooster") && !raw.startsWith("//") ? raw.split("&planmelding=")[0].split("?planmelding=")[0] : "/rooster";
+  redirect(`${base}${base.includes("?") ? "&" : "?"}planmelding=${encodeURIComponent(message)}`);
+};
+
+/** Het getoonde voorstel in één keer toepassen vanuit het rooster. Bestaande diensten blijven onaangeroerd. */
+export async function applyShownProposal(fd: FormData) {
+  await assertAutoPlan();
+  const rows = await prisma.planProposalItem.findMany();
+  const res = await applyPlan(rows.map((r) => ({ date: r.date.toISOString().slice(0, 10), part: r.part, tagId: r.tagId, employeeId: r.employeeId })));
+  await prisma.planProposalItem.deleteMany({});
+  refresh();
+  backTo(fd, `${res.applied} dienst${res.applied === 1 ? "" : "en"} in het rooster gezet.${res.skipped.length ? ` Overgeslagen: ${res.skipped.join(" ")}` : ""}`);
+}
+
+export async function clearShownProposal(fd: FormData) {
+  await assertAutoPlan();
+  await prisma.planProposalItem.deleteMany({});
+  refresh();
+  backTo(fd, "Voorstel gewist.");
 }

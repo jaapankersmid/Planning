@@ -22,6 +22,9 @@ import {
 import { holidayOn, holidaySegments } from "@/lib/holidays";
 import { formatHours, shiftHours } from "@/lib/hours";
 import { canManageHours, isPlanner } from "@/lib/roles";
+import { canAutoPlan } from "@/lib/auto-plan-access";
+import { shiftTypeForParts, type Part } from "@/lib/auto-plan";
+import { applyShownProposal, clearShownProposal } from "@/app/(app)/planvoorstel/actions";
 import { ShiftCell } from "@/components/shift-cell";
 import { DualScroll } from "@/components/dual-scroll";
 import { TodayWorking } from "@/components/today-working";
@@ -41,11 +44,13 @@ const HOURS_COLUMN = 64;
 export default async function RoosterPage({
   searchParams,
 }: {
-  searchParams: Promise<{ year?: string; month?: string; weergave?: string; datum?: string }>;
+  searchParams: Promise<{ year?: string; month?: string; weergave?: string; datum?: string; planmelding?: string }>;
 }) {
   const params = await searchParams;
   const session = await auth();
   const isAdmin = isPlanner(session?.user.role);
+  // Het getoonde planvoorstel is alleen voor de eigenaar zichtbaar.
+  const owner = canAutoPlan(session?.user.email);
   // Planners en administratie zien de uren per medewerker; alleen planners kunnen het rooster wijzigen.
   const showHours = canManageHours(session?.user.role);
 
@@ -138,6 +143,29 @@ export default async function RoosterPage({
   const availabilityByKey = new Map(
     availabilityRows.map((a) => [`${a.employeeId}_${toISODate(a.date)}`, a.status]),
   );
+  // Planvoorstel (alleen eigenaar): per medewerker per dag de dienst die het voorstel er zet, alleen op vrije vakjes.
+  const proposalByKey = new Map<string, { code: string; label: string; color: string; tag: string }>();
+  let proposalTotal = 0;
+  if (owner) {
+    const [items, tags, total] = await Promise.all([
+      prisma.planProposalItem.findMany({ where: { date: { gte: rangeStart, lt: rangeEnd } } }),
+      prisma.planTag.findMany(),
+      prisma.planProposalItem.count(),
+    ]);
+    proposalTotal = total;
+    const perDay = new Map<string, { tagId: string; parts: Set<Part> }>();
+    for (const it of items) {
+      const k = `${it.employeeId}_${toISODate(it.date)}`;
+      const cur = perDay.get(k);
+      if (cur) cur.parts.add(it.part);
+      else perDay.set(k, { tagId: it.tagId, parts: new Set([it.part]) });
+    }
+    for (const [k, v] of perDay) {
+      const tag = tags.find((t) => t.id === v.tagId);
+      const type = tag ? shiftTypes.find((st) => st.id === shiftTypeForParts(tag, v.parts)) : undefined;
+      if (tag && type) proposalByKey.set(k, { code: type.code, label: type.label, color: type.color, tag: tag.name });
+    }
+  }
   const segments = holidaySegments(days, holidays);
   const anyWish = holidays.some((h) => h.wantMorning !== null || h.wantAfternoon !== null);
 
@@ -236,6 +264,17 @@ export default async function RoosterPage({
           </Link>
         </div>
       </div>
+
+      {owner && params.planmelding && <p className="rounded-md bg-surface-muted px-3 py-2 text-sm">{params.planmelding}</p>}
+      {owner && proposalTotal > 0 && (
+        <form className="flex flex-wrap items-center gap-3 rounded-lg border-2 border-dashed border-blue-700 bg-surface px-4 py-3 text-sm">
+          <input type="hidden" name="terug" value={weekView ? `/rooster?weergave=week&datum=${toISODate(days[0])}` : `/rooster?year=${days[0].getUTCFullYear()}&month=${days[0].getUTCMonth() + 1}`} />
+          <span><strong>Planvoorstel</strong>: {proposalByKey.size} dagen met een voorgestelde dienst in deze weergave (gestippeld omrand), {proposalTotal} dagdelen in totaal. Alleen jij ziet dit.</span>
+          <button formAction={applyShownProposal} className="rounded-md bg-accent px-3 py-1.5 font-medium text-accent-foreground">In het rooster zetten</button>
+          <button formAction={clearShownProposal} className="rounded-md border border-border px-3 py-1.5 hover:bg-surface-muted">Voorstel wissen</button>
+          <Link href="/planvoorstel" className="underline">Naar het voorstel</Link>
+        </form>
+      )}
 
       <DualScroll stickyHeader>
         <table
@@ -407,7 +446,7 @@ export default async function RoosterPage({
                   return (
                     <td
                       key={key}
-                      className={`p-px ${weekendEdge(day)} ${
+                      className={`relative p-px ${weekendEdge(day)} ${
                         isWeekend(day) ? "bg-weekend" : holidayOn(holidays, dateISO) ? "bg-holiday" : ""
                       }`}
                     >
@@ -423,6 +462,18 @@ export default async function RoosterPage({
                         compact={!weekView}
                         availability={availabilityByKey.get(key) ?? null}
                       />
+                      {(() => {
+                        const proposed = !shiftTypeId ? proposalByKey.get(key) : undefined;
+                        return proposed ? (
+                          <div
+                            title={`Voorstel: ${proposed.code} · ${proposed.label} (${proposed.tag})`}
+                            style={{ background: `${proposed.color}59`, color: readableTextColor(proposed.color) === "#ffffff" ? "#1c2521" : readableTextColor(proposed.color) }}
+                            className={`pointer-events-none absolute inset-px z-20 flex items-center justify-center rounded border-2 border-dashed border-blue-700 font-semibold ${weekView ? "text-sm" : "text-[11px]"}`}
+                          >
+                            {proposed.code}
+                          </div>
+                        ) : null;
+                      })()}
                     </td>
                   );
                 })}
