@@ -11,7 +11,7 @@ Repo: `jaapankersmid/Planning`. Eigenaar: Jaap Ankersmid.
 - Wees eerlijk over wat niet getest is.
 - Voeg bij elke nieuwe feature een korte sectie toe aan `README.md`.
 - Zeg na elke wijziging expliciet of `prisma db push` nodig is. **Bevestig nooit** een `db push` die waarschuwt voor dataverlies: meld het aan Jaap.
-- Commit/push alleen op verzoek.
+- Claude commit en pusht zelf na elke afgeronde, gecontroleerde wijziging (Nederlands commitbericht, op `main`).
 
 ## Privacy: Planvoorstel
 De functie **Planvoorstel** (automatisch plannen) mag alleen zichtbaar en bruikbaar zijn voor **jaapankersmid@gmail.com**.
@@ -24,12 +24,12 @@ Gebruik altijd `canAutoPlan(email)`, `requireAutoPlan()` en `assertAutoPlan()` (
 - Ruilen met een collega: `ShiftSwapRequest`, `src/lib/shift-swap.ts`.
 - Planvoorstel: `src/lib/auto-plan.ts` (PlanTag/PlanNeed, bestaande diensten tellen mee voor de wens als ze de tag-tijden omvatten, ook lange diensten als O 8:00-17:00 en A 10:30-19:30; tags worden gevuld op prioriteit = `sortOrder`, bovenste eerst, harde volgorde).
 
-## Deploy (Jaap doet dit zelf)
-Op de pc: `git add -A; git commit -m "..."; git push`. Op de server (`root@ubuntu`):
+## Deploy
+Commit en push doet Claude zelf. Het bijwerken van de server doet Jaap zelf (`root@ubuntu`):
 ```
 cd ~/Planning; git pull; docker compose -f docker-compose.prod.yml up -d --build app; docker compose -f docker-compose.prod.yml exec app npx prisma db push; docker compose -f docker-compose.prod.yml logs --tail=30 app
 ```
-Laat `exec app npx prisma db push` weg als het schema niet is gewijzigd. Geef na elke wijziging deze stappen kant-en-klaar, gesplitst in "Op je Windows-pc (PowerShell)" en "Op de server".
+Laat `exec app npx prisma db push` weg als het schema niet is gewijzigd. Geef na elke wijziging de serverstappen kant-en-klaar onder het kopje "Op de server".
 
 ## Openstaande `db push`-punten (controleer of ze zijn uitgevoerd)
 ShiftSwapRequest, Plan*-tabellen, `ColorGroup.planParticipates`, tijdvelden van PlanTag, en de velden `part`, `shiftTypeId`, `swapShiftTypeId`, `swapDate` op LeaveRequest.
