@@ -1,3 +1,4 @@
+import { getSettings } from "@/lib/settings";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -34,7 +35,7 @@ export default async function GebruikersPage() {
   ]);
 
   const pendingMails = (await pendingNotificationCount()) + (await pendingAvailabilityCount());
-  const delayMinutes = Number(process.env.NOTIFY_DELAY_MINUTES) || 10;
+  const delayMinutes = Number((await getSettings()).notifyDelayMinutes) || 10;
 
   return (
     <div className="flex flex-col gap-6">
@@ -61,7 +62,7 @@ export default async function GebruikersPage() {
         </dl>
       </div>
 
-      <MailStatusPanel configured={isMailConfigured()} pending={pendingMails} delayMinutes={delayMinutes} />
+      <MailStatusPanel configured={(await isMailConfigured())} pending={pendingMails} delayMinutes={delayMinutes} />
 
       <div className="overflow-x-auto rounded-lg border border-border bg-surface">
         <table className="w-full text-sm">

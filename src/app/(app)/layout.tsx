@@ -6,6 +6,7 @@ import { NavLinks } from "@/components/nav-links";
 import { canAutoPlan } from "@/lib/auto-plan-access";
 import { FeedbackButton } from "@/components/feedback-button";
 import { WidthBox } from "@/components/width-box";
+import { getSettings } from "@/lib/settings";
 
 export default async function AppLayout({
   children,
@@ -30,6 +31,8 @@ export default async function AppLayout({
   const me = await prisma.user.findUnique({ where: { id: session.user.id }, select: { role: true, active: true, hubRole: true } });
   const hubAccess = !!me && effectiveHubRole(me) !== null && !!process.env.HUB_URL?.replace(/^https:\/\/$/, "");
 
+  const companyName = (await getSettings()).companyName;
+
   // Planners zien in het menu hoeveel verlofaanvragen op een beoordeling wachten.
   const pendingLeave =
     session.user.role === "ADMIN"
@@ -41,7 +44,7 @@ export default async function AppLayout({
       <header className="border-b border-border bg-surface">
         <WidthBox className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-2 sm:px-6">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold tracking-tight">Bréborgh</span>
+            <span className="text-sm font-semibold tracking-tight">{companyName}</span>
             {hubAccess && (
               <div className="flex overflow-hidden rounded-md border border-border text-xs font-medium">
                 <a href="/naar-hub" className="px-2.5 py-1 text-foreground-muted hover:bg-surface-muted">Crematorium</a>

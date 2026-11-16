@@ -1,11 +1,12 @@
+import { getSettings } from "@/lib/settings";
 import { prisma } from "@/lib/prisma";
 import { escapeHtml, isMailConfigured, sendMail } from "@/lib/mail";
 import { formatDayMonth, weekdayFull } from "@/lib/format";
 import { todayAmsterdam } from "@/lib/schedule";
 
 /** Hoeveel minuten er niets meer is aangepast voordat de gebundelde mail de deur uit gaat. */
-function quietMinutes() {
-  const value = Number(process.env.NOTIFY_DELAY_MINUTES);
+async function quietMinutes() {
+  const value = Number((await getSettings()).notifyDelayMinutes);
   return Number.isFinite(value) && value >= 0 ? value : 10;
 }
 
@@ -112,11 +113,11 @@ let running = false;
  * Geeft het aantal verstuurde mails terug.
  */
 export async function processDueNotifications(options: { force?: boolean } = {}) {
-  if (running || !isMailConfigured()) return 0;
+  if (running || !(await isMailConfigured())) return 0;
   running = true;
   let sent = 0;
   try {
-    const cutoff = new Date(Date.now() - (options.force ? 0 : quietMinutes() * 60_000));
+    const cutoff = new Date(Date.now() - (options.force ? 0 : (await quietMinutes()) * 60_000));
     const today = todayAmsterdam();
 
     // Dagen die inmiddels geweest zijn hoeven niet meer gemaild.

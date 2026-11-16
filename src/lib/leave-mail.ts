@@ -14,7 +14,7 @@ const wrap = (inner: string) =>
  * Mislukken mag de beoordeling nooit blokkeren, dus fouten worden alleen gelogd.
  */
 export async function notifyEmployeeOfLeaveOutcome(requestId: string, outcome: LeaveOutcome) {
-  if (!isMailConfigured()) return;
+  if (!(await isMailConfigured())) return;
   try {
     const request = await prisma.leaveRequest.findUnique({
       where: { id: requestId },

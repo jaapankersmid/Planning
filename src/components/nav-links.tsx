@@ -46,6 +46,7 @@ const groups: { label: string; items: Item[] }[] = [
       { href: "/medewerkers", label: "Medewerkers", roles: PLANNER },
       { href: "/diensten", label: "Diensten", roles: PLANNER },
       { href: "/gebruikers", label: "Gebruikers", roles: PLANNER },
+      { href: "/instellingen", label: "Instellingen", roles: PLANNER },
     ],
   },
 ];

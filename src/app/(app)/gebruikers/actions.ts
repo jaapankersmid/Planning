@@ -193,8 +193,8 @@ export type MailActionState = { ok: boolean; message: string } | undefined;
 /** Stuurt een testmail naar het e-mailadres van de ingelogde planner. */
 export async function sendTestMail(): Promise<MailActionState> {
   const session = await requireAdmin();
-  if (!isMailConfigured()) {
-    return { ok: false, message: "E-mail is nog niet ingesteld: SMTP_HOST, SMTP_USER en SMTP_PASSWORD ontbreken in .env." };
+  if (!(await isMailConfigured())) {
+    return { ok: false, message: "E-mail is nog niet ingesteld: vul de SMTP-server en gebruikersnaam in bij Instellingen en SMTP_PASSWORD in .env." };
   }
   const to = session.user.email;
   if (!to) return { ok: false, message: "Je account heeft geen e-mailadres." };
@@ -215,7 +215,7 @@ export async function sendTestMail(): Promise<MailActionState> {
 /** Verstuurt de wachtende meldingen meteen, zonder de pauze af te wachten. */
 export async function sendPendingNow(): Promise<MailActionState> {
   await requireAdmin();
-  if (!isMailConfigured()) {
+  if (!(await isMailConfigured())) {
     return { ok: false, message: "E-mail is nog niet ingesteld." };
   }
   const before = (await pendingNotificationCount()) + (await pendingAvailabilityCount());

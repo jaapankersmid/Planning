@@ -28,7 +28,7 @@ async function load(id: string) {
 
 /** Mailt de gevraagde collega dat er een ruilverzoek is. Mislukken mag het verzoek niet blokkeren. */
 export async function notifyTargetOfSwap(id: string) {
-  if (!isMailConfigured()) return;
+  if (!(await isMailConfigured())) return;
   try {
     const d = await load(id);
     const user = d?.req.target.user;
@@ -56,7 +56,7 @@ export async function notifyTargetOfSwap(id: string) {
 
 /** Na het antwoord van de collega: de aanvrager hoort het, en bij acceptatie krijgen ook de planners een mail. */
 export async function notifySwapDecided(id: string) {
-  if (!isMailConfigured()) return;
+  if (!(await isMailConfigured())) return;
   try {
     const d = await load(id);
     if (!d || (d.req.status !== "ACCEPTED" && d.req.status !== "DECLINED")) return;

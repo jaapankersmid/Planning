@@ -11,7 +11,7 @@ const wrap = (inner: string) =>
  * zonder de inhoud van de mail (het wachtwoord komt nooit in de log).
  */
 export async function sendWelcomeMail(user: { name: string; email: string; password: string; mustChange: boolean }): Promise<WelcomeMailResult> {
-  if (!isMailConfigured()) return "not-configured";
+  if (!(await isMailConfigured())) return "not-configured";
   const base = (process.env.AUTH_URL || "").replace(/\/$/, "");
   const link = base ? `${base}/login` : "";
   const change = user.mustChange

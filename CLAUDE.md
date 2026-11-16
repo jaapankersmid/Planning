@@ -22,6 +22,7 @@ Gebruik altijd `canAutoPlan(email)`, `requireAutoPlan()` en `assertAutoPlan()` (
 - Diensten wijzigen altijd via `applyAssignment` (`src/lib/assignments.ts`): dat regelt agenda-sync en roostermail.
 - Verlof (`src/lib/leave.ts`): hele dagen worden V (Vrij); een aanvraag voor één dienst (dagdeel vrij of andere dienst) wijzigt alleen die dienst (`isShiftRequest`).
 - Ruilen met een collega: `ShiftSwapRequest`, `src/lib/shift-swap.ts`.
+- Niet-geheime instellingen (bedrijf, mail): altijd via `getSettings()` / `getMailConfig()` (`src/lib/settings.ts`), niet via `process.env`. Geheimen blijven in .env.
 - Planvoorstel: `src/lib/auto-plan.ts` (PlanTag/PlanNeed, bestaande diensten tellen mee voor de wens als ze de tag-tijden omvatten, ook lange diensten als O 8:00-17:00 en A 10:30-19:30; tags worden gevuld op prioriteit = `sortOrder`, bovenste eerst, harde volgorde).
 
 ## Deploy
@@ -32,4 +33,4 @@ cd ~/Planning; git pull; docker compose -f docker-compose.prod.yml up -d --build
 Laat `exec app npx prisma db push` weg als het schema niet is gewijzigd. Geef na elke wijziging de serverstappen kant-en-klaar onder het kopje "Op de server".
 
 ## Openstaande `db push`-punten (controleer of ze zijn uitgevoerd)
-ShiftSwapRequest, Plan*-tabellen, `ColorGroup.planParticipates`, tijdvelden van PlanTag, en de velden `part`, `shiftTypeId`, `swapShiftTypeId`, `swapDate` op LeaveRequest.
+AppSetting en AppSettingChange (Instellingen), ShiftSwapRequest, Plan*-tabellen, `ColorGroup.planParticipates`, tijdvelden van PlanTag, en de velden `part`, `shiftTypeId`, `swapShiftTypeId`, `swapDate` op LeaveRequest.

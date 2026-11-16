@@ -180,6 +180,35 @@ Gerepareerd: een gebroken dienst (bv. X) die bij een tag als dienst voor "samen"
 
 Een persoon krijgt per dag één taak; ochtend en middag samen alleen als de tag een dienst voor "samen" heeft. Code: `src/lib/auto-plan.ts` (algoritme), `app/(app)/planvoorstel/`, `components/plan-proposal.tsx`. Databasemodellen `PlanTag`, `PlanTagEmployee`, `PlanNeed` en `ColorGroup.planParticipates`: draai `npx prisma db push`.
 
+## Instellingen (bedrijfsgegevens en mail)
+
+Menu *Instellingen → Instellingen*, alleen voor planners (rol ADMIN; de pagina en de opslaanactie controleren dat op de server). Een leeg veld gebruikt de waarde uit `.env`, en anders de standaard. Zolang er niets is ingevuld, werkt alles dus zoals voorheen. Wat je opslaat geldt meteen, zonder herstart: er is een cache van maximaal 30 seconden, die bij het opslaan wordt geleegd.
+
+| In de app (Instellingen) | Terugval |
+|---|---|
+| Bedrijfsnaam | standaard "Bréborgh" (bovenaan in de app) |
+| Adres, postcode en plaats, telefoon, e-mail, website | geen; zijn ze ingevuld, dan komen ze onderaan elke mail |
+| SMTP-server, poort, beveiliging, gebruikersnaam | `SMTP_HOST`, `SMTP_PORT` (587), `SMTP_SECURE`, `SMTP_USER` |
+| Afzendernaam, afzenderadres | `SMTP_FROM`, anders de gebruikersnaam |
+| Antwoordadres (Reply-To) | geen |
+| Wachttijd gebundelde mails | `NOTIFY_DELAY_MINUTES` (10) |
+| Feedback naar | `FEEDBACK_TO` |
+
+**Blijft in `.env`.**
+- *Geheimen*: `SMTP_PASSWORD`, `AUTH_SECRET`, `DATABASE_URL`, `POSTGRES_PASSWORD`, `GOOGLE_CLIENT_SECRET`, `SSO_SECRET` en `ADMIN_PASSWORD`. Het scherm toont alleen of ze "ingesteld" of "niet ingesteld" zijn, nooit de waarde.
+- *Infrastructuur*: `AUTH_URL`, `DOMAIN`, `POSTGRES_USER`/`POSTGRES_DB`, `HUB_URL`/`HUB_INTERNAL_URL`, `NODE_ENV`, `GOOGLE_CLIENT_ID` en `CALENDAR_NAME` (een andere naam zou bij een nieuwe koppeling een tweede agenda maken). `ADMIN_EMAIL`/`ADMIN_NAME` gebruikt alleen de seed.
+- De app-naam van de geïnstalleerde app (`manifest.ts`) blijft vast "Bréborgh Rooster".
+
+**Dubbele bevestiging.** Opslaan gaat in twee stappen:
+1. Je ziet een overzicht *oud → nieuw*, met een rode waarschuwing als je de mailinstellingen wijzigt, en vinkt aan dat je het hebt gecontroleerd.
+2. Je vult je eigen wachtwoord in. Na 5 foute pogingen moet je een kwartier wachten.
+
+Zonder beide stappen slaat de server niets op. Heeft iemand anders de instellingen intussen gewijzigd, dan wordt het opslaan geweigerd. Met **Testmail versturen** stuur je een mail naar je eigen adres, met de opgeslagen instellingen.
+
+**Logboek.** Elke wijziging wordt vastgelegd: wie, wanneer, welke instelling en oud/nieuw. De laatste 30 staan onderaan de pagina. Er komen nooit geheimen in.
+
+Code: `src/lib/settings.ts` (`getSettings`, `getMailConfig`, validatie), `src/app/(app)/instellingen/`, `src/components/settings-form.tsx`. Nieuwe tabellen `AppSetting` en `AppSettingChange`: draai `npx prisma db push`.
+
 ## Welkomstmail bij een nieuw account
 
 Bij *Gebruikers → Nieuwe gebruiker* staat het vinkje **Welkomstmail sturen** (standaard aan). De nieuwe gebruiker krijgt dan een mail met de inloglink (`AUTH_URL`/login), het e-mailadres en het (tijdelijke) wachtwoord; moet het wachtwoord gewijzigd worden, dan staat erbij dat dat bij de eerste keer inloggen gebeurt. Lukt de mail niet of is SMTP niet ingesteld, dan wordt het account gewoon aangemaakt en zie je dat in de melding. Het wachtwoord komt nooit in de logs. Code: `src/lib/welcome-mail.ts`. Geen schemawijziging.

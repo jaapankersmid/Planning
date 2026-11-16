@@ -605,3 +605,25 @@ model PlanProposalItem {
 
   @@index([date])
 }
+
+// Niet-geheime app-instellingen die de planner zelf beheert onder Instellingen (bedrijfsgegevens, mail).
+// Ontbreekt een sleutel, dan geldt de waarde uit .env of de standaard (zie src/lib/settings.ts).
+// Geheimen (wachtwoorden, sleutels, DATABASE_URL) komen hier nooit in: die blijven in .env.
+model AppSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+// Logboek van elke wijziging aan een app-instelling: wie, wanneer, oud en nieuw. Leeg = terug naar .env/standaard.
+model AppSettingChange {
+  id            String   @id @default(cuid())
+  key           String
+  oldValue      String?
+  newValue      String?
+  changedById   String?
+  changedByName String?
+  createdAt     DateTime @default(now())
+
+  @@index([createdAt])
+}

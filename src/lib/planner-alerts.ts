@@ -1,3 +1,4 @@
+import { getSettings } from "@/lib/settings";
 import { describePartRequest } from "@/lib/leave";
 import { prisma } from "@/lib/prisma";
 import { escapeHtml, isMailConfigured, sendMail } from "@/lib/mail";
@@ -7,8 +8,8 @@ import type { AvailabilityStatus } from "@prisma/client";
 
 const MAX_ATTEMPTS = 5;
 
-function quietMinutes() {
-  const value = Number(process.env.NOTIFY_DELAY_MINUTES);
+async function quietMinutes() {
+  const value = Number((await getSettings()).notifyDelayMinutes);
   return Number.isFinite(value) && value >= 0 ? value : 10;
 }
 
@@ -36,7 +37,7 @@ const footer = `<p style="color:#666;font-size:12px">Je kunt deze e-mails uitzet
 
 /** Meldt alle planners (meteen) dat er een nieuwe verlofaanvraag is. Mislukken mag de aanvraag niet blokkeren. */
 export async function notifyPlannersOfLeaveRequest(requestId: string) {
-  if (!isMailConfigured()) return;
+  if (!(await isMailConfigured())) return;
   try {
     const request = await prisma.leaveRequest.findUnique({
       where: { id: requestId },
@@ -137,11 +138,11 @@ let running = false;
  * lang genoeg niets meer heeft aangepast. Geeft het aantal verstuurde mails terug.
  */
 export async function processAvailabilityAlerts(options: { force?: boolean } = {}) {
-  if (running || !isMailConfigured()) return 0;
+  if (running || !(await isMailConfigured())) return 0;
   running = true;
   let sent = 0;
   try {
-    const cutoff = Date.now() - (options.force ? 0 : quietMinutes() * 60_000);
+    const cutoff = Date.now() - (options.force ? 0 : (await quietMinutes()) * 60_000);
     await prisma.availabilityChange.deleteMany({ where: { date: { lt: todayAmsterdam() } } });
 
     const changes = await prisma.availabilityChange.findMany({
