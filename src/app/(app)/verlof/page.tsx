@@ -2,7 +2,7 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatRange, toISODate } from "@/lib/format";
-import { describePartRequest, leaveDates, partialLeaveShifts } from "@/lib/leave";
+import { describePartRequest, isShiftRequest, leaveDates, partialLeaveShifts } from "@/lib/leave";
 import { isWorking, timesOf, type ShiftTypeLite } from "@/lib/shift-swap";
 import { PartLeaveForm } from "@/components/part-leave-form";
 import { todayAmsterdam } from "@/lib/schedule";
@@ -74,8 +74,8 @@ export default async function VerlofPage() {
       </div>
 
       <div className="rounded-lg border border-border bg-surface p-5">
-        <h2 className="text-sm font-semibold">Dagdeel verlof aanvragen</h2>
-        <p className="text-xs text-foreground-muted">Kies een ingeplande dienst met een ochtend en een middag, welk dagdeel je vrij wilt en eventueel voor welke dienst je dit wilt ruilen. Een planner beoordeelt het; bij goedkeuring blijft alleen het andere dagdeel in je rooster staan.</p>
+        <h2 className="text-sm font-semibold">Dagdeel verlof of andere dienst aanvragen</h2>
+        <p className="text-xs text-foreground-muted">Kies een ingeplande dienst. Je kunt een dagdeel vrij vragen (bij een dienst met ochtend en middag), of vragen om een andere dienst in plaats van deze, bijvoorbeeld van O of A naar een gebroken dienst of andersom. Een planner beoordeelt het en past bij goedkeuring het rooster aan.</p>
         <PartLeaveForm action={requestPartLeave} shifts={partShifts} swapOptions={swapOptions} minDate={todayISO} />
       </div>
 
@@ -105,7 +105,7 @@ export default async function VerlofPage() {
                   {r.note && <div className="text-xs text-foreground-muted">{r.note}</div>}
                 </td>
                 <td className="px-4 py-2 tabular-nums">
-                  {r.part !== "ALL" ? "dagdeel" : leaveDates(r.startDate, r.endDate, r.includeWeekends).length}
+                  {isShiftRequest(r) ? "1 dienst" : leaveDates(r.startDate, r.endDate, r.includeWeekends).length}
                 </td>
                 <td className="px-4 py-2">
                   <LeaveStatusBadge status={r.status} />

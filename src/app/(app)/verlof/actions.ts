@@ -67,21 +67,27 @@ export async function requestPartLeave(_prev: LeaveFormState, formData: FormData
   const employeeId = session.user.employeeId;
   if (!employeeId) return { error: "Je account is nog niet aan een medewerker gekoppeld." };
   try {
-    const part = String(formData.get("part") ?? "");
-    if (part !== "MORNING" && part !== "AFTERNOON") throw new Error("Kies of je de ochtend of de middag vrij wilt.");
+    const mode = String(formData.get("mode") ?? "PART") === "CHANGE" ? "CHANGE" : "PART";
+    const part = mode === "CHANGE" ? "ALL" : String(formData.get("part") ?? "");
+    if (part !== "ALL" && part !== "MORNING" && part !== "AFTERNOON") throw new Error("Kies of je de ochtend of de middag vrij wilt.");
     const assignment = await prisma.shiftAssignment.findFirst({ where: { id: String(formData.get("assignmentId") ?? ""), employeeId } });
     if (!assignment) throw new Error("Kies een ingeplande dienst.");
     if (assignment.date < todayAmsterdam()) throw new Error("Die dienst is al geweest.");
     const types: ShiftTypeLite[] = await prisma.shiftType.findMany();
     const shift = types.find((t) => t.id === assignment.shiftTypeId);
-    if (!shift || !pieces(shift, types)) throw new Error("Van deze dienst kun je niet alleen de ochtend of middag vrij vragen.");
+    if (!shift || !isWorking(shift)) throw new Error("Kies een dienst met werktijden.");
+    if (mode === "PART" && !pieces(shift, types)) throw new Error("Van deze dienst kun je niet alleen de ochtend of middag vrij vragen.");
 
     const swapId = String(formData.get("swapShiftTypeId") ?? "");
     const swap = swapId ? types.find((t) => t.id === swapId && t.active && isWorking(t)) : undefined;
     if (swapId && !swap) throw new Error("De dienst waarvoor je wilt ruilen bestaat niet (meer).");
+    if (mode === "CHANGE") {
+      if (!swap) throw new Error("Kies de dienst die je in plaats hiervan wilt.");
+      if (swap.id === shift.id) throw new Error("Dat is al je dienst op die dag.");
+    }
     const swapDateRaw = String(formData.get("swapDate") ?? "");
     let swapDate: Date | null = null;
-    if (swapDateRaw) {
+    if (swapDateRaw && mode === "PART") {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(swapDateRaw)) throw new Error("De datum van de ruildienst is ongeldig.");
       swapDate = dateFromISO(swapDateRaw);
       if (swapDate < todayAmsterdam()) throw new Error("De ruildienst ligt in het verleden.");
@@ -99,7 +105,7 @@ export async function requestPartLeave(_prev: LeaveFormState, formData: FormData
     });
     after(() => notifyPlannersOfLeaveRequest(created.id));
     revalidateLeave();
-    return { ok: `Aangevraagd: ${part === "MORNING" ? "de ochtend" : "de middag"} van ${dayLabel(assignment.date)}. Een planner beoordeelt dit.` };
+    return { ok: mode === "CHANGE" ? `Aangevraagd: ${swap!.code} in plaats van ${shift.code} op ${dayLabel(assignment.date)}. Een planner beoordeelt dit.` : `Aangevraagd: ${part === "MORNING" ? "de ochtend" : "de middag"} van ${dayLabel(assignment.date)}. Een planner beoordeelt dit.` };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Aanvragen is niet gelukt." };
   }

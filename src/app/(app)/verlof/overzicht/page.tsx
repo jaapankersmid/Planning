@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { addDays, formatDayMonth, formatRange, toISODate } from "@/lib/format";
-import { describePartRequest, leaveDates } from "@/lib/leave";
+import { describePartRequest, isShiftRequest, leaveDates } from "@/lib/leave";
 import { ensureColorGroups, sortEmployees, todayAmsterdam } from "@/lib/schedule";
 import { LeaveForm } from "@/components/leave-form";
 import { LeaveStatusBadge } from "@/components/leave-status";
@@ -151,7 +151,7 @@ export default async function VerlofOverzichtPage() {
                     </div>
                     {describePartRequest(r) && <div className="mt-1 text-xs font-medium">{describePartRequest(r)}</div>}
                     {r.note && <div className="mt-1 text-xs">“{r.note}”</div>}
-                    {r.part === "ALL" && conflicts > 0 && (
+                    {!isShiftRequest(r) && conflicts > 0 && (
                       <div className="mt-1 text-xs text-amber-700 dark:text-amber-300">
                         Let op: {conflicts} {conflicts === 1 ? "ingeplande dienst wordt" : "ingeplande diensten worden"} vervangen door V.
                       </div>

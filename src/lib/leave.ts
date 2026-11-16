@@ -4,7 +4,7 @@ import { addDays, isWeekend, toISODate } from "@/lib/format";
 import { reconcileTemplate, todayAmsterdam } from "@/lib/schedule";
 import { removeAssignmentFromCalendar, syncAssignmentToCalendar } from "@/lib/google-calendar";
 import { applyAssignment } from "@/lib/assignments";
-import { dayLabel, pieces, remainderOf, timesOf, type ShiftTypeLite } from "@/lib/shift-swap";
+import { dayLabel, isWorking, pieces, remainderOf, timesOf, type ShiftTypeLite } from "@/lib/shift-swap";
 
 export const MAX_LEAVE_DAYS = 120;
 
@@ -31,7 +31,7 @@ export async function approveLeave(requestId: string, plannerId: string, note?: 
   if (!request || request.status !== "PENDING") {
     throw new Error("Deze aanvraag is al beoordeeld of bestaat niet meer.");
   }
-  if (request.part !== "ALL") return approvePartLeave(request, plannerId, note);
+  if (isShiftRequest(request)) return approvePartLeave(request, plannerId, note);
   const vrij = await prisma.shiftType.findUnique({ where: { code: "V" } });
   if (!vrij) throw new Error("De dienst V (Vrij) bestaat niet. Maak die eerst aan bij Diensten.");
 
@@ -104,7 +104,7 @@ export async function revokeApprovedLeave(requestId: string) {
   if (!request || request.status !== "APPROVED") {
     throw new Error("Alleen een goedgekeurde aanvraag kan worden ingetrokken.");
   }
-  if (request.part !== "ALL") return revokePartLeave(request);
+  if (isShiftRequest(request)) return revokePartLeave(request);
 
   const today = todayAmsterdam();
   const dates = leaveDates(request.startDate, request.endDate, request.includeWeekends).filter(
@@ -180,7 +180,16 @@ export async function findOverlappingLeave(employeeId: string, start: Date, end:
 
 /* ---------- Dagdeel verlof ---------- */
 
-type PartRequest = { id: string; employeeId: string; startDate: Date; part: "ALL" | "MORNING" | "AFTERNOON"; shiftTypeId: string | null };
+type PartRequest = { id: string; employeeId: string; startDate: Date; part: "ALL" | "MORNING" | "AFTERNOON"; shiftTypeId: string | null; swapShiftTypeId: string | null };
+
+/** Een aanvraag over één ingeplande dienst (dagdeel vrij, of de dienst vervangen door een andere) in plaats van hele dagen verlof (V). */
+export const isShiftRequest = (r: { part: "ALL" | "MORNING" | "AFTERNOON"; shiftTypeId: string | null }) => r.part !== "ALL" || !!r.shiftTypeId;
+
+/** De dienst die er na goedkeuring staat: bij een dagdeel het overblijvende deel, bij een andere dienst de gevraagde dienst. */
+function resultingShift(r: PartRequest, given: ShiftTypeLite, types: ShiftTypeLite[]): ShiftTypeLite | null {
+  if (r.part === "ALL") return types.find((t) => t.id === r.swapShiftTypeId && isWorking(t)) ?? null;
+  return remainderOf(given, r.part, types) ?? null;
+}
 
 /** Keurt dagdeel verlof goed: het gevraagde deel van de gebroken dienst verdwijnt, het andere deel blijft staan. */
 async function approvePartLeave(request: PartRequest, plannerId: string, note?: string | null) {
@@ -190,8 +199,8 @@ async function approvePartLeave(request: PartRequest, plannerId: string, note?: 
   if (!given || !current || current.shiftTypeId !== given.id) {
     throw new Error("De ingeplande dienst van deze dag is inmiddels gewijzigd. Wijs de aanvraag af of leg het dagdeel zelf vast in het rooster.");
   }
-  const rest = remainderOf(given, request.part, types);
-  if (!rest) throw new Error("Deze dienst kan niet in delen worden opgesplitst.");
+  const rest = resultingShift(request, given, types);
+  if (!rest) throw new Error(request.part === "ALL" ? "De gevraagde dienst bestaat niet (meer)." : "Deze dienst kan niet in delen worden opgesplitst.");
   await applyAssignment({ employeeId: request.employeeId, dateISO: toISODate(request.startDate), shiftTypeId: rest.id });
   await prisma.leaveRequest.update({
     where: { id: request.id },
@@ -205,7 +214,7 @@ async function revokePartLeave(request: PartRequest) {
   const types: ShiftTypeLite[] = await prisma.shiftType.findMany();
   const given = types.find((t) => t.id === request.shiftTypeId);
   if (given && request.startDate >= todayAmsterdam()) {
-    const rest = remainderOf(given, request.part, types);
+    const rest = resultingShift(request, given, types);
     const current = await prisma.shiftAssignment.findFirst({ where: { employeeId: request.employeeId, date: request.startDate } });
     if (rest && current?.shiftTypeId === rest.id) {
       await applyAssignment({ employeeId: request.employeeId, dateISO: toISODate(request.startDate), shiftTypeId: given.id });
@@ -216,7 +225,7 @@ async function revokePartLeave(request: PartRequest) {
 
 export const PART_WORD = { MORNING: "ochtend", AFTERNOON: "middag", ALL: "hele dag" } as const;
 
-/** Gebroken diensten van een medewerker vanaf vandaag waarvan de ochtend of middag los kan vervallen. */
+/** Diensten met werktijden van een medewerker vanaf vandaag. Bij een gebroken dienst (ochtend + middag) kan ook alleen een dagdeel vervallen. */
 export async function partialLeaveShifts(employeeId: string) {
   const types: ShiftTypeLite[] = await prisma.shiftType.findMany();
   const rows = await prisma.shiftAssignment.findMany({
@@ -224,19 +233,22 @@ export async function partialLeaveShifts(employeeId: string) {
     orderBy: { date: "asc" },
     take: 120,
   });
-  const out: { id: string; label: string; morning: string; afternoon: string }[] = [];
+  const out: { id: string; label: string; morning?: string; afternoon?: string }[] = [];
   for (const a of rows) {
     const t = types.find((x) => x.id === a.shiftTypeId);
-    const p = t ? pieces(t, types) : null;
-    if (!t || !p) continue;
-    out.push({ id: a.id, label: `${dayLabel(a.date)} · ${t.code} (${timesOf(t)})`, morning: timesOf(p.morning), afternoon: timesOf(p.afternoon) });
+    if (!t || !isWorking(t)) continue;
+    const p = pieces(t, types);
+    out.push({ id: a.id, label: `${dayLabel(a.date)} · ${t.code} (${timesOf(t)})`, morning: p ? timesOf(p.morning) : undefined, afternoon: p ? timesOf(p.afternoon) : undefined });
   }
   return out;
 }
 
 /** Korte tekst voor een dagdeel-aanvraag, bv. "alleen de ochtend van dienst X". */
 export function describePartRequest(r: { part: "ALL" | "MORNING" | "AFTERNOON"; shiftType?: { code: string } | null; swapShiftType?: { code: string; label: string } | null; swapDate?: Date | null }) {
-  if (r.part === "ALL") return null;
+  if (r.part === "ALL") {
+    if (!r.shiftType) return null;
+    return `Andere dienst gevraagd: ${r.shiftType.code} → ${r.swapShiftType ? `${r.swapShiftType.code} (${r.swapShiftType.label})` : "?"}`;
+  }
   const base = `Dagdeel verlof: de ${PART_WORD[r.part]}${r.shiftType ? ` van dienst ${r.shiftType.code}` : ""}`;
   const swap = r.swapShiftType ? ` · wil er graag voor werken: ${r.swapShiftType.code} (${r.swapShiftType.label})${r.swapDate ? ` op ${dayLabel(r.swapDate)}` : ""}` : "";
   return base + swap;

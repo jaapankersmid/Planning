@@ -54,7 +54,7 @@ export async function notifyPlannersOfLeaveRequest(requestId: string) {
     const text = [
       `${request.employee.name} vraagt verlof aan.`,
       "",
-      `Periode: ${range} (${part ? "dagdeel" : weekends})`,
+      `Periode: ${range} (${part ? "één dienst" : weekends})`,
       ...(part ? [part] : []),
       ...(request.note ? [`Opmerking: ${request.note}`] : []),
       "",
@@ -63,7 +63,7 @@ export async function notifyPlannersOfLeaveRequest(requestId: string) {
     ].join("\n");
     const html = wrap(
       `<p><strong>${escapeHtml(request.employee.name)}</strong> vraagt verlof aan.</p>
-<p>Periode: <strong>${escapeHtml(range)}</strong> (${part ? "dagdeel" : weekends})${part ? `<br>${escapeHtml(part)}` : ""}${
+<p>Periode: <strong>${escapeHtml(range)}</strong> (${part ? "één dienst" : weekends})${part ? `<br>${escapeHtml(part)}` : ""}${
         request.note ? `<br>Opmerking: ${escapeHtml(request.note)}` : ""
       }</p>${button(link, "Beoordelen")}${footer}`,
     );

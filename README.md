@@ -400,3 +400,10 @@ welk dagdeel vrij moet (ochtend of middag) en optioneel voor welke dienst (en op
 Bij goedkeuring blijft alleen het andere dagdeel over in het rooster (bv. X wordt IX); bij intrekken komt de oorspronkelijke dienst terug (als de dag nog niet geweest is en het rooster niet is gewijzigd).
 De gewenste ruildienst is een wens: de planner regelt die zelf in het rooster. Dagdeel-verlof telt niet als V en wordt dus niet automatisch van de verlofuren afgeboekt.
 Schema: `LeaveRequest` heeft nieuwe velden `part`, `shiftTypeId`, `swapShiftTypeId`, `swapDate` (`db push` nodig, geen dataverlies).
+
+## Andere dienst aanvragen (elke dienst is ruilbaar)
+
+Bij Mijn verlof kan een medewerker voor elke ingeplande dienst (O, A, alleen ochtend, gebroken, ...) vragen om een **andere dienst op dezelfde dag**, bijvoorbeeld van O of A naar een gebroken dienst of andersom.
+Bij een gebroken dienst kan daarnaast nog steeds een dagdeel vrij gevraagd worden. De planner beoordeelt; bij goedkeuring vervangt de gevraagde dienst de oorspronkelijke in het rooster, bij intrekken komt de oorspronkelijke terug
+(zolang de dag niet geweest is en het rooster niet intussen is gewijzigd). Geen schemawijziging t.o.v. dagdeel-verlof: dezelfde velden (`shiftTypeId`, `swapShiftTypeId`).
+Het ruilen met een collega (Mijn rooster) kon al met elke dienst: hele diensten van elk type zijn tegen elkaar te ruilen.

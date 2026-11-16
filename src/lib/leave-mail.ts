@@ -1,4 +1,4 @@
-import { describePartRequest } from "@/lib/leave";
+import { describePartRequest, isShiftRequest } from "@/lib/leave";
 import { prisma } from "@/lib/prisma";
 import { escapeHtml, isMailConfigured, sendMail } from "@/lib/mail";
 import { formatRange } from "@/lib/format";
@@ -34,7 +34,7 @@ export async function notifyEmployeeOfLeaveOutcome(requestId: string, outcome: L
       APPROVED: {
         subject: `Je verlof is goedgekeurd: ${range}`,
         headline: `Je verlof van ${range} is goedgekeurd${who}.`,
-        extra: request.part !== "ALL" ? `Het dagdeel is uit je rooster gehaald; ${describePartRequest(request)}.` : "De dagen staan als V (Vrij) in het rooster.",
+        extra: isShiftRequest(request) ? `Je rooster is aangepast. ${describePartRequest(request)}.` : "De dagen staan als V (Vrij) in het rooster.",
       },
       REJECTED: {
         subject: `Je verlofaanvraag is afgewezen: ${range}`,
