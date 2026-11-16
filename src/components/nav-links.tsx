@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 type Role = "ADMIN" | "ACCOUNTING" | "EMPLOYEE";
 
 const ALL: Role[] = ["ADMIN", "ACCOUNTING", "EMPLOYEE"];
-const PERSONAL: Role[] = ["ADMIN", "EMPLOYEE"];
+const PERSONAL: Role[] = ["ADMIN", "ACCOUNTING", "EMPLOYEE"];
 const HOURS_ADMIN: Role[] = ["ADMIN", "ACCOUNTING"];
 const PLANNER: Role[] = ["ADMIN"];
 

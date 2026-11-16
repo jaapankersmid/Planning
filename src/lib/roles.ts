@@ -17,6 +17,6 @@ export const ROLE_LABEL: Record<Role, string> = {
 
 export const ROLE_OPTIONS: { value: Role; label: string; description: string }[] = [
   { value: "ADMIN", label: ROLE_LABEL.ADMIN, description: "Rooster, verlof, vakanties, diensten, gebruikers en rechten beheren; ook de uren inzien en goedkeuren." },
-  { value: "ACCOUNTING", label: ROLE_LABEL.ACCOUNTING, description: "Rooster inzien (alleen lezen) en de urenregistratie van iedereen beheren, goedkeuren en exporteren." },
+  { value: "ACCOUNTING", label: ROLE_LABEL.ACCOUNTING, description: "Rooster inzien (alleen lezen) en de urenregistratie van iedereen beheren, goedkeuren en exporteren. Is er ook een medewerker aan gekoppeld, dan staan Mijn rooster, Mijn verlof, Beschikbaarheid en Mijn uren er ook bij." },
   { value: "EMPLOYEE", label: ROLE_LABEL.EMPLOYEE, description: "Eigen rooster, verlof, beschikbaarheid en eigen uren." },
 ];
