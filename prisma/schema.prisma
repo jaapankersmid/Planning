@@ -548,6 +548,13 @@ model PlanTag {
   afternoonShiftTypeId String?
   bothShiftTypeId      String?
 
+  // Tijden waarop deze taak gedaan wordt (bv. uitlaten 08:00-10:00 en 15:30-17:00). Een bestaande dienst die deze tijden helemaal omvat, dekt de taak.
+  // Leeg = de tijden van de dienst die bij het dagdeel is ingesteld.
+  morningStart   String?
+  morningEnd     String?
+  afternoonStart String?
+  afternoonEnd   String?
+
   employees PlanTagEmployee[]
   needs     PlanNeed[]
 }

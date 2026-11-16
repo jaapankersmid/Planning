@@ -37,6 +37,17 @@ export async function deleteTag(tagId: string) {
   refresh();
 }
 
+/** Tijden van een tag (HH:MM); alleen een geldig paar met eind na begin wordt bewaard. */
+function times(fd: FormData) {
+  const pair = (a: string, b: string) => {
+    const s = String(fd.get(a) ?? "").trim(), e = String(fd.get(b) ?? "").trim();
+    return /^\d{2}:\d{2}$/.test(s) && /^\d{2}:\d{2}$/.test(e) && e > s ? [s, e] : [null, null];
+  };
+  const [morningStart, morningEnd] = pair("morningStart", "morningEnd");
+  const [afternoonStart, afternoonEnd] = pair("afternoonStart", "afternoonEnd");
+  return { morningStart, morningEnd, afternoonStart, afternoonEnd };
+}
+
 /** Tag opslaan: naam, de dienst-types voor ochtend, middag en samen, en wie de tag heeft. */
 export async function saveTag(tagId: string, fd: FormData) {
   await assertAutoPlan();
@@ -44,7 +55,7 @@ export async function saveTag(tagId: string, fd: FormData) {
   const pick = (k: string) => String(fd.get(k) ?? "") || null;
   const employeeIds = fd.getAll("employee").map(String);
   await prisma.$transaction([
-    prisma.planTag.update({ where: { id: tagId }, data: { ...(name ? { name } : {}), morningShiftTypeId: pick("morning"), afternoonShiftTypeId: pick("afternoon"), bothShiftTypeId: pick("both") } }),
+    prisma.planTag.update({ where: { id: tagId }, data: { ...(name ? { name } : {}), morningShiftTypeId: pick("morning"), afternoonShiftTypeId: pick("afternoon"), bothShiftTypeId: pick("both"), ...times(fd) } }),
     prisma.planTagEmployee.deleteMany({ where: { tagId } }),
     prisma.planTagEmployee.createMany({ data: employeeIds.map((employeeId) => ({ tagId, employeeId })), skipDuplicates: true }),
   ]);

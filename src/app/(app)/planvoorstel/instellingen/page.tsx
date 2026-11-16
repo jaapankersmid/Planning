@@ -68,6 +68,12 @@ export default async function PlanSettingsPage() {
                   );
                 })}
               </div>
+              <p className="mt-3 text-xs font-medium text-foreground-muted">Tijden van deze taak (voor het meetellen van bestaande diensten)</p>
+              <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-foreground-muted">
+                Ochtend <input type="time" name="morningStart" defaultValue={t.morningStart ?? ""} className={input} /> tot <input type="time" name="morningEnd" defaultValue={t.morningEnd ?? ""} className={input} />
+                <span className="ml-3">Middag</span> <input type="time" name="afternoonStart" defaultValue={t.afternoonStart ?? ""} className={input} /> tot <input type="time" name="afternoonEnd" defaultValue={t.afternoonEnd ?? ""} className={input} />
+              </div>
+              <p className="mt-1 text-xs text-foreground-muted">Bijvoorbeeld uitlaten 08:00-10:00 en 15:30-17:00. Een bestaande dienst die deze tijden helemaal omvat, telt mee voor de behoefte. Leeg = de tijden van de ingestelde dienst.</p>
               <p className="mt-3 text-xs font-medium text-foreground-muted">Wie heeft deze tag?</p>
               <div className="mt-1 grid gap-x-4 gap-y-1 sm:grid-cols-3">
                 {employees.map((e) => (

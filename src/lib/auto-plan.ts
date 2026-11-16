@@ -7,6 +7,8 @@ import { todayAmsterdam } from "@/lib/schedule";
 /* Automatisch planvoorstel. Per dag, dagdeel (ochtend 8:00-12:30, middag 15:30-19:30) en tag (taak) is een aantal
    mensen nodig. Het voorstel kiest eerlijk: per kleurgroep krijgt degene met de minste uren als eerste een dienst.
    Bestaande diensten worden nooit aangepast: wie die dag al een dienst heeft (ook V of Z) is niet beschikbaar.
+   Bestaande diensten tellen wel mee voor de behoefte: een dienst dekt een taak als hij de tijden van de taak helemaal omvat
+   (zie coverFromShifts); dan wordt er alleen het tekort aangevuld.
    Geen opgegeven beschikbaarheid telt als niet beschikbaar. */
 
 export type Part = "MORNING" | "AFTERNOON";
@@ -28,13 +30,18 @@ export type PlanInput = {
   busy: string[];
   /** Uren die iemand in de periode al heeft uit bestaande diensten. */
   baseHours: Record<string, number>;
+  /** Plekken die al gedekt zijn door bestaande diensten (van iedereen in het rooster, ook buiten de meedoende kleurgroepen). */
+  covered?: { date: string; part: Part; tagId: string; count: number }[];
 };
 
 const key = (employeeId: string, date: string) => `${employeeId}|${date}`;
 const okFor = (status: string | undefined, part: Part) => status === "AVAILABLE" || status === part;
 
 /** Maakt het voorstel. Zuiver rekenwerk, zonder database. */
-export function generatePlan(input: PlanInput): { items: PlanItem[]; gaps: PlanGap[]; hours: Record<string, number> } {
+export function generatePlan(input: PlanInput): { items: PlanItem[]; gaps: PlanGap[]; hours: Record<string, number>; coveredByExisting: number } {
+  const cover = new Map<string, number>();
+  for (const c of input.covered ?? []) cover.set(`${c.date}|${c.part}|${c.tagId}`, (cover.get(`${c.date}|${c.part}|${c.tagId}`) ?? 0) + c.count);
+  let coveredByExisting = 0;
   const tagById = new Map(input.tags.map((t) => [t.id, t]));
   const busy = new Set(input.busy);
   const hours: Record<string, number> = {};
@@ -59,7 +66,9 @@ export function generatePlan(input: PlanInput): { items: PlanItem[]; gaps: PlanG
   for (const slot of slots) {
     const tag = tagById.get(slot.tagId)!;
     let missing = 0;
-    for (let i = 0; i < slot.count; i++) {
+    const have = Math.min(slot.count, cover.get(`${slot.date}|${slot.part}|${slot.tagId}`) ?? 0);
+    coveredByExisting += have;
+    for (let i = 0; i < slot.count - have; i++) {
       const candidates = input.employees.filter((e) => {
         if (!e.tagIds.includes(slot.tagId)) return false;
         const k = key(e.id, slot.date);
@@ -83,7 +92,66 @@ export function generatePlan(input: PlanInput): { items: PlanItem[]; gaps: PlanG
     if (missing > 0) gaps.push({ date: slot.date, part: slot.part, tagId: slot.tagId, missing });
   }
   items.sort((a, b) => a.date.localeCompare(b.date) || (a.part === b.part ? 0 : a.part === "MORNING" ? -1 : 1) || (tagById.get(a.tagId)?.sortOrder ?? 0) - (tagById.get(b.tagId)?.sortOrder ?? 0));
-  return { items, gaps, hours };
+  return { items, gaps, hours, coveredByExisting };
+}
+
+type TypeTimes = { id: string; startTime: string | null; endTime: string | null; secondStartTime: string | null; secondEndTime: string | null };
+type TagShiftIds = {
+  id: string; morningShiftTypeId: string | null; afternoonShiftTypeId: string | null; bothShiftTypeId: string | null;
+  morningStart?: string | null; morningEnd?: string | null; afternoonStart?: string | null; afternoonEnd?: string | null;
+};
+const toMin = (t: string | null | undefined) => { const m = /^(\d{1,2}):(\d{2})$/.exec((t ?? "").trim()); return m ? Number(m[1]) * 60 + Number(m[2]) : null; };
+type Win = [number, number];
+const win = (a: string | null | undefined, b: string | null | undefined): Win | undefined => { const s = toMin(a), e = toMin(b); return s !== null && e !== null && e > s ? [s, e] : undefined; };
+const blocks = (t: TypeTimes | undefined): Win[] => {
+  if (!t) return [];
+  return [win(t.startTime, t.endTime), win(t.secondStartTime, t.secondEndTime)].filter((w): w is Win => !!w);
+};
+/** De tijden van een tag per dagdeel: de eigen tijden van de tag, anders die van de dienst voor alleen ochtend/middag, anders het eerste en tweede blok van de dienst voor samen. */
+function tagWindows(tag: TagShiftIds, types: Map<string, TypeTimes>): Partial<Record<Part, Win>> {
+  const m = blocks(tag.morningShiftTypeId ? types.get(tag.morningShiftTypeId) : undefined)[0];
+  const a = blocks(tag.afternoonShiftTypeId ? types.get(tag.afternoonShiftTypeId) : undefined)[0];
+  const both = blocks(tag.bothShiftTypeId ? types.get(tag.bothShiftTypeId) : undefined);
+  const out: Partial<Record<Part, Win>> = {};
+  const mw = win(tag.morningStart, tag.morningEnd) ?? m ?? both[0], aw = win(tag.afternoonStart, tag.afternoonEnd) ?? a ?? both[1];
+  if (mw) out.MORNING = mw;
+  if (aw) out.AFTERNOON = aw;
+  return out;
+}
+/**
+ * Welke plekken zijn al gedekt door bestaande diensten? Een tijdsblok van een bestaande dienst dekt een taak als het de tijden van de taak
+ * helemaal omvat (bv. uitlaten 8:00-10:00 en 15:30-17:00, balie 9:00-10:00 en 18:00-19:00, schoonmaken 8:00-12:30 en 15:30-19:30).
+ * Eén persoon kan niet twee taken tegelijk doen: overlappen de tijden van taken, dan telt het blok voor één taak. Daarbij gaat de taak waarvoor de dienst
+ * is ingesteld voor, daarna de taak waarvan de tijden het best bij het blok passen. Diensten zonder tijden (V, Z) dekken niets.
+ */
+export function coverFromShifts(tags: TagShiftIds[], typeRows: TypeTimes[], assignments: { shiftTypeId: string | null; date: string }[]) {
+  const types = new Map(typeRows.map((t) => [t.id, t]));
+  const wins = tags.map((t) => ({ tag: t, w: tagWindows(t, types) }));
+  const covered: { date: string; part: Part; tagId: string; count: number }[] = [];
+  for (const a of assignments) {
+    if (!a.shiftTypeId) continue;
+    for (const [s, e] of blocks(types.get(a.shiftTypeId))) {
+      const cands: { tagId: string; part: Part; w: Win; score: number }[] = [];
+      for (const { tag, w } of wins) {
+        for (const part of ["MORNING", "AFTERNOON"] as Part[]) {
+          const tw = w[part];
+          if (!tw) continue;
+          const exact = (part === "MORNING" ? [tag.morningShiftTypeId, tag.bothShiftTypeId] : [tag.afternoonShiftTypeId, tag.bothShiftTypeId]).includes(a.shiftTypeId);
+          const contains = s <= tw[0] && e >= tw[1];
+          if (!contains && !exact) continue;
+          cands.push({ tagId: tag.id, part, w: tw, score: (exact ? 1 : 0) + (tw[1] - tw[0]) / (e - s) });
+        }
+      }
+      cands.sort((x, y) => y.score - x.score);
+      const picked: typeof cands = [];
+      for (const c of cands) {
+        if (picked.some((p) => (p.tagId === c.tagId && p.part === c.part) || (c.w[0] < p.w[1] && p.w[0] < c.w[1]))) continue;
+        picked.push(c);
+        covered.push({ date: a.date, part: c.part, tagId: c.tagId, count: 1 });
+      }
+    }
+  }
+  return covered;
 }
 
 /** Haalt alles uit de database voor [startISO, startISO + dagen). Alleen kleurgroepen die meedoen tellen. */
@@ -109,11 +177,13 @@ export async function loadPlanInput(startISO: string, days: number): Promise<Pla
     hours: { MORNING: typeHours(t.morningShiftTypeId), AFTERNOON: typeHours(t.afternoonShiftTypeId) },
     canBoth: !!t.bothShiftTypeId,
   }));
-  const [needs, availability, existing] = await Promise.all([
+  const [needs, availability, existing, existingAll] = await Promise.all([
     prisma.planNeed.findMany({ where: { date: { gte: start, lt: end } } }),
     prisma.availability.findMany({ where: { employeeId: { in: ids }, date: { gte: start, lt: end } } }),
     prisma.shiftAssignment.findMany({ where: { employeeId: { in: ids }, date: { gte: start, lt: end } }, include: { shiftType: true } }),
+    prisma.shiftAssignment.findMany({ where: { date: { gte: start, lt: end } }, select: { shiftTypeId: true, date: true } }),
   ]);
+  const covered = coverFromShifts(tagRows, shiftTypes, existingAll.map((a) => ({ shiftTypeId: a.shiftTypeId, date: toISODate(a.date) })));
   const baseHours: Record<string, number> = {};
   for (const a of existing) baseHours[a.employeeId] = (baseHours[a.employeeId] ?? 0) + shiftHours(a.shiftType);
   return {
@@ -125,6 +195,7 @@ export async function loadPlanInput(startISO: string, days: number): Promise<Pla
     availability: Object.fromEntries(availability.map((a) => [key(a.employeeId, toISODate(a.date)), a.status])),
     busy: existing.map((a) => key(a.employeeId, toISODate(a.date))),
     baseHours,
+    covered,
   };
 }
 
