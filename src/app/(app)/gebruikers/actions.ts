@@ -9,6 +9,7 @@ import { pendingNotificationCount, processDueNotifications } from "@/lib/notific
 import { pendingAvailabilityCount, processAvailabilityAlerts } from "@/lib/planner-alerts";
 import { ROLE_OPTIONS } from "@/lib/roles";
 import { syncHubAccess } from "@/lib/hub-access";
+import { sendWelcomeMail, type WelcomeMailResult } from "@/lib/welcome-mail";
 import type { Role } from "@prisma/client";
 
 async function requireAdmin() {
@@ -21,7 +22,7 @@ async function requireAdmin() {
 
 export type CreateUserState =
   | { error: string }
-  | { success: { email: string; tempPassword: string | null; mustChange: boolean } }
+  | { success: { email: string; tempPassword: string | null; mustChange: boolean; welcomeMail: WelcomeMailResult | "off" } }
   | undefined;
 
 /**
@@ -83,10 +84,15 @@ export async function createUser(
     },
   });
 
+  // Welkomstmail (standaard aan). Het account bestaat al; een mislukte mail verandert daar niets aan.
+  const welcomeMail = formData.get("welcomeMail") === "on"
+    ? await sendWelcomeMail({ name, email, password: tempPassword, mustChange })
+    : "off";
+
   revalidatePath("/gebruikers");
   revalidatePath("/medewerkers");
   return {
-    success: { email, tempPassword: chosen.password === null ? tempPassword : null, mustChange },
+    success: { email, tempPassword: chosen.password === null ? tempPassword : null, mustChange, welcomeMail },
   };
 }
 

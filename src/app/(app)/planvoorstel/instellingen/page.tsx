@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireAutoPlan } from "@/lib/auto-plan-guard";
 import { ensureColorGroups, sortEmployees } from "@/lib/schedule";
-import { addTag, deleteTag, saveParticipation, saveTag } from "../actions";
+import { addTag, deleteTag, moveTag, saveParticipation, saveTag } from "../actions";
 import { PlanSubnav } from "@/components/plan-subnav";
 
 export const dynamic = "force-dynamic";
@@ -46,14 +46,22 @@ export default async function PlanSettingsPage() {
         <p className="mb-3 text-xs text-foreground-muted">
           Bijvoorbeeld Balie of Uitlaten. Kies per tag welke dienst bij het toepassen in het rooster komt voor alleen de ochtend, alleen de middag en voor ochtend en middag samen. Zonder &quot;samen&quot; krijgt iemand per dag maar één dagdeel met deze tag.
         </p>
+        <p className="mb-3 text-xs text-foreground-muted">
+          <strong>Prioriteit:</strong> de bovenste tag wordt als eerste gevuld, daarna de volgende, ook als lagere tags daardoor leeg blijven. Verander de volgorde met ▲ en ▼. Nieuwe tags komen onderaan.
+        </p>
         <form action={addTag} className="mb-4 flex gap-2">
           <input name="name" required maxLength={40} placeholder="Nieuwe tag, bv. Balie" className={`${input} w-64`} />
           <button className="rounded-md border border-border px-3 py-2 text-sm font-medium hover:bg-surface-muted">Tag toevoegen</button>
         </form>
         <div className="flex flex-col gap-4">
-          {tags.map((t) => (
+          {tags.map((t, i) => (
             <form key={t.id} action={saveTag.bind(null, t.id)} className="rounded-md border border-border p-4">
               <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-1">
+                  <span className="w-6 text-sm font-semibold tabular-nums text-foreground-muted" title="Prioriteit">{i + 1}.</span>
+                  <button formAction={moveTag.bind(null, t.id, "up")} formNoValidate disabled={i === 0} title="Hogere prioriteit" aria-label={`${t.name} hogere prioriteit`} className="rounded-md border border-border px-2 py-1 text-xs hover:bg-surface-muted disabled:opacity-30">▲</button>
+                  <button formAction={moveTag.bind(null, t.id, "down")} formNoValidate disabled={i === tags.length - 1} title="Lagere prioriteit" aria-label={`${t.name} lagere prioriteit`} className="rounded-md border border-border px-2 py-1 text-xs hover:bg-surface-muted disabled:opacity-30">▼</button>
+                </div>
                 <input name="name" defaultValue={t.name} required maxLength={40} className={`${input} w-56 font-semibold`} />
                 {(["morning", "afternoon", "both"] as const).map((k) => {
                   const current = k === "morning" ? t.morningShiftTypeId : k === "afternoon" ? t.afternoonShiftTypeId : t.bothShiftTypeId;

@@ -30,6 +30,13 @@ export function CreateUserForm({
           ) : (
             <p>Het wachtwoord dat je hebt ingesteld is opgeslagen.</p>
           )}
+          {success.welcomeMail === "sent" && <p>Er is een welkomstmail met de inloggegevens naar {success.email} gestuurd.</p>}
+          {success.welcomeMail === "failed" && (
+            <p className="text-red-700">De welkomstmail kon niet worden verstuurd. Het account is wel aangemaakt; geef de gegevens zelf door.</p>
+          )}
+          {success.welcomeMail === "not-configured" && (
+            <p className="text-red-700">Er is geen welkomstmail verstuurd: e-mail is niet ingesteld (SMTP_* in .env). Geef de gegevens zelf door.</p>
+          )}
           <p className="text-xs text-foreground-muted">
             {success.mustChange
               ? "Bij de eerste keer inloggen wordt om een eigen wachtwoord gevraagd."
@@ -105,6 +112,11 @@ export function CreateUserForm({
               Laat beide velden leeg om een tijdelijk wachtwoord te laten genereren.
             </p>
           </fieldset>
+
+          <label className="flex items-center gap-2 text-xs">
+            <input type="checkbox" name="welcomeMail" defaultChecked className="h-4 w-4" />
+            Welkomstmail sturen met inloglink, e-mailadres en wachtwoord
+          </label>
 
           {state && "error" in state && (
             <p role="alert" className="text-xs text-red-600">{state.error}</p>

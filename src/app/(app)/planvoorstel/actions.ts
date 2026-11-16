@@ -31,6 +31,18 @@ export async function addTag(fd: FormData) {
   refresh();
 }
 
+/** Prioriteit: wisselt een tag met zijn buur in de lijst (bovenaan = hoogste prioriteit) en nummert alles opnieuw 0, 1, 2, ... */
+export async function moveTag(tagId: string, dir: "up" | "down") {
+  await assertAutoPlan();
+  const tags = await prisma.planTag.findMany({ select: { id: true }, orderBy: [{ sortOrder: "asc" }, { name: "asc" }] });
+  const i = tags.findIndex((t) => t.id === tagId);
+  const j = dir === "up" ? i - 1 : i + 1;
+  if (i < 0 || j < 0 || j >= tags.length) return;
+  [tags[i], tags[j]] = [tags[j], tags[i]];
+  await prisma.$transaction(tags.map((t, n) => prisma.planTag.update({ where: { id: t.id }, data: { sortOrder: n } })));
+  refresh();
+}
+
 export async function deleteTag(tagId: string) {
   await assertAutoPlan();
   await prisma.planTag.deleteMany({ where: { id: tagId } });

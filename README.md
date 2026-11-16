@@ -174,7 +174,15 @@ Met "Bekijk in het rooster" komt het voorstel gestippeld omrand in het gewone ro
 
 Bestaande diensten tellen mee voor de behoefte, op basis van **tijden**: bij elke tag vul je de tijden van de taak in (bv. uitlaten 08:00-10:00 en 15:30-17:00, balie 09:00-10:00 en 18:00-19:00, schoonmaken 08:00-12:30 en 15:30-19:30); leeg = de tijden van de bij het dagdeel ingestelde dienst. Een tijdsblok van een bestaande dienst (ook een lange als O 8:00-17:00) dekt een taak als het de tijden van de taak helemaal omvat of als de dienst voor die taak is ingesteld. Een persoon kan niet twee taken tegelijk doen: overlappen de tijden van taken, dan telt het blok voor één taak; welke bepaalt de behoefte (eerst de plekken met de minste mogelijke mensen). Alleen het tekort wordt aangevuld. Diensten zonder tijden (V, Z) dekken niets. Nieuwe velden op `PlanTag` (`morningStart` enz.): draai `npx prisma db push`. Code: `coverFromShifts` in `src/lib/auto-plan.ts`.
 
+**Prioriteit per tag.** Bij Tags en kleurgroepen staat voor elke tag een nummer met ▲/▼: bovenaan = hoogste prioriteit, nieuwe tags komen onderaan (veld `PlanTag.sortOrder`, geen schemawijziging). Het voorstel vult eerst alle plekken van de bovenste tag over de hele periode, dan de volgende: een harde volgorde, ook als lagere tags daardoor leeg of onderbezet blijven. Ook bij het meetellen van bestaande diensten gaat een dienst eerst naar de tag met de hoogste prioriteit. Boven het voorstel staat het blok **Niet vol gekomen**: per tag (op prioriteit) welke plekken open blijven en waarom, bv. "3 met deze tag: 1 heeft die dag al een dienst, 1 geen beschikbaarheid opgegeven, 1 al ingezet voor Balie".
+
+Gerepareerd: een gebroken dienst (bv. X) die bij een tag als dienst voor "samen" is ingesteld, telde met beide blokken mee voor de ochtend én nog eens voor de middag, waardoor het voorstel te weinig mensen inplande. De ingestelde dienst telt nu alleen met het blok dat in de tijd bij de taak hoort.
+
 Een persoon krijgt per dag één taak; ochtend en middag samen alleen als de tag een dienst voor "samen" heeft. Code: `src/lib/auto-plan.ts` (algoritme), `app/(app)/planvoorstel/`, `components/plan-proposal.tsx`. Databasemodellen `PlanTag`, `PlanTagEmployee`, `PlanNeed` en `ColorGroup.planParticipates`: draai `npx prisma db push`.
+
+## Welkomstmail bij een nieuw account
+
+Bij *Gebruikers → Nieuwe gebruiker* staat het vinkje **Welkomstmail sturen** (standaard aan). De nieuwe gebruiker krijgt dan een mail met de inloglink (`AUTH_URL`/login), het e-mailadres en het (tijdelijke) wachtwoord; moet het wachtwoord gewijzigd worden, dan staat erbij dat dat bij de eerste keer inloggen gebeurt. Lukt de mail niet of is SMTP niet ingesteld, dan wordt het account gewoon aangemaakt en zie je dat in de melding. Het wachtwoord komt nooit in de logs. Code: `src/lib/welcome-mail.ts`. Geen schemawijziging.
 
 ## Rechten en urenregistratie
 

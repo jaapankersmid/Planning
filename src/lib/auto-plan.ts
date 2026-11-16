@@ -5,7 +5,9 @@ import { shiftHours } from "@/lib/hours";
 import { todayAmsterdam } from "@/lib/schedule";
 
 /* Automatisch planvoorstel. Per dag, dagdeel (ochtend 8:00-12:30, middag 15:30-19:30) en tag (taak) is een aantal
-   mensen nodig. Het voorstel kiest eerlijk: per kleurgroep krijgt degene met de minste uren als eerste een dienst.
+   mensen nodig. De tags worden gevuld in volgorde van prioriteit (sortOrder, laagste = hoogste prioriteit): eerst alle
+   plekken van de bovenste tag, dan de volgende, ook als lagere tags daardoor leeg blijven. Binnen een tag kiest het
+   voorstel eerlijk: per kleurgroep krijgt degene met de minste uren als eerste een dienst.
    Bestaande diensten worden nooit aangepast: wie die dag al een dienst heeft (ook V of Z) is niet beschikbaar.
    Bestaande diensten tellen wel mee voor de behoefte: een dienst dekt een taak als hij de tijden van de taak helemaal omvat
    (zie coverFromShifts); dan wordt er alleen het tekort aangevuld.
@@ -18,7 +20,7 @@ export const DEFAULT_PART_HOURS = 4;
 export type PlanTagInfo = { id: string; name: string; sortOrder: number; hours: Record<Part, number>; canBoth: boolean };
 export type PlanEmployee = { id: string; name: string; colorGroup: string | null; tagIds: string[] };
 export type PlanItem = { date: string; part: Part; tagId: string; employeeId: string };
-export type PlanGap = { date: string; part: Part; tagId: string; missing: number };
+export type PlanGap = { date: string; part: Part; tagId: string; missing: number; reason: string };
 
 export type PlanInput = {
   needs: { date: string; part: Part; tagId: string; count: number }[];
@@ -57,11 +59,37 @@ export function generatePlan(input: PlanInput): { items: PlanItem[]; gaps: PlanG
     return min === Infinity ? 0 : min;
   };
 
-  // Eerst de taken met de minste mogelijke mensen, dan op datum en dagdeel.
-  const candidateCount = (tagId: string) => input.employees.filter((e) => e.tagIds.includes(tagId)).length;
+  // Harde volgorde: eerst de tag met de hoogste prioriteit (laagste sortOrder) voor de hele periode, dan de volgende.
+  // Binnen een tag op datum en dagdeel.
+  const prio = (tagId: string) => tagById.get(tagId)!.sortOrder;
   const slots = input.needs
     .filter((n) => n.count > 0 && tagById.has(n.tagId))
-    .sort((a, b) => a.date.localeCompare(b.date) || (a.part === b.part ? 0 : a.part === "MORNING" ? -1 : 1) || candidateCount(a.tagId) - candidateCount(b.tagId) || tagById.get(a.tagId)!.sortOrder - tagById.get(b.tagId)!.sortOrder);
+    .sort((a, b) => prio(a.tagId) - prio(b.tagId) || a.tagId.localeCompare(b.tagId) || a.date.localeCompare(b.date) || (a.part === b.part ? 0 : a.part === "MORNING" ? -1 : 1));
+
+  /** Waarom er voor een plek niemand (meer) te vinden is: telt per reden de medewerkers met deze tag. */
+  const whyNot = (slot: { date: string; part: Part; tagId: string }) => {
+    const holders = input.employees.filter((e) => e.tagIds.includes(slot.tagId));
+    if (holders.length === 0) return "Niemand in de meedoende kleurgroepen heeft deze tag.";
+    let shift = 0, noAvail = 0, unavail = 0, here = 0;
+    const other = new Map<string, number>();
+    for (const e of holders) {
+      const k = key(e.id, slot.date);
+      const st = input.availability[k];
+      const t = taken.get(k);
+      if (busy.has(k)) shift++;
+      else if (!st) noAvail++;
+      else if (!okFor(st, slot.part)) unavail++;
+      else if (t && t.tagId !== slot.tagId) { const n = tagById.get(t.tagId)?.name ?? "een andere taak"; other.set(n, (other.get(n) ?? 0) + 1); }
+      else here++;
+    }
+    const parts: string[] = [];
+    if (shift) parts.push(`${shift} ${shift === 1 ? "heeft" : "hebben"} die dag al een dienst`);
+    if (noAvail) parts.push(`${noAvail} geen beschikbaarheid opgegeven`);
+    if (unavail) parts.push(`${unavail} niet beschikbaar ${slot.part === "MORNING" ? "'s ochtends" : "'s middags"}`);
+    for (const [n, c] of other) parts.push(`${c} al ingezet voor ${n}`);
+    if (here) parts.push(`${here} al ingezet voor deze taak${tagById.get(slot.tagId)?.canBoth ? "" : " (er is geen dienst voor ochtend + middag ingesteld)"}`);
+    return `${holders.length} met deze tag: ${parts.join(", ")}.`;
+  };
 
   for (const slot of slots) {
     const tag = tagById.get(slot.tagId)!;
@@ -89,7 +117,7 @@ export function generatePlan(input: PlanInput): { items: PlanItem[]; gaps: PlanG
       const t = taken.get(k);
       if (t) t.parts.add(slot.part); else taken.set(k, { tagId: slot.tagId, parts: new Set([slot.part]) });
     }
-    if (missing > 0) gaps.push({ date: slot.date, part: slot.part, tagId: slot.tagId, missing });
+    if (missing > 0) gaps.push({ date: slot.date, part: slot.part, tagId: slot.tagId, missing, reason: whyNot(slot) });
   }
   items.sort((a, b) => a.date.localeCompare(b.date) || (a.part === b.part ? 0 : a.part === "MORNING" ? -1 : 1) || (tagById.get(a.tagId)?.sortOrder ?? 0) - (tagById.get(b.tagId)?.sortOrder ?? 0));
   return { items, gaps, hours, coveredByExisting };
@@ -97,7 +125,7 @@ export function generatePlan(input: PlanInput): { items: PlanItem[]; gaps: PlanG
 
 type TypeTimes = { id: string; startTime: string | null; endTime: string | null; secondStartTime: string | null; secondEndTime: string | null };
 type TagShiftIds = {
-  id: string; morningShiftTypeId: string | null; afternoonShiftTypeId: string | null; bothShiftTypeId: string | null;
+  id: string; sortOrder?: number; morningShiftTypeId: string | null; afternoonShiftTypeId: string | null; bothShiftTypeId: string | null;
   morningStart?: string | null; morningEnd?: string | null; afternoonStart?: string | null; afternoonEnd?: string | null;
 };
 const toMin = (t: string | null | undefined) => { const m = /^(\d{1,2}):(\d{2})$/.exec((t ?? "").trim()); return m ? Number(m[1]) * 60 + Number(m[2]) : null; };
@@ -121,8 +149,10 @@ function tagWindows(tag: TagShiftIds, types: Map<string, TypeTimes>): Partial<Re
 /**
  * Welke plekken zijn al gedekt door bestaande diensten? Een tijdsblok van een bestaande dienst (ook van een lange dienst als O 8:00-17:00 of
  * A 10:30-19:30) dekt een taak als het de tijden van de taak helemaal omvat, of als de dienst voor die taak is ingesteld. Eén persoon doet niet
- * twee taken tegelijk: overlappen de tijden van taken, dan telt het blok voor één ervan. Welke, bepaalt de behoefte: eerst de plekken met de
- * minste mogelijke mensen, en een blok gaat naar de taak waar het het minst anders voor kan. Taken zonder behoefte tellen niet mee.
+ * twee taken tegelijk: overlappen de tijden van taken, dan telt het blok voor één ervan. Welke, bepaalt de prioriteit van de tag (hoogste
+ * eerst); bij gelijke prioriteit eerst de plek met de minste mogelijke blokken, en een blok gaat naar de taak waar het het minst anders voor
+ * kan. De ingestelde dienst telt alleen met het blok dat in de tijd overlapt met de taak: het middagblok van X dekt geen ochtendtaak.
+ * Taken zonder behoefte tellen niet mee.
  * Diensten zonder tijden (V, Z) dekken niets.
  */
 export function coverFromShifts(
@@ -149,11 +179,12 @@ export function coverFromShifts(
     }
     const can = (b: Blk, sl: Slot) => {
       const tag = tagById.get(sl.tagId)!;
-      const exact = (sl.part === "MORNING" ? [tag.morningShiftTypeId, tag.bothShiftTypeId] : [tag.afternoonShiftTypeId, tag.bothShiftTypeId]).includes(b.typeId);
+      const exact = (sl.part === "MORNING" ? [tag.morningShiftTypeId, tag.bothShiftTypeId] : [tag.afternoonShiftTypeId, tag.bothShiftTypeId]).includes(b.typeId) && b.s < sl.w[1] && sl.w[0] < b.e;
       return (exact || (b.s <= sl.w[0] && b.e >= sl.w[1])) && !b.picked.some((p) => sl.w[0] < p[1] && p[0] < sl.w[1]);
     };
     for (;;) {
-      // De plek met de minste mogelijke blokken eerst; daarbinnen het blok dat voor de minste andere plekken kan.
+      // De tag met de hoogste prioriteit eerst, dan de plek met de minste mogelijke blokken; daarbinnen het blok dat voor de minste andere plekken kan.
+      const prio = (sl: Slot) => tagById.get(sl.tagId)!.sortOrder ?? 0;
       let best: { sl: Slot; b: Blk; k: number; flex: number } | null = null;
       for (const sl of slots) {
         if (sl.left <= 0) continue;
@@ -161,7 +192,8 @@ export function coverFromShifts(
         if (cands.length === 0) continue;
         for (const b of cands) {
           const flex = slots.filter((o) => o !== sl && o.left > 0 && can(b, o)).length;
-          if (!best || cands.length < best.k || (cands.length === best.k && flex < best.flex)) best = { sl, b, k: cands.length, flex };
+          const pd = best ? prio(sl) - prio(best.sl) : -1;
+          if (!best || pd < 0 || (pd === 0 && (cands.length < best.k || (cands.length === best.k && flex < best.flex)))) best = { sl, b, k: cands.length, flex };
         }
       }
       if (!best) break;
