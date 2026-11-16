@@ -392,3 +392,11 @@ zelf een geldig HTTPS-certificaat.
   geldt voor elke kleurgroep; de schakelaar per groep ("afwijkingen markeren")
   bepaalt alleen of een afwijking die oranje rand krijgt.
 - Kleurgroepen: volgorde en indeling per medewerker bij **Medewerkers**.
+
+## Dagdeel verlof aanvragen
+
+Bij Mijn verlof is er naast "Verlof aanvragen" een blok **Dagdeel verlof aanvragen**. De medewerker kiest een ingeplande gebroken dienst (ochtend + middag, bv. X),
+welk dagdeel vrij moet (ochtend of middag) en optioneel voor welke dienst (en op welke dag) hij dit wil ruilen. De planner ziet dat bij "Te beoordelen" en krijgt een mail.
+Bij goedkeuring blijft alleen het andere dagdeel over in het rooster (bv. X wordt IX); bij intrekken komt de oorspronkelijke dienst terug (als de dag nog niet geweest is en het rooster niet is gewijzigd).
+De gewenste ruildienst is een wens: de planner regelt die zelf in het rooster. Dagdeel-verlof telt niet als V en wordt dus niet automatisch van de verlofuren afgeboekt.
+Schema: `LeaveRequest` heeft nieuwe velden `part`, `shiftTypeId`, `swapShiftTypeId`, `swapDate` (`db push` nodig, geen dataverlies).

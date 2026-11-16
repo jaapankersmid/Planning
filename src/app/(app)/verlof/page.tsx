@@ -2,13 +2,15 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatRange, toISODate } from "@/lib/format";
-import { leaveDates } from "@/lib/leave";
+import { describePartRequest, leaveDates, partialLeaveShifts } from "@/lib/leave";
+import { isWorking, timesOf, type ShiftTypeLite } from "@/lib/shift-swap";
+import { PartLeaveForm } from "@/components/part-leave-form";
 import { todayAmsterdam } from "@/lib/schedule";
 import { loadBalance } from "@/lib/leave-balance";
 import { LeaveBalanceCard } from "@/components/leave-balance-card";
 import { LeaveForm } from "@/components/leave-form";
 import { LeaveStatusBadge } from "@/components/leave-status";
-import { cancelOwnRequest, requestLeave } from "./actions";
+import { cancelOwnRequest, requestLeave, requestPartLeave } from "./actions";
 
 export default async function VerlofPage() {
   const session = await auth();
@@ -42,10 +44,13 @@ export default async function VerlofPage() {
 
   const requests = await prisma.leaveRequest.findMany({
     where: { employeeId },
-    include: { decidedBy: { select: { name: true } } },
+    include: { decidedBy: { select: { name: true } }, shiftType: { select: { code: true } }, swapShiftType: { select: { code: true, label: true } } },
     orderBy: { startDate: "desc" },
   });
   const todayISO = toISODate(todayAmsterdam());
+  const partShifts = await partialLeaveShifts(employeeId);
+  const allTypes: ShiftTypeLite[] = await prisma.shiftType.findMany({ orderBy: { code: "asc" } });
+  const swapOptions = allTypes.filter((t) => t.active && isWorking(t)).map((t) => ({ id: t.id, label: `${t.code} · ${t.label} (${timesOf(t)})` }));
   const balance = await loadBalance(employeeId, todayISO);
 
   return (
@@ -66,6 +71,12 @@ export default async function VerlofPage() {
       <div className="rounded-lg border border-border bg-surface p-5">
         <h2 className="text-sm font-semibold">Verlof aanvragen</h2>
         <LeaveForm action={requestLeave} submitLabel="Aanvragen" minDate={todayISO} />
+      </div>
+
+      <div className="rounded-lg border border-border bg-surface p-5">
+        <h2 className="text-sm font-semibold">Dagdeel verlof aanvragen</h2>
+        <p className="text-xs text-foreground-muted">Kies een ingeplande dienst met een ochtend en een middag, welk dagdeel je vrij wilt en eventueel voor welke dienst je dit wilt ruilen. Een planner beoordeelt het; bij goedkeuring blijft alleen het andere dagdeel in je rooster staan.</p>
+        <PartLeaveForm action={requestPartLeave} shifts={partShifts} swapOptions={swapOptions} minDate={todayISO} />
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-border bg-surface">
@@ -90,10 +101,11 @@ export default async function VerlofPage() {
               <tr key={r.id} className="border-b border-border align-top last:border-0">
                 <td className="px-4 py-2">
                   <div className="font-medium">{formatRange(r.startDate, r.endDate)}</div>
+                  {describePartRequest(r) && <div className="text-xs">{describePartRequest(r)}</div>}
                   {r.note && <div className="text-xs text-foreground-muted">{r.note}</div>}
                 </td>
                 <td className="px-4 py-2 tabular-nums">
-                  {leaveDates(r.startDate, r.endDate, r.includeWeekends).length}
+                  {r.part !== "ALL" ? "dagdeel" : leaveDates(r.startDate, r.endDate, r.includeWeekends).length}
                 </td>
                 <td className="px-4 py-2">
                   <LeaveStatusBadge status={r.status} />

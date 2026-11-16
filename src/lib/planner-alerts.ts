@@ -1,3 +1,4 @@
+import { describePartRequest } from "@/lib/leave";
 import { prisma } from "@/lib/prisma";
 import { escapeHtml, isMailConfigured, sendMail } from "@/lib/mail";
 import { addDays, formatRange, toISODate } from "@/lib/format";
@@ -39,9 +40,10 @@ export async function notifyPlannersOfLeaveRequest(requestId: string) {
   try {
     const request = await prisma.leaveRequest.findUnique({
       where: { id: requestId },
-      include: { employee: true },
+      include: { employee: true, shiftType: { select: { code: true } }, swapShiftType: { select: { code: true, label: true } } },
     });
     if (!request || request.status !== "PENDING") return;
+    const part = describePartRequest(request);
     const planners = await plannerRecipients(request.employeeId);
     if (planners.length === 0) return;
 
@@ -52,7 +54,8 @@ export async function notifyPlannersOfLeaveRequest(requestId: string) {
     const text = [
       `${request.employee.name} vraagt verlof aan.`,
       "",
-      `Periode: ${range} (${weekends})`,
+      `Periode: ${range} (${part ? "dagdeel" : weekends})`,
+      ...(part ? [part] : []),
       ...(request.note ? [`Opmerking: ${request.note}`] : []),
       "",
       ...(link ? [`Beoordelen: ${link}`, ""] : []),
@@ -60,7 +63,7 @@ export async function notifyPlannersOfLeaveRequest(requestId: string) {
     ].join("\n");
     const html = wrap(
       `<p><strong>${escapeHtml(request.employee.name)}</strong> vraagt verlof aan.</p>
-<p>Periode: <strong>${escapeHtml(range)}</strong> (${weekends})${
+<p>Periode: <strong>${escapeHtml(range)}</strong> (${part ? "dagdeel" : weekends})${part ? `<br>${escapeHtml(part)}` : ""}${
         request.note ? `<br>Opmerking: ${escapeHtml(request.note)}` : ""
       }</p>${button(link, "Beoordelen")}${footer}`,
     );

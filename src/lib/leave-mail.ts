@@ -1,3 +1,4 @@
+import { describePartRequest } from "@/lib/leave";
 import { prisma } from "@/lib/prisma";
 import { escapeHtml, isMailConfigured, sendMail } from "@/lib/mail";
 import { formatRange } from "@/lib/format";
@@ -17,7 +18,7 @@ export async function notifyEmployeeOfLeaveOutcome(requestId: string, outcome: L
   try {
     const request = await prisma.leaveRequest.findUnique({
       where: { id: requestId },
-      include: { employee: { include: { user: true } }, decidedBy: { select: { name: true } } },
+      include: { employee: { include: { user: true } }, decidedBy: { select: { name: true } }, shiftType: { select: { code: true } }, swapShiftType: { select: { code: true, label: true } } },
     });
     const user = request?.employee.user;
     if (!request || !user || !user.active || !user.emailNotifications || !user.email) return;
@@ -33,7 +34,7 @@ export async function notifyEmployeeOfLeaveOutcome(requestId: string, outcome: L
       APPROVED: {
         subject: `Je verlof is goedgekeurd: ${range}`,
         headline: `Je verlof van ${range} is goedgekeurd${who}.`,
-        extra: "De dagen staan als V (Vrij) in het rooster.",
+        extra: request.part !== "ALL" ? `Het dagdeel is uit je rooster gehaald; ${describePartRequest(request)}.` : "De dagen staan als V (Vrij) in het rooster.",
       },
       REJECTED: {
         subject: `Je verlofaanvraag is afgewezen: ${range}`,

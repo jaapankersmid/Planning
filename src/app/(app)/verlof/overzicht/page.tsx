@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { addDays, formatDayMonth, formatRange, toISODate } from "@/lib/format";
-import { leaveDates } from "@/lib/leave";
+import { describePartRequest, leaveDates } from "@/lib/leave";
 import { ensureColorGroups, sortEmployees, todayAmsterdam } from "@/lib/schedule";
 import { LeaveForm } from "@/components/leave-form";
 import { LeaveStatusBadge } from "@/components/leave-status";
@@ -22,7 +22,7 @@ export default async function VerlofOverzichtPage() {
     await Promise.all([
       prisma.leaveRequest.findMany({
         where: { status: "PENDING" },
-        include: { employee: true, requestedBy: { select: { name: true } } },
+        include: { employee: true, requestedBy: { select: { name: true } }, shiftType: { select: { code: true } }, swapShiftType: { select: { code: true, label: true } } },
         orderBy: { startDate: "asc" },
       }),
       prisma.leaveRequest.findMany({
@@ -149,8 +149,9 @@ export default async function VerlofOverzichtPage() {
                       {r.includeWeekends ? " (incl. weekend)" : " (zonder weekend)"}
                       {r.requestedBy?.name && ` · aangevraagd door ${r.requestedBy.name}`}
                     </div>
+                    {describePartRequest(r) && <div className="mt-1 text-xs font-medium">{describePartRequest(r)}</div>}
                     {r.note && <div className="mt-1 text-xs">“{r.note}”</div>}
-                    {conflicts > 0 && (
+                    {r.part === "ALL" && conflicts > 0 && (
                       <div className="mt-1 text-xs text-amber-700 dark:text-amber-300">
                         Let op: {conflicts} {conflicts === 1 ? "ingeplande dienst wordt" : "ingeplande diensten worden"} vervangen door V.
                       </div>

@@ -145,6 +145,8 @@ model ShiftType {
   weeklyEntries WeeklyScheduleEntry[]
   swapsGiven    ShiftSwapRequest[] @relation("SwapShift")
   swapsReturned ShiftSwapRequest[] @relation("SwapReturnShift")
+  leavePartRequests LeaveRequest[] @relation("LeavePartShift")
+  leaveSwapRequests LeaveRequest[] @relation("LeaveSwapFor")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -271,6 +273,16 @@ model LeaveRequest {
   // Ook zaterdag en zondag als V zetten?
   includeWeekends Boolean @default(true)
   note            String?
+
+  // Dagdeel verlof: part ALL = hele dagen (V). Bij MORNING/AFTERNOON gaat het om één dag (startDate) en één ingeplande
+  // gebroken dienst (shiftType); alleen dat deel valt weg en het andere deel blijft staan. Optioneel geeft de medewerker aan
+  // welke dienst (swapShiftType, eventueel op swapDate) hij er graag voor in de plaats werkt; de planner regelt dat zelf.
+  part              ShiftPart  @default(ALL)
+  shiftType         ShiftType? @relation("LeavePartShift", fields: [shiftTypeId], references: [id], onDelete: SetNull)
+  shiftTypeId       String?
+  swapShiftType     ShiftType? @relation("LeaveSwapFor", fields: [swapShiftTypeId], references: [id], onDelete: SetNull)
+  swapShiftTypeId   String?
+  swapDate          DateTime?  @db.Date
 
   status LeaveStatus @default(PENDING)
 
