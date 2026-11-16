@@ -119,36 +119,55 @@ function tagWindows(tag: TagShiftIds, types: Map<string, TypeTimes>): Partial<Re
   return out;
 }
 /**
- * Welke plekken zijn al gedekt door bestaande diensten? Een tijdsblok van een bestaande dienst dekt een taak als het de tijden van de taak
- * helemaal omvat (bv. uitlaten 8:00-10:00 en 15:30-17:00, balie 9:00-10:00 en 18:00-19:00, schoonmaken 8:00-12:30 en 15:30-19:30).
- * Eén persoon kan niet twee taken tegelijk doen: overlappen de tijden van taken, dan telt het blok voor één taak. Daarbij gaat de taak waarvoor de dienst
- * is ingesteld voor, daarna de taak waarvan de tijden het best bij het blok passen. Diensten zonder tijden (V, Z) dekken niets.
+ * Welke plekken zijn al gedekt door bestaande diensten? Een tijdsblok van een bestaande dienst (ook van een lange dienst als O 8:00-17:00 of
+ * A 10:30-19:30) dekt een taak als het de tijden van de taak helemaal omvat, of als de dienst voor die taak is ingesteld. Eén persoon doet niet
+ * twee taken tegelijk: overlappen de tijden van taken, dan telt het blok voor één ervan. Welke, bepaalt de behoefte: eerst de plekken met de
+ * minste mogelijke mensen, en een blok gaat naar de taak waar het het minst anders voor kan. Taken zonder behoefte tellen niet mee.
+ * Diensten zonder tijden (V, Z) dekken niets.
  */
-export function coverFromShifts(tags: TagShiftIds[], typeRows: TypeTimes[], assignments: { shiftTypeId: string | null; date: string }[]) {
+export function coverFromShifts(
+  tags: TagShiftIds[],
+  typeRows: TypeTimes[],
+  assignments: { shiftTypeId: string | null; date: string }[],
+  needs: { date: string; part: Part; tagId: string; count: number }[],
+) {
   const types = new Map(typeRows.map((t) => [t.id, t]));
-  const wins = tags.map((t) => ({ tag: t, w: tagWindows(t, types) }));
+  const tagById = new Map(tags.map((t) => [t.id, t]));
+  const windows = new Map(tags.map((t) => [t.id, tagWindows(t, types)]));
   const covered: { date: string; part: Part; tagId: string; count: number }[] = [];
-  for (const a of assignments) {
-    if (!a.shiftTypeId) continue;
-    for (const [s, e] of blocks(types.get(a.shiftTypeId))) {
-      const cands: { tagId: string; part: Part; w: Win; score: number }[] = [];
-      for (const { tag, w } of wins) {
-        for (const part of ["MORNING", "AFTERNOON"] as Part[]) {
-          const tw = w[part];
-          if (!tw) continue;
-          const exact = (part === "MORNING" ? [tag.morningShiftTypeId, tag.bothShiftTypeId] : [tag.afternoonShiftTypeId, tag.bothShiftTypeId]).includes(a.shiftTypeId);
-          const contains = s <= tw[0] && e >= tw[1];
-          if (!contains && !exact) continue;
-          cands.push({ tagId: tag.id, part, w: tw, score: (exact ? 1 : 0) + (tw[1] - tw[0]) / (e - s) });
+  const dates = [...new Set(needs.filter((n) => n.count > 0).map((n) => n.date))];
+  for (const date of dates) {
+    type Blk = { s: number; e: number; typeId: string; picked: Win[] };
+    const blks: Blk[] = [];
+    for (const a of assignments) if (a.date === date && a.shiftTypeId) for (const [s, e] of blocks(types.get(a.shiftTypeId))) blks.push({ s, e, typeId: a.shiftTypeId, picked: [] });
+    if (blks.length === 0) continue;
+    type Slot = { part: Part; tagId: string; w: Win; left: number };
+    const slots: Slot[] = [];
+    for (const n of needs) {
+      const w = n.date === date && n.count > 0 ? windows.get(n.tagId)?.[n.part] : undefined;
+      if (w && tagById.has(n.tagId)) slots.push({ part: n.part, tagId: n.tagId, w, left: n.count });
+    }
+    const can = (b: Blk, sl: Slot) => {
+      const tag = tagById.get(sl.tagId)!;
+      const exact = (sl.part === "MORNING" ? [tag.morningShiftTypeId, tag.bothShiftTypeId] : [tag.afternoonShiftTypeId, tag.bothShiftTypeId]).includes(b.typeId);
+      return (exact || (b.s <= sl.w[0] && b.e >= sl.w[1])) && !b.picked.some((p) => sl.w[0] < p[1] && p[0] < sl.w[1]);
+    };
+    for (;;) {
+      // De plek met de minste mogelijke blokken eerst; daarbinnen het blok dat voor de minste andere plekken kan.
+      let best: { sl: Slot; b: Blk; k: number; flex: number } | null = null;
+      for (const sl of slots) {
+        if (sl.left <= 0) continue;
+        const cands = blks.filter((b) => can(b, sl));
+        if (cands.length === 0) continue;
+        for (const b of cands) {
+          const flex = slots.filter((o) => o !== sl && o.left > 0 && can(b, o)).length;
+          if (!best || cands.length < best.k || (cands.length === best.k && flex < best.flex)) best = { sl, b, k: cands.length, flex };
         }
       }
-      cands.sort((x, y) => y.score - x.score);
-      const picked: typeof cands = [];
-      for (const c of cands) {
-        if (picked.some((p) => (p.tagId === c.tagId && p.part === c.part) || (c.w[0] < p.w[1] && p.w[0] < c.w[1]))) continue;
-        picked.push(c);
-        covered.push({ date: a.date, part: c.part, tagId: c.tagId, count: 1 });
-      }
+      if (!best) break;
+      best.sl.left--;
+      best.b.picked.push(best.sl.w);
+      covered.push({ date, part: best.sl.part, tagId: best.sl.tagId, count: 1 });
     }
   }
   return covered;
@@ -183,7 +202,7 @@ export async function loadPlanInput(startISO: string, days: number): Promise<Pla
     prisma.shiftAssignment.findMany({ where: { employeeId: { in: ids }, date: { gte: start, lt: end } }, include: { shiftType: true } }),
     prisma.shiftAssignment.findMany({ where: { date: { gte: start, lt: end } }, select: { shiftTypeId: true, date: true } }),
   ]);
-  const covered = coverFromShifts(tagRows, shiftTypes, existingAll.map((a) => ({ shiftTypeId: a.shiftTypeId, date: toISODate(a.date) })));
+  const covered = coverFromShifts(tagRows, shiftTypes, existingAll.map((a) => ({ shiftTypeId: a.shiftTypeId, date: toISODate(a.date) })), needs.map((n) => ({ date: toISODate(n.date), part: n.part, tagId: n.tagId, count: n.count })));
   const baseHours: Record<string, number> = {};
   for (const a of existing) baseHours[a.employeeId] = (baseHours[a.employeeId] ?? 0) + shiftHours(a.shiftType);
   return {
