@@ -3,6 +3,7 @@ import { auth, signOut } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { effectiveHubRole } from "@/lib/hub-access";
 import { NavLinks } from "@/components/nav-links";
+import { canAutoPlan } from "@/lib/auto-plan-access";
 import { FeedbackButton } from "@/components/feedback-button";
 import { WidthBox } from "@/components/width-box";
 
@@ -68,6 +69,7 @@ export default async function AppLayout({
             role={session.user.role}
             pendingLeave={pendingLeave}
             hasEmployee={!!session.user.employeeId}
+            showAutoPlan={canAutoPlan(session.user.email)}
             className="w-full"
           />
         </WidthBox>

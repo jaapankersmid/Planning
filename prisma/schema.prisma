@@ -105,6 +105,7 @@ model Employee {
   leaveAllowances     LeaveAllowance[]
   weekSubmissions     WeekSubmission[]
   leaveAdjustments    LeaveAdjustment[]
+  planTags            PlanTagEmployee[]
   swapsRequested      ShiftSwapRequest[] @relation("SwapRequester")
   swapsReceived       ShiftSwapRequest[] @relation("SwapTarget")
 
@@ -197,6 +198,8 @@ model ColorGroup {
   // Geldt het vaste weekrooster voor deze groep? null = nog niet ingesteld; dan
   // gelden de standaardwaarden (alleen Rood en Oranje).
   usesTemplate Boolean?
+  // Doet deze groep mee met het automatische planvoorstel (alleen zichtbaar voor de eigenaar)?
+  planParticipates Boolean @default(false)
 }
 
 // Het vaste weekrooster: per medewerker per weekdag (1 = maandag ... 7 = zondag)
@@ -526,4 +529,47 @@ model ShiftSwapRequest {
 
   @@index([targetId, status])
   @@index([requesterId, status])
+}
+
+// Automatisch planvoorstel (alleen voor de eigenaar zichtbaar). Een tag is een taak, bv. Balie of Uitlaten.
+enum DayPart {
+  MORNING
+  AFTERNOON
+}
+
+model PlanTag {
+  id        String @id @default(cuid())
+  name      String @unique
+  sortOrder Int    @default(0)
+
+  // Dienst-types die bij het toepassen van het voorstel worden ingevuld: voor alleen de ochtend, alleen de middag
+  // en voor ochtend + middag samen. Zonder "samen" krijgt iemand per dag maar één dagdeel met deze tag.
+  morningShiftTypeId   String?
+  afternoonShiftTypeId String?
+  bothShiftTypeId      String?
+
+  employees PlanTagEmployee[]
+  needs     PlanNeed[]
+}
+
+model PlanTagEmployee {
+  tag        PlanTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId      String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId String
+
+  @@id([tagId, employeeId])
+}
+
+// Hoeveel mensen er per dag, dagdeel en tag nodig zijn. Handmatig ingevuld, later eventueel vanuit het boekingsprogramma.
+model PlanNeed {
+  id    String   @id @default(cuid())
+  date  DateTime @db.Date
+  part  DayPart
+  tag   PlanTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId String
+  count Int
+
+  @@unique([date, part, tagId])
+  @@index([date])
 }

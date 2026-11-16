@@ -162,6 +162,16 @@ Op Mijn rooster kiest een medewerker een eigen dienst (komende 8 weken) en een c
 - Staat de dienst bij het accepteren niet meer zoals bij het verzoek (de planner paste hem aan), dan vervalt het verzoek.
 - Code: `src/lib/shift-swap.ts` (regels), `shift-swap-mail.ts` (mails), `rooster/mijn/ruilen-actions.ts`, `components/shift-swaps.tsx`. Databasemodel `ShiftSwapRequest`: draai `npx prisma db push`.
 
+## Planvoorstel (alleen voor de eigenaar)
+
+Menu Planner > Planvoorstel, alleen zichtbaar en bereikbaar voor het account jaapankersmid@gmail.com (`src/lib/auto-plan-access.ts`; pagina's geven voor anderen een 404 en elke actie controleert het opnieuw).
+
+1. **Tags en kleurgroepen**: vink aan welke kleurgroepen meedoen, maak tags (Balie, Uitlaten, ...), koppel ze aan medewerkers en kies per tag welke dienst bij toepassen in het rooster komt (ochtend, middag, samen).
+2. **Behoefte**: per week per tag en dagdeel hoeveel mensen er nodig zijn (handmatig; later vanuit het boekingsprogramma).
+3. **Voorstel**: kies de periode; het voorstel verdeelt de plekken eerlijk: per kleurgroep krijgt degene met de minste uren eerst een dienst. Niet beschikbaar = geen opgave, onbeschikbaar, of al een dienst die dag (ook V/Z). Bestaande diensten worden nooit aangepast. Per regel kun je de persoon wijzigen of weghalen; pas bij "In het rooster zetten" verandert het rooster (met agenda-sync en roostermail).
+
+Een persoon krijgt per dag één taak; ochtend en middag samen alleen als de tag een dienst voor "samen" heeft. Code: `src/lib/auto-plan.ts` (algoritme), `app/(app)/planvoorstel/`, `components/plan-proposal.tsx`. Databasemodellen `PlanTag`, `PlanTagEmployee`, `PlanNeed` en `ColorGroup.planParticipates`: draai `npx prisma db push`.
+
 ## Rechten en urenregistratie
 
 **Rollen.** Er zijn drie vaste rollen. De *planner* (technisch `ADMIN`) beheert rooster, diensten, verlof en gebruikers, en is de enige die rollen van anderen kan aanpassen (*Gebruikers*; een wijziging werkt direct, ook als iemand ingelogd is). Er blijft altijd minstens één actieve planner over en je kunt je eigen rol niet wijzigen. De *administratie* ziet het rooster (alleen lezen, inclusief de uren per maand), kan de uren van iedereen inzien, corrigeren, goedkeuren en exporteren, maar kan niets in het rooster of bij gebruikers wijzigen. De *medewerker* ziet het eigen rooster, vraagt verlof aan en registreert eigen uren.

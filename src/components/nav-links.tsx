@@ -11,7 +11,7 @@ const PERSONAL: Role[] = ["ADMIN", "EMPLOYEE"];
 const HOURS_ADMIN: Role[] = ["ADMIN", "ACCOUNTING"];
 const PLANNER: Role[] = ["ADMIN"];
 
-type Item = { href: string; label: string; roles: Role[]; personal?: boolean };
+type Item = { href: string; label: string; roles: Role[]; personal?: boolean; /** Alleen tonen als de eigenaar is ingelogd (planvoorstel). */ owner?: boolean };
 
 const links: Item[] = [
   { href: "/rooster", label: "Rooster", roles: ALL },
@@ -30,6 +30,7 @@ const groups: { label: string; items: Item[] }[] = [
       { href: "/vast-rooster", label: "Vast rooster", roles: PLANNER },
       { href: "/vakanties", label: "Vakanties", roles: PLANNER },
       { href: "/bezetting", label: "Bezetting", roles: PLANNER },
+      { href: "/planvoorstel", label: "Planvoorstel", roles: PLANNER, owner: true },
     ],
   },
   {
@@ -113,17 +114,20 @@ export function NavLinks({
   role,
   pendingLeave = 0,
   hasEmployee = true,
+  showAutoPlan = false,
   className = "",
 }: {
   role: Role;
   /** Is de gebruiker gekoppeld aan een medewerker in het rooster? Zo niet, dan vervallen de persoonlijke items. */
   hasEmployee?: boolean;
+  /** Alleen waar voor de eigenaar: toont het menu-item Planvoorstel. */
+  showAutoPlan?: boolean;
   pendingLeave?: number;
   className?: string;
 }) {
   const pathname = usePathname();
   const shown = groups
-    .map((g) => ({ ...g, items: g.items.filter((l) => l.roles.includes(role)) }))
+    .map((g) => ({ ...g, items: g.items.filter((l) => l.roles.includes(role) && (!l.owner || showAutoPlan)) }))
     .filter((g) => g.items.length > 0);
 
   return (
