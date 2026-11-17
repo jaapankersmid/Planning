@@ -345,6 +345,32 @@ export async function loadBalances(todayISO: string, employeeIds?: string[]) {
   return result;
 }
 
+/** Periode voor het overzicht: standaard het lopende kalenderjaar. Ongeldige of omgedraaide datums worden hersteld. */
+export function parsePeriod(input: { van?: string | null; tot?: string | null }, todayISO: string) {
+  const year = todayISO.slice(0, 4);
+  const valid = (v: string | null | undefined) => (v && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(dateFromISO(v).getTime()) ? v : null);
+  let fromISO = valid(input.van) ?? `${year}-01-01`;
+  let toISO = valid(input.tot) ?? `${year}-12-31`;
+  if (fromISO > toISO) [fromISO, toISO] = [toISO, fromISO];
+  return { fromISO, toISO };
+}
+
+/**
+ * Verlof in een periode: de weken waarvan de maandag in de periode valt. Weken voor de peildatum van het tegoed
+ * tellen niet mee (net als in het saldo), maar staan wel in de lijst.
+ */
+export function periodLeave(balance: Balance, fromISO: string, toISO: string) {
+  const weeks = balance.days.filter((d) => d.dateISO >= fromISO && d.dateISO <= toISO);
+  let taken = 0;
+  let planned = 0;
+  for (const w of weeks) {
+    if (w.ignored) continue;
+    if (w.planned) planned += w.hours;
+    else taken += w.hours;
+  }
+  return { weeks, taken: round(taken), planned: round(planned), total: round(taken + planned) };
+}
+
 export async function loadBalance(employeeId: string, todayISO: string) {
   const result = await loadBalances(todayISO, [employeeId]);
   return result.get(employeeId)!;
