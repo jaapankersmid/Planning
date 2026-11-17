@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { toISODate } from "@/lib/format";
+import { dateFromISO, toISODate } from "@/lib/format";
 import { formatHours } from "@/lib/hours";
 import { canManageHours } from "@/lib/roles";
 import { todayAmsterdam } from "@/lib/schedule";
@@ -11,6 +11,8 @@ import { MonthNav } from "@/components/month-nav";
 import { TimesheetTable } from "@/components/timesheet-table";
 import { TimesheetDecision } from "@/components/timesheet-decision";
 import { TimesheetStatusBadge } from "@/components/timesheet-status";
+import { employeeAddress, pendingHoursChanges } from "@/lib/hours-mail";
+import { isMailConfigured } from "@/lib/mail";
 import { saveEntryForEmployee } from "../actions";
 
 export default async function UrenDetailPage({
@@ -29,6 +31,19 @@ export default async function UrenDetailPage({
   if (!employee) notFound();
 
   const { rows, weekRows, sheet, weeks } = await loadEmployeeMonth(employeeId, year, month);
+  const [weekMail, address, mailOn] = await Promise.all([
+    weeks.length ? pendingHoursChanges(employeeId, dateFromISO(weeks[0].startISO), dateFromISO(weeks[weeks.length - 1].startISO)) : {},
+    employeeAddress(employeeId),
+    isMailConfigured(),
+  ]);
+  // Waarom er na een aanpassing in een goedgekeurde week geen mail komt (of null als dat wel gebeurt).
+  const mailHint = session.user.employeeId === employeeId
+    ? null
+    : !mailOn
+      ? "Mail is niet ingesteld: aanpassingen worden niet gemaild."
+      : !address?.email
+        ? "Geen actief account met e-mailadres: aanpassingen worden niet gemaild."
+        : null;
   const todayISO = toISODate(todayAmsterdam());
   const worked = rows.reduce((sum, r) => sum + effectiveHours(r, todayISO), 0);
   const planned = rows.reduce((sum, r) => sum + r.planned, 0);
@@ -78,7 +93,7 @@ export default async function UrenDetailPage({
 
       <p className="text-sm text-foreground-muted">
         Je kunt de uren van een dag aanpassen; dat is ook mogelijk in een ingediende of goedgekeurde maand. Cursieve uren
-        zijn nog niet door de medewerker bevestigd. Bij elke weekregel zie je het weektotaal en keur je de week goed of stuur je hem terug.
+        zijn nog niet door de medewerker bevestigd. Bij elke weekregel zie je het weektotaal en keur je de week goed of stuur je hem terug. Bij goedkeuren krijgt de medewerker een mail met de uren (en je opmerking); pas je daarna nog uren aan, dan volgt na de wachttijd één mail per week met oud → nieuw.
       </p>
 
       <TimesheetTable
@@ -90,6 +105,8 @@ export default async function UrenDetailPage({
         weeks={weeks}
         weekMode="admin"
         employeeId={employeeId}
+        weekMail={weekMail}
+        mailHint={mailHint}
       />
     </div>
   );

@@ -6,6 +6,9 @@ import type { TimesheetStatus } from "@prisma/client";
 import { decideTimesheet } from "@/app/(app)/uren/overzicht/actions";
 import type { ActionResult } from "@/app/(app)/uren/actions";
 
+/** Laatste melding; blijft bewaard als het blok na het verversen opnieuw wordt opgebouwd. */
+const flash = new Map<string, { result: ActionResult; at: number }>();
+
 /** Voor administratie en planners: goedkeuren, terugsturen met opmerking, of een goedgekeurde maand heropenen. */
 export function TimesheetDecision({
   employeeId,
@@ -20,7 +23,11 @@ export function TimesheetDecision({
 }) {
   const router = useRouter();
   const [note, setNote] = useState("");
-  const [result, setResult] = useState<ActionResult>();
+  const flashKey = `${employeeId}|${year}-${month}`;
+  const [result, setResult] = useState<ActionResult>(() => {
+    const kept = flash.get(flashKey);
+    return kept && Date.now() - kept.at < 10_000 ? kept.result : undefined;
+  });
   const [isPending, startTransition] = useTransition();
 
   function run(decision: "APPROVE" | "RETURN" | "REOPEN") {
@@ -29,6 +36,7 @@ export function TimesheetDecision({
       const outcome = await decideTimesheet({ employeeId, year, month, decision, note });
       setResult(outcome);
       if (!outcome || !("error" in outcome)) {
+        flash.set(flashKey, { result: outcome, at: Date.now() });
         setNote("");
         router.refresh();
       }
@@ -40,7 +48,7 @@ export function TimesheetDecision({
     <div className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-4">
       <h2 className="text-sm font-semibold">Beoordelen</h2>
       <label className="flex flex-col gap-1 text-xs text-foreground-muted">
-        Opmerking (verplicht bij terugsturen)
+        Opmerking (verplicht bij terugsturen; bij goedkeuren gaat hij mee in de mail aan de medewerker)
         <input
           value={note}
           maxLength={500}

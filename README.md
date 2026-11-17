@@ -215,6 +215,16 @@ Code: `src/lib/settings.ts` (`getSettings`, `getMailConfig`, validatie), `src/ap
 
 Bij *Gebruikers → Nieuwe gebruiker* staat het vinkje **Welkomstmail sturen** (standaard aan). De nieuwe gebruiker krijgt dan een mail met de inloglink (`AUTH_URL`/login), het e-mailadres en het (tijdelijke) wachtwoord; moet het wachtwoord gewijzigd worden, dan staat erbij dat dat bij de eerste keer inloggen gebeurt. Lukt de mail niet of is SMTP niet ingesteld, dan wordt het account gewoon aangemaakt en zie je dat in de melding. Het wachtwoord komt nooit in de logs. Code: `src/lib/welcome-mail.ts`. Geen schemawijziging.
 
+## Mail over goedgekeurde en aangepaste uren
+
+- **Goedkeuren.** Keurt de administratie (of een planner) een week of maand goed, dan krijgt de medewerker meteen één mail met de uren per dag en het totaal. Bij de week staat daarvoor een veld *Opmerking voor de mail (optioneel)*; bij de maand gaat de opmerking van *Beoordelen* mee. Na het goedkeuren staat in de melding of de mail is verstuurd, mislukt is, of dat er geen mail kon (geen actief account met e-mailadres, of mail niet ingesteld). De goedkeuring blijft in alle gevallen staan.
+- **Aanpassen na goedkeuring.** Past de administratie uren aan in een al goedgekeurde week of maand, dan komt per dag de nettowijziging in een wachtrij (tabel `HoursChange`). Na de wachttijd uit *Instellingen* (dezelfde als de roostermail) gaat er per medewerker per week één mail uit met per dag oud → nieuw, het weektotaal oud → nieuw, wie het aanpaste en wanneer. Zet je een dag terug naar de oude uren, dan vervalt die regel; verandert alleen de opmerking van een dag, dan komt er geen mail. Bij de week staat zolang *… aangepast na goedkeuring, de medewerker krijgt rond hh:mm één mail*, met een veld voor een opmerking die meegaat. Mislukt de mail (5 pogingen), dan staat dat bij de week.
+- **Geen mail** als je je eigen uren aanpast of goedkeurt. Ook niet bij terugsturen of heropenen. Wordt een week of maand opnieuw goedgekeurd, dan vervangt de goedkeuringsmail de wachtende aanpassingen van die dagen.
+- Planners krijgen geen kopie. De knop *Nu versturen* bij *Gebruikers* verstuurt ook deze wachtrij direct.
+- Code: `src/lib/hours-mail.ts`, `src/app/(app)/uren/overzicht/actions.ts`.
+
+> Schemawijziging: nieuwe tabel `HoursChange`. Draai `npx prisma db push` (alleen toevoegen, geen dataverlies).
+
 ## Rechten en urenregistratie
 
 **Rollen.** Er zijn drie vaste rollen. De *planner* (technisch `ADMIN`) beheert rooster, diensten, verlof en gebruikers, en is de enige die rollen van anderen kan aanpassen (*Gebruikers*; een wijziging werkt direct, ook als iemand ingelogd is). Er blijft altijd minstens één actieve planner over en je kunt je eigen rol niet wijzigen. De *administratie* ziet het rooster (alleen lezen, inclusief de uren per maand), kan de uren van iedereen inzien, corrigeren, goedkeuren en exporteren, maar kan niets in het rooster of bij gebruikers wijzigen. De *medewerker* ziet het eigen rooster, vraagt verlof aan en registreert eigen uren.

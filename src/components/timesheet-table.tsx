@@ -7,7 +7,7 @@ import { formatHours } from "@/lib/hours";
 import { isLockedStatus } from "@/lib/timesheet-labels";
 import type { WeekInfo } from "@/lib/timesheets";
 import { TimesheetStatusBadge } from "@/components/timesheet-status";
-import { WeekControls } from "@/components/week-controls";
+import { WeekControls, type PendingWeekMail } from "@/components/week-controls";
 
 export type TimesheetRow = {
   dateISO: string;
@@ -45,6 +45,8 @@ export function TimesheetTable({
   weekMode,
   employeeId,
   monthLocked = false,
+  weekMail,
+  mailHint,
 }: {
   rows: TimesheetRow[];
   todayISO: string;
@@ -59,6 +61,10 @@ export function TimesheetTable({
   employeeId?: string;
   /** Medewerker: de hele maand is al ingediend of goedgekeurd. */
   monthLocked?: boolean;
+  /** Admin: wachtende mails over aanpassingen na goedkeuring, per week (maandag-ISO). */
+  weekMail?: Record<string, PendingWeekMail>;
+  /** Admin: waarom de medewerker geen mail krijgt (bv. geen e-mailadres), of null. */
+  mailHint?: string | null;
 }) {
   const weekByStart = new Map(weeks.map((w) => [w.startISO, w]));
   const proposal = (r: TimesheetRow) => (r.dateISO <= todayISO && r.planned > 0 ? fmt(r.planned) : "");
@@ -232,6 +238,8 @@ export function TimesheetTable({
                           weekStartISO={week.startISO}
                           status={week.status}
                           canSubmit={!monthLocked && todayISO >= week.endISO}
+                          pending={weekMail?.[week.startISO]}
+                          mailHint={mailHint}
                         />
                         {week.status === "RETURNED" && week.decisionNote && (
                           <span className="w-full font-normal text-bad-text">

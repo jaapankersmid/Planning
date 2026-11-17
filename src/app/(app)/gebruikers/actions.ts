@@ -7,6 +7,7 @@ import { generateTempPassword, hashPassword } from "@/lib/password";
 import { isMailConfigured, sendMail } from "@/lib/mail";
 import { pendingNotificationCount, processDueNotifications } from "@/lib/notifications";
 import { pendingAvailabilityCount, processAvailabilityAlerts } from "@/lib/planner-alerts";
+import { pendingHoursChangeCount, processHoursChanges } from "@/lib/hours-mail";
 import { ROLE_OPTIONS } from "@/lib/roles";
 import { syncHubAccess } from "@/lib/hub-access";
 import { sendWelcomeMail, type WelcomeMailResult } from "@/lib/welcome-mail";
@@ -218,10 +219,11 @@ export async function sendPendingNow(): Promise<MailActionState> {
   if (!(await isMailConfigured())) {
     return { ok: false, message: "E-mail is nog niet ingesteld." };
   }
-  const before = (await pendingNotificationCount()) + (await pendingAvailabilityCount());
+  const before = (await pendingNotificationCount()) + (await pendingAvailabilityCount()) + (await pendingHoursChangeCount());
   await processDueNotifications({ force: true });
   await processAvailabilityAlerts({ force: true });
-  const after = (await pendingNotificationCount()) + (await pendingAvailabilityCount());
+  await processHoursChanges({ force: true });
+  const after = (await pendingNotificationCount()) + (await pendingAvailabilityCount()) + (await pendingHoursChangeCount());
   revalidatePath("/gebruikers");
   return {
     ok: after === 0,

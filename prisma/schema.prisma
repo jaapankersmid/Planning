@@ -108,6 +108,7 @@ model Employee {
   planTags            PlanTagEmployee[]
   swapsRequested      ShiftSwapRequest[] @relation("SwapRequester")
   swapsReceived       ShiftSwapRequest[] @relation("SwapTarget")
+  hoursChanges        HoursChange[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -341,6 +342,35 @@ model RosterChange {
   // Dienst zoals die was bij de eerste wijziging in deze reeks, en zoals die nu is (null = geen dienst).
   oldShiftTypeId String?
   newShiftTypeId String?
+
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([employeeId, date])
+  @@index([updatedAt])
+}
+
+// Wachtrij met door de administratie aangepaste uren in een al goedgekeurde week of maand. Per dag alleen de
+// nettowijziging (oud = de uren voor de eerste aanpassing); na de wachttijd krijgt de medewerker één mail per week.
+model HoursChange {
+  id String @id @default(cuid())
+
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId String
+
+  date      DateTime @db.Date
+  // De maandag van de week, om per week te bundelen.
+  weekStart DateTime @db.Date
+
+  oldHours Float
+  newHours Float
+
+  // Wie het laatst aanpaste (naam bewaard, zodat de mail ook klopt als het account later weg is).
+  changedById   String?
+  changedByName String?
+  // Optionele opmerking van de administratie voor in de mail (geldt voor de hele week).
+  note String?
 
   attempts  Int      @default(0)
   createdAt DateTime @default(now())

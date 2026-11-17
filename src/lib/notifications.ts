@@ -5,7 +5,7 @@ import { formatDayMonth, weekdayFull } from "@/lib/format";
 import { todayAmsterdam } from "@/lib/schedule";
 
 /** Hoeveel minuten er niets meer is aangepast voordat de gebundelde mail de deur uit gaat. */
-async function quietMinutes() {
+export async function quietMinutes() {
   const value = Number((await getSettings()).notifyDelayMinutes);
   return Number.isFinite(value) && value >= 0 ? value : 10;
 }
