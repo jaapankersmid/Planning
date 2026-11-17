@@ -197,7 +197,7 @@ export default async function VerlofurenPage({ searchParams }: { searchParams: P
         <summary className="cursor-pointer">Hoe wordt dit berekend?</summary>
         <ul className="mt-2 list-disc space-y-1 pl-5">
           <li>Het tegoed van een jaar geldt van 1 januari tot en met 30 juni van het jaar erna. Klik op een naam om het tegoed in te vullen of aan te passen.</li>
-          <li>Opgenomen verlof per week is de standaard uren per week min de gewerkte uren; voor komende weken de geplande uren. Een ziektedag telt voor de uren uit het vaste rooster, dus ziekte kost geen verlof.</li>
+          <li>Opgenomen verlof per week is de standaard uren per week min de gewerkte uren; voor komende weken de geplande uren. Een ziektedag telt altijd voor de uren uit het vaste rooster (ook als er uren zijn ingevuld), dus ziekte kost geen verlof.</li>
           <li>In periode: de weken waarvan de maandag in de gekozen periode valt. Tussen haakjes het deel dat nog ingepland is.</li>
           <li>31-12 / 30-6: wat er naar verwachting over is als het ingeplande verlof wordt opgenomen. Wat er op 30 juni over is, vervalt daarna.</li>
           <li>Vervalt: de verwachte uren die vervallen en de datum waarop (na aftrek van ingepland verlof).</li>

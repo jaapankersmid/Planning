@@ -247,7 +247,8 @@ export function computeBalance(
  *
  * Opgenomen verlof per week = standaard uren per week − uren in die week (min 0). Een dag telt voor de
  * geregistreerde uren; zonder registratie voor de uren van de geplande dienst (V telt dus 0 uur). Een
- * ziektedag (Z) telt voor de uren die iemand op die weekdag volgens het vaste rooster werkt, zodat ziekte geen verlof kost.
+ * ziektedag (Z) telt altijd voor de uren die iemand op die weekdag volgens het vaste rooster werkt, ook als er
+ * uren zijn ingevuld, zodat ziekte nooit verlof kost.
  * Weken zonder enige dienst of registratie tellen niet mee: daar is nog niets gepland.
  */
 export async function loadBalances(todayISO: string, employeeIds?: string[]) {
@@ -322,8 +323,9 @@ export async function loadBalances(todayISO: string, employeeIds?: string[]) {
           const assignment = assignmentsBy.get(key);
           const entry = entriesBy.get(key);
           if (assignment || entry !== undefined) active = true;
-          if (entry !== undefined) worked += entry;
-          else if (assignment?.shiftType.code === "Z") worked += templateHours.get(`${id}_${weekdayNumber(day)}`) ?? 0;
+          // Ziek (Z) telt altijd volgens het vaste rooster, ook als er voor die dag uren zijn ingevuld.
+          if (assignment?.shiftType.code === "Z") worked += templateHours.get(`${id}_${weekdayNumber(day)}`) ?? 0;
+          else if (entry !== undefined) worked += entry;
           else if (assignment) worked += shiftHours(assignment.shiftType);
         }
         if (!active) continue;
