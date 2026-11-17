@@ -23,7 +23,7 @@ Gebruik altijd `canAutoPlan(email)`, `requireAutoPlan()` en `assertAutoPlan()` (
 - Verlof (`src/lib/leave.ts`): hele dagen worden V (Vrij); een aanvraag voor één dienst (dagdeel vrij of andere dienst) wijzigt alleen die dienst (`isShiftRequest`).
 - Ruilen met een collega: `ShiftSwapRequest`, `src/lib/shift-swap.ts`.
 - Niet-geheime instellingen (bedrijf, mail): altijd via `getSettings()` / `getMailConfig()` (`src/lib/settings.ts`), niet via `process.env`. Geheimen blijven in .env.
-- Planvoorstel: `src/lib/auto-plan.ts` (PlanTag/PlanNeed, bestaande diensten tellen mee voor de wens als ze de tag-tijden omvatten, ook lange diensten als O 8:00-17:00 en A 10:30-19:30; tags worden gevuld op prioriteit = `sortOrder`, bovenste eerst, harde volgorde).
+- Planvoorstel: `src/lib/auto-plan.ts` (PlanTag/PlanNeed, bestaande diensten van medewerkers met de tag tellen mee voor de wens als ze de tag-tijden omvatten (getoond als "al ingepland"), een halve dienst (XI) mag worden aangevuld tot de gebroken dienst (X) via `extendHalf`, ook lange diensten als O 8:00-17:00 en A 10:30-19:30; tags worden gevuld op prioriteit = `sortOrder`, bovenste eerst, harde volgorde).
 
 ## Deploy
 Commit en push doet Claude zelf. Het bijwerken van de server doet Jaap zelf (`root@ubuntu`):

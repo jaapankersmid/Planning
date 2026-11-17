@@ -23,7 +23,7 @@ import { holidayOn, holidaySegments } from "@/lib/holidays";
 import { formatHours, shiftHours } from "@/lib/hours";
 import { canManageHours, isPlanner } from "@/lib/roles";
 import { canAutoPlan } from "@/lib/auto-plan-access";
-import { shiftTypeForParts, type Part } from "@/lib/auto-plan";
+import { extendHalf, shiftTypeForParts, type Part } from "@/lib/auto-plan";
 import { applyShownProposal, clearShownProposal } from "@/app/(app)/planvoorstel/actions";
 import { ShiftCell } from "@/components/shift-cell";
 import { DualScroll } from "@/components/dual-scroll";
@@ -143,15 +143,21 @@ export default async function RoosterPage({
   const availabilityByKey = new Map(
     availabilityRows.map((a) => [`${a.employeeId}_${toISODate(a.date)}`, a.status]),
   );
-  // Planvoorstel (alleen eigenaar): per medewerker per dag de dienst die het voorstel er zet, alleen op vrije vakjes.
-  const proposalByKey = new Map<string, { code: string; label: string; color: string; tag: string }>();
+  // Planvoorstel (alleen eigenaar): per medewerker per dag de dienst die het voorstel er zet: op vrije vakjes, of op een
+  // halve dienst die wordt aangevuld (XI + IX = X).
+  const proposalByKey = new Map<string, { code: string; label: string; color: string; tag: string; extends?: string }>();
   let proposalTotal = 0;
   if (owner) {
-    const [items, tags, total] = await Promise.all([
+    const [items, tags, total, allTypes] = await Promise.all([
       prisma.planProposalItem.findMany({ where: { date: { gte: rangeStart, lt: rangeEnd } } }),
       prisma.planTag.findMany(),
       prisma.planProposalItem.count(),
+      prisma.shiftType.findMany(),
     ]);
+    const existingRows = items.length
+      ? await prisma.shiftAssignment.findMany({ where: { employeeId: { in: [...new Set(items.map((i) => i.employeeId))] }, date: { gte: rangeStart, lt: rangeEnd } }, include: { shiftType: true } })
+      : [];
+    const existingByKey = new Map(existingRows.map((a) => [`${a.employeeId}_${toISODate(a.date)}`, a.shiftType]));
     proposalTotal = total;
     const perDay = new Map<string, { tagId: string; parts: Set<Part> }>();
     for (const it of items) {
@@ -162,8 +168,13 @@ export default async function RoosterPage({
     }
     for (const [k, v] of perDay) {
       const tag = tags.find((t) => t.id === v.tagId);
-      const type = tag ? shiftTypes.find((st) => st.id === shiftTypeForParts(tag, v.parts)) : undefined;
-      if (tag && type) proposalByKey.set(k, { code: type.code, label: type.label, color: type.color, tag: tag.name });
+      if (!tag) continue;
+      const existing = existingByKey.get(k);
+      const typeId = shiftTypeForParts(tag, v.parts);
+      const type = existing
+        ? v.parts.size === 1 ? extendHalf(existing, [...v.parts][0], typeId, allTypes) : null
+        : allTypes.find((st) => st.id === typeId);
+      if (type) proposalByKey.set(k, { code: type.code, label: type.label, color: type.color, tag: tag.name, ...(existing ? { extends: existing.code } : {}) });
     }
   }
   const segments = holidaySegments(days, holidays);
@@ -463,10 +474,11 @@ export default async function RoosterPage({
                         availability={availabilityByKey.get(key) ?? null}
                       />
                       {(() => {
-                        const proposed = !shiftTypeId ? proposalByKey.get(key) : undefined;
+                        const p = proposalByKey.get(key);
+                        const proposed = p && (!shiftTypeId || p.extends) ? p : undefined;
                         return proposed ? (
                           <div
-                            title={`Voorstel: ${proposed.code} · ${proposed.label} (${proposed.tag})`}
+                            title={`Voorstel: ${proposed.extends ? `${proposed.extends} wordt ` : ""}${proposed.code} · ${proposed.label} (${proposed.tag})`}
                             style={{ background: `${proposed.color}59`, color: readableTextColor(proposed.color) === "#ffffff" ? "#1c2521" : readableTextColor(proposed.color) }}
                             className={`pointer-events-none absolute inset-px z-20 flex items-center justify-center rounded border-2 border-dashed border-blue-700 font-semibold ${weekView ? "text-sm" : "text-[11px]"}`}
                           >

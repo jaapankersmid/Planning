@@ -48,10 +48,12 @@ export default async function PlanProposalPage({ searchParams }: { searchParams:
           {loaded.groups.length === 0 && <p className="rounded-md bg-amber-50 px-3 py-2 text-sm">Er is nog geen kleurgroep aangevinkt. Doe dat bij <Link href="/planvoorstel/instellingen" className="underline">Tags en kleurgroepen</Link>.</p>}
           {!loaded.hasTags && <p className="rounded-md bg-amber-50 px-3 py-2 text-sm">Er zijn nog geen tags. Maak ze aan bij <Link href="/planvoorstel/instellingen" className="underline">Tags en kleurgroepen</Link>.</p>}
           {loaded.needs.length === 0 && <p className="rounded-md bg-amber-50 px-3 py-2 text-sm">Voor deze periode is nog geen behoefte ingevuld. Vul die in bij <Link href={`/planvoorstel/behoefte?start=${startISO}`} className="underline">Behoefte</Link>.</p>}
+          {plan.fromExisting.length > 0 && <p className="text-sm text-foreground-muted">{plan.fromExisting.length} plek{plan.fromExisting.length === 1 ? "" : "ken"} al gevuld door ingeplande diensten van medewerkers met de tag (grijs in de tabel).</p>}
           <PlanProposal
             key={`${startISO}-${weeks}`}
             items={plan.items}
             gaps={plan.gaps}
+            fromExisting={plan.fromExisting}
             tags={loaded.tags.map((t) => ({ id: t.id, name: t.name }))}
             employees={loaded.employees}
             baseHours={loaded.baseHours}

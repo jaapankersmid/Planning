@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { applyProposal, showProposalInRoster } from "@/app/(app)/planvoorstel/actions";
 
 type Part = "MORNING" | "AFTERNOON";
-type Row = { id: number; date: string; part: Part; tagId: string; employeeId: string; gap: boolean; reason?: string };
+type Row = { id: number; date: string; part: Part; tagId: string; employeeId: string; gap: boolean; reason?: string; extendsCode?: string };
+type Existing = { date: string; part: Part; tagId: string; employeeId: string; employeeName?: string; shiftCode?: string };
 export type ProposalEmployee = { id: string; name: string; colorGroup: string | null; tagIds: string[] };
 
 const input = "rounded-md border border-border bg-surface px-2 py-1 text-sm";
@@ -18,12 +19,15 @@ const dayName = (iso: string) => {
 export function PlanProposal({
   items,
   gaps,
+  fromExisting,
   tags,
   employees,
   baseHours,
   hours,
 }: {
-  items: { date: string; part: Part; tagId: string; employeeId: string }[];
+  items: { date: string; part: Part; tagId: string; employeeId: string; extendsCode?: string }[];
+  /** Plekken die al gevuld zijn door ingeplande diensten (alleen ter informatie, verandert niets). */
+  fromExisting: Existing[];
   gaps: { date: string; part: Part; tagId: string; missing: number; reason: string }[];
   /** Op prioriteit: de eerste is de hoogste. */
   tags: { id: string; name: string }[];
@@ -48,6 +52,15 @@ export function PlanProposal({
   const [pending, start] = useTransition();
   const router = useRouter();
   const tagName = (id: string) => tags.find((t) => t.id === id)?.name ?? "";
+  const rank = (tagId: string) => tags.findIndex((t) => t.id === tagId);
+  // Wat er in de tabel staat: de regels van het voorstel en, vast, de plekken die al ingeplande diensten vullen.
+  const display: ({ kind: "row"; r: Row } | { kind: "existing"; c: Existing; id: string })[] = [
+    ...rows.map((r) => ({ kind: "row" as const, r })),
+    ...fromExisting.map((c, i) => ({ kind: "existing" as const, c, id: `e${i}` })),
+  ].sort((a, b) => {
+    const x = a.kind === "row" ? a.r : a.c, y = b.kind === "row" ? b.r : b.c;
+    return x.date.localeCompare(y.date) || (x.part === y.part ? 0 : x.part === "MORNING" ? -1 : 1) || rank(x.tagId) - rank(y.tagId) || (a.kind === "existing" ? -1 : 1) - (b.kind === "existing" ? -1 : 1);
+  });
   const nameOf = (id: string) => employees.find((e) => e.id === id)?.name ?? "";
 
   const filled = rows.filter((r) => r.employeeId);
@@ -158,7 +171,20 @@ export function PlanProposal({
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => {
+            {display.map((d) => {
+              if (d.kind === "existing") {
+                const c = d.c;
+                return (
+                  <tr key={d.id} className="border-b border-border bg-surface-muted/60 text-foreground-muted last:border-b-0">
+                    <td className="px-3 py-1.5 tabular-nums">{dayName(c.date)}</td>
+                    <td className="px-3 py-1.5">{c.part === "MORNING" ? "Ochtend" : "Middag"}</td>
+                    <td className="px-3 py-1.5">{tagName(c.tagId)}</td>
+                    <td className="px-3 py-1.5">{c.employeeName ?? nameOf(c.employeeId)}{c.shiftCode ? ` (${c.shiftCode})` : ""}</td>
+                    <td className="px-3 py-1.5 text-right text-xs">al ingepland</td>
+                  </tr>
+                );
+              }
+              const r = d.r;
               const options = employees.filter((e) => e.tagIds.includes(r.tagId));
               return (
                 <tr key={r.id} className={`border-b border-border last:border-b-0 ${r.gap && !r.employeeId ? "bg-amber-50" : ""}`}>
@@ -169,10 +195,11 @@ export function PlanProposal({
                     {r.gap && !r.employeeId && r.reason && <div className="text-xs text-foreground-muted">{r.reason}</div>}
                   </td>
                   <td className="px-3 py-1.5">
-                    <select value={r.employeeId} onChange={(e) => setRows((rs) => rs.map((x) => (x.id === r.id ? { ...x, employeeId: e.target.value } : x)))} className={input}>
+                    <select value={r.employeeId} onChange={(e) => setRows((rs) => rs.map((x) => (x.id === r.id ? { ...x, employeeId: e.target.value, extendsCode: undefined } : x)))} className={input}>
                       <option value="">{r.gap ? "Niemand beschikbaar: kies zelf" : "— niemand —"}</option>
                       {options.map((e) => <option key={e.id} value={e.id}>{e.name}{e.colorGroup ? ` (${e.colorGroup})` : ""}</option>)}
                     </select>
+                    {r.extendsCode && <div className="text-xs text-foreground-muted">vult de al ingeplande {r.extendsCode} aan tot een gebroken dienst</div>}
                   </td>
                   <td className="px-3 py-1.5 text-right">
                     <button type="button" onClick={() => setRows((rs) => rs.filter((x) => x.id !== r.id))} className="text-xs text-foreground-muted hover:underline">weghalen</button>
@@ -180,7 +207,7 @@ export function PlanProposal({
                 </tr>
               );
             })}
-            {rows.length === 0 && <tr><td colSpan={5} className="px-3 py-4 text-foreground-muted">Geen regels in het voorstel.</td></tr>}
+            {display.length === 0 && <tr><td colSpan={5} className="px-3 py-4 text-foreground-muted">Geen regels in het voorstel.</td></tr>}
           </tbody>
         </table>
       </div>
@@ -195,7 +222,7 @@ export function PlanProposal({
         <button type="button" onClick={show} disabled={pending || filled.length === 0} className="rounded-md border border-border px-4 py-2 text-sm font-medium hover:bg-surface-muted disabled:opacity-60">
           Bekijk in het rooster
         </button>
-        <span className="text-xs text-foreground-muted">Bestaande diensten worden niet aangepast. Wie die dag al een dienst heeft, wordt overgeslagen.</span>
+        <span className="text-xs text-foreground-muted">Grijze regels zijn al ingeplande diensten en veranderen niet. Een halve dienst (bv. XI) kan worden aangevuld tot een gebroken dienst (X); andere bestaande diensten blijven zoals ze zijn.</span>
       </div>
 
       <div>

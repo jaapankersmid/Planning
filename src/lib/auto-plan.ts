@@ -3,15 +3,17 @@ import { applyAssignment } from "@/lib/assignments";
 import { addDays, dateFromISO, toISODate } from "@/lib/format";
 import { shiftHours } from "@/lib/hours";
 import { todayAmsterdam } from "@/lib/schedule";
+import { combine, isBroken, pieces, type ShiftTypeLite } from "@/lib/shift-swap";
 
 /* Automatisch planvoorstel. Per dag, dagdeel (ochtend 8:00-12:30, middag 15:30-19:30) en tag (taak) is een aantal
    mensen nodig. De tags worden gevuld in volgorde van prioriteit (sortOrder, laagste = hoogste prioriteit): eerst alle
    plekken van de bovenste tag, dan de volgende, ook als lagere tags daardoor leeg blijven. Binnen een tag kiest het
    voorstel eerlijk: per kleurgroep krijgt degene met de minste uren als eerste een dienst.
-   Bestaande diensten worden nooit aangepast: wie die dag al een dienst heeft (ook V of Z) is niet beschikbaar.
-   Bestaande diensten tellen wel mee voor de behoefte: een dienst dekt een taak als hij de tijden van de taak helemaal omvat
-   (zie coverFromShifts); dan wordt er alleen het tekort aangevuld.
-   Geen opgegeven beschikbaarheid telt als niet beschikbaar. */
+   Al ingeplande diensten worden eerst gebruikt: een dienst van iemand met de tag dekt een taak als hij de tijden van de
+   taak helemaal omvat (zie coverFromShifts); het voorstel toont wie dat is en vult alleen het tekort aan.
+   Wie al een hele dienst heeft (ook V of Z) krijgt er niets bij. Wie alleen een ochtend- of middagdeel heeft (bv. XI),
+   kan het andere dagdeel erbij krijgen als dat samen een bestaande gebroken dienst is (XI + IX = X); bij toepassen wordt
+   de dienst dan samengevoegd. Geen opgegeven beschikbaarheid telt als niet beschikbaar. */
 
 export type Part = "MORNING" | "AFTERNOON";
 export const PART_LABEL: Record<Part, string> = { MORNING: "Ochtend", AFTERNOON: "Middag" };
@@ -19,7 +21,10 @@ export const DEFAULT_PART_HOURS = 4;
 
 export type PlanTagInfo = { id: string; name: string; sortOrder: number; hours: Record<Part, number>; canBoth: boolean };
 export type PlanEmployee = { id: string; name: string; colorGroup: string | null; tagIds: string[] };
-export type PlanItem = { date: string; part: Part; tagId: string; employeeId: string };
+/** extendsCode: deze regel vult een al ingeplande halve dienst aan (bv. "XI"); bij toepassen wordt het één gebroken dienst. */
+export type PlanItem = { date: string; part: Part; tagId: string; employeeId: string; extendsCode?: string };
+/** Een plek die door een al ingeplande dienst is gevuld. */
+export type PlanCover = { date: string; part: Part; tagId: string; employeeId: string; employeeName?: string; shiftCode?: string };
 export type PlanGap = { date: string; part: Part; tagId: string; missing: number; reason: string };
 
 export type PlanInput = {
@@ -30,19 +35,25 @@ export type PlanInput = {
   availability: Record<string, "AVAILABLE" | "MORNING" | "AFTERNOON" | "UNAVAILABLE">;
   /** "employeeId|YYYY-MM-DD" waar al een dienst staat (ook V of Z). */
   busy: string[];
+  /**
+   * "employeeId|YYYY-MM-DD" waar alleen een ochtend- of middagdeel staat (bv. XI): welk dagdeel bezet is, de code, en bij
+   * welke tags het andere dagdeel erbij kan (de dienst van de tag voor dat dagdeel vormt samen een gebroken dienst).
+   */
+  half?: Record<string, { occupied: Part; code: string; tagIds: string[] }>;
   /** Uren die iemand in de periode al heeft uit bestaande diensten. */
   baseHours: Record<string, number>;
-  /** Plekken die al gedekt zijn door bestaande diensten (van iedereen in het rooster, ook buiten de meedoende kleurgroepen). */
-  covered?: { date: string; part: Part; tagId: string; count: number }[];
+  /** Plekken die al gevuld zijn door ingeplande diensten van medewerkers met de tag (ook buiten de meedoende kleurgroepen). */
+  covered?: PlanCover[];
 };
 
 const key = (employeeId: string, date: string) => `${employeeId}|${date}`;
 const okFor = (status: string | undefined, part: Part) => status === "AVAILABLE" || status === part;
 
 /** Maakt het voorstel. Zuiver rekenwerk, zonder database. */
-export function generatePlan(input: PlanInput): { items: PlanItem[]; gaps: PlanGap[]; hours: Record<string, number>; coveredByExisting: number } {
+export function generatePlan(input: PlanInput): { items: PlanItem[]; gaps: PlanGap[]; hours: Record<string, number>; coveredByExisting: number; fromExisting: PlanCover[] } {
   const cover = new Map<string, number>();
-  for (const c of input.covered ?? []) cover.set(`${c.date}|${c.part}|${c.tagId}`, (cover.get(`${c.date}|${c.part}|${c.tagId}`) ?? 0) + c.count);
+  for (const c of input.covered ?? []) cover.set(`${c.date}|${c.part}|${c.tagId}`, (cover.get(`${c.date}|${c.part}|${c.tagId}`) ?? 0) + 1);
+  const half = input.half ?? {};
   let coveredByExisting = 0;
   const tagById = new Map(input.tags.map((t) => [t.id, t]));
   const busy = new Set(input.busy);
@@ -70,13 +81,15 @@ export function generatePlan(input: PlanInput): { items: PlanItem[]; gaps: PlanG
   const whyNot = (slot: { date: string; part: Part; tagId: string }) => {
     const holders = input.employees.filter((e) => e.tagIds.includes(slot.tagId));
     if (holders.length === 0) return "Niemand in de meedoende kleurgroepen heeft deze tag.";
-    let shift = 0, noAvail = 0, unavail = 0, here = 0;
+    let shift = 0, noAvail = 0, unavail = 0, here = 0, noCombine = 0;
     const other = new Map<string, number>();
     for (const e of holders) {
       const k = key(e.id, slot.date);
       const st = input.availability[k];
       const t = taken.get(k);
-      if (busy.has(k)) shift++;
+      const h = half[k];
+      if (h && h.occupied !== slot.part && !h.tagIds.includes(slot.tagId)) noCombine++;
+      else if (busy.has(k) && (!h || h.occupied === slot.part)) shift++;
       else if (!st) noAvail++;
       else if (!okFor(st, slot.part)) unavail++;
       else if (t && t.tagId !== slot.tagId) { const n = tagById.get(t.tagId)?.name ?? "een andere taak"; other.set(n, (other.get(n) ?? 0) + 1); }
@@ -84,6 +97,7 @@ export function generatePlan(input: PlanInput): { items: PlanItem[]; gaps: PlanG
     }
     const parts: string[] = [];
     if (shift) parts.push(`${shift} ${shift === 1 ? "heeft" : "hebben"} die dag al een dienst`);
+    if (noCombine) parts.push(`${noCombine} met een halve dienst die niet met deze tag is aan te vullen`);
     if (noAvail) parts.push(`${noAvail} geen beschikbaarheid opgegeven`);
     if (unavail) parts.push(`${unavail} niet beschikbaar ${slot.part === "MORNING" ? "'s ochtends" : "'s middags"}`);
     for (const [n, c] of other) parts.push(`${c} al ingezet voor ${n}`);
@@ -100,7 +114,11 @@ export function generatePlan(input: PlanInput): { items: PlanItem[]; gaps: PlanG
       const candidates = input.employees.filter((e) => {
         if (!e.tagIds.includes(slot.tagId)) return false;
         const k = key(e.id, slot.date);
-        if (busy.has(k) || !okFor(input.availability[k], slot.part)) return false;
+        const h = half[k];
+        // Halve dienst: alleen het andere dagdeel, en alleen als dat met deze tag één gebroken dienst wordt.
+        if (h) { if (h.occupied === slot.part || !h.tagIds.includes(slot.tagId)) return false; }
+        else if (busy.has(k)) return false;
+        if (!okFor(input.availability[k], slot.part)) return false;
         const t = taken.get(k);
         if (!t) return true;
         // Al ingepland die dag: alleen het andere dagdeel met dezelfde tag, en alleen als daar een dienst voor "samen" bestaat.
@@ -111,20 +129,43 @@ export function generatePlan(input: PlanInput): { items: PlanItem[]; gaps: PlanG
       for (const e of candidates) if (!mins.has(e.colorGroup)) mins.set(e.colorGroup, groupMin(e.colorGroup));
       candidates.sort((a, b) => hours[a.id] - mins.get(a.colorGroup)! - (hours[b.id] - mins.get(b.colorGroup)!) || hours[a.id] - hours[b.id] || a.name.localeCompare(b.name, "nl"));
       const pick = candidates[0];
-      items.push({ date: slot.date, part: slot.part, tagId: slot.tagId, employeeId: pick.id });
-      hours[pick.id] += tag.hours[slot.part];
       const k = key(pick.id, slot.date);
+      items.push({ date: slot.date, part: slot.part, tagId: slot.tagId, employeeId: pick.id, ...(half[k] ? { extendsCode: half[k].code } : {}) });
+      hours[pick.id] += tag.hours[slot.part];
       const t = taken.get(k);
       if (t) t.parts.add(slot.part); else taken.set(k, { tagId: slot.tagId, parts: new Set([slot.part]) });
     }
     if (missing > 0) gaps.push({ date: slot.date, part: slot.part, tagId: slot.tagId, missing, reason: whyNot(slot) });
   }
   items.sort((a, b) => a.date.localeCompare(b.date) || (a.part === b.part ? 0 : a.part === "MORNING" ? -1 : 1) || (tagById.get(a.tagId)?.sortOrder ?? 0) - (tagById.get(b.tagId)?.sortOrder ?? 0));
-  return { items, gaps, hours, coveredByExisting };
+  return { items, gaps, hours, coveredByExisting, fromExisting: input.covered ?? [] };
+}
+
+/** Welk dagdeel een losse ochtend- of middagdienst is (bv. XI = ochtend van X). null als het geen deel van een gebroken dienst is. */
+export function halfPart(type: ShiftTypeLite, all: ShiftTypeLite[]): Part | null {
+  if (isBroken(type)) return null;
+  for (const t of all) {
+    if (!t.active || !isBroken(t)) continue;
+    const p = pieces(t, all);
+    if (p?.morning.id === type.id) return "MORNING";
+    if (p?.afternoon.id === type.id) return "AFTERNOON";
+  }
+  return null;
+}
+
+/** Een halve dienst aangevuld met het andere dagdeel (XI + IX = X). null als dat niet kan. */
+export function extendHalf<T extends ShiftTypeLite>(existing: ShiftTypeLite, part: Part, addTypeId: string | null, all: T[]): T | null {
+  const occupied = halfPart(existing, all);
+  const add = addTypeId ? all.find((t) => t.id === addTypeId) : undefined;
+  if (!occupied || occupied === part || !add || halfPart(add, all) !== part) return null;
+  const c = combine(existing, add, all);
+  return c ? all.find((t) => t.id === c.id) ?? null : null;
 }
 
 type TypeTimes = { id: string; startTime: string | null; endTime: string | null; secondStartTime: string | null; secondEndTime: string | null };
 type TagShiftIds = {
+  /** Wie de tag heeft; alleen hun diensten tellen voor deze taak. Ontbreekt = iedereen. */
+  employeeIds?: string[];
   id: string; sortOrder?: number; morningShiftTypeId: string | null; afternoonShiftTypeId: string | null; bothShiftTypeId: string | null;
   morningStart?: string | null; morningEnd?: string | null; afternoonStart?: string | null; afternoonEnd?: string | null;
 };
@@ -147,7 +188,8 @@ function tagWindows(tag: TagShiftIds, types: Map<string, TypeTimes>): Partial<Re
   return out;
 }
 /**
- * Welke plekken zijn al gedekt door bestaande diensten? Een tijdsblok van een bestaande dienst (ook van een lange dienst als O 8:00-17:00 of
+ * Welke plekken zijn al gevuld door ingeplande diensten, en door wie? Alleen diensten van medewerkers met de tag tellen voor die taak.
+ * Een tijdsblok van een bestaande dienst (ook van een lange dienst als O 8:00-17:00 of
  * A 10:30-19:30) dekt een taak als het de tijden van de taak helemaal omvat, of als de dienst voor die taak is ingesteld. Eén persoon doet niet
  * twee taken tegelijk: overlappen de tijden van taken, dan telt het blok voor één ervan. Welke, bepaalt de prioriteit van de tag (hoogste
  * eerst); bij gelijke prioriteit eerst de plek met de minste mogelijke blokken, en een blok gaat naar de taak waar het het minst anders voor
@@ -158,18 +200,19 @@ function tagWindows(tag: TagShiftIds, types: Map<string, TypeTimes>): Partial<Re
 export function coverFromShifts(
   tags: TagShiftIds[],
   typeRows: TypeTimes[],
-  assignments: { shiftTypeId: string | null; date: string }[],
+  assignments: { employeeId: string; shiftTypeId: string | null; date: string }[],
   needs: { date: string; part: Part; tagId: string; count: number }[],
-) {
+): PlanCover[] {
   const types = new Map(typeRows.map((t) => [t.id, t]));
   const tagById = new Map(tags.map((t) => [t.id, t]));
+  const holders = new Map(tags.map((t) => [t.id, t.employeeIds ? new Set(t.employeeIds) : null]));
   const windows = new Map(tags.map((t) => [t.id, tagWindows(t, types)]));
-  const covered: { date: string; part: Part; tagId: string; count: number }[] = [];
+  const covered: PlanCover[] = [];
   const dates = [...new Set(needs.filter((n) => n.count > 0).map((n) => n.date))];
   for (const date of dates) {
-    type Blk = { s: number; e: number; typeId: string; picked: Win[] };
+    type Blk = { s: number; e: number; typeId: string; employeeId: string; picked: Win[] };
     const blks: Blk[] = [];
-    for (const a of assignments) if (a.date === date && a.shiftTypeId) for (const [s, e] of blocks(types.get(a.shiftTypeId))) blks.push({ s, e, typeId: a.shiftTypeId, picked: [] });
+    for (const a of assignments) if (a.date === date && a.shiftTypeId) for (const [s, e] of blocks(types.get(a.shiftTypeId))) blks.push({ s, e, typeId: a.shiftTypeId, employeeId: a.employeeId, picked: [] });
     if (blks.length === 0) continue;
     type Slot = { part: Part; tagId: string; w: Win; left: number };
     const slots: Slot[] = [];
@@ -179,6 +222,8 @@ export function coverFromShifts(
     }
     const can = (b: Blk, sl: Slot) => {
       const tag = tagById.get(sl.tagId)!;
+      const h = holders.get(sl.tagId);
+      if (h && !h.has(b.employeeId)) return false;
       const exact = (sl.part === "MORNING" ? [tag.morningShiftTypeId, tag.bothShiftTypeId] : [tag.afternoonShiftTypeId, tag.bothShiftTypeId]).includes(b.typeId) && b.s < sl.w[1] && sl.w[0] < b.e;
       return (exact || (b.s <= sl.w[0] && b.e >= sl.w[1])) && !b.picked.some((p) => sl.w[0] < p[1] && p[0] < sl.w[1]);
     };
@@ -199,7 +244,7 @@ export function coverFromShifts(
       if (!best) break;
       best.sl.left--;
       best.b.picked.push(best.sl.w);
-      covered.push({ date, part: best.sl.part, tagId: best.sl.tagId, count: 1 });
+      covered.push({ date, part: best.sl.part, tagId: best.sl.tagId, employeeId: best.b.employeeId });
     }
   }
   return covered;
@@ -232,11 +277,26 @@ export async function loadPlanInput(startISO: string, days: number): Promise<Pla
     prisma.planNeed.findMany({ where: { date: { gte: start, lt: end } } }),
     prisma.availability.findMany({ where: { employeeId: { in: ids }, date: { gte: start, lt: end } } }),
     prisma.shiftAssignment.findMany({ where: { employeeId: { in: ids }, date: { gte: start, lt: end } }, include: { shiftType: true } }),
-    prisma.shiftAssignment.findMany({ where: { date: { gte: start, lt: end } }, select: { shiftTypeId: true, date: true } }),
+    prisma.shiftAssignment.findMany({ where: { date: { gte: start, lt: end } }, select: { employeeId: true, shiftTypeId: true, date: true, employee: { select: { name: true } } } }),
   ]);
-  const covered = coverFromShifts(tagRows, shiftTypes, existingAll.map((a) => ({ shiftTypeId: a.shiftTypeId, date: toISODate(a.date) })), needs.map((n) => ({ date: toISODate(n.date), part: n.part, tagId: n.tagId, count: n.count })));
+  const tagsWithHolders = tagRows.map((t) => ({ ...t, employeeIds: t.employees.map((x) => x.employeeId) }));
+  const codeOf = new Map(shiftTypes.map((t) => [t.id, t.code]));
+  const who = new Map(existingAll.map((a) => [key(a.employeeId, toISODate(a.date)), { name: a.employee.name, code: codeOf.get(a.shiftTypeId) ?? "" }]));
+  const covered = coverFromShifts(tagsWithHolders, shiftTypes, existingAll.map((a) => ({ employeeId: a.employeeId, shiftTypeId: a.shiftTypeId, date: toISODate(a.date) })), needs.map((n) => ({ date: toISODate(n.date), part: n.part, tagId: n.tagId, count: n.count })))
+    .map((c) => ({ ...c, employeeName: who.get(key(c.employeeId, c.date))?.name, shiftCode: who.get(key(c.employeeId, c.date))?.code }));
   const baseHours: Record<string, number> = {};
   for (const a of existing) baseHours[a.employeeId] = (baseHours[a.employeeId] ?? 0) + shiftHours(a.shiftType);
+  // Halve diensten (bv. XI): welk dagdeel bezet is en bij welke tags het andere dagdeel erbij kan.
+  const half: NonNullable<PlanInput["half"]> = {};
+  for (const a of existing) {
+    const occupied = halfPart(a.shiftType, shiftTypes);
+    if (!occupied) continue;
+    const other: Part = occupied === "MORNING" ? "AFTERNOON" : "MORNING";
+    const tagIds = tagsWithHolders
+      .filter((t) => t.employeeIds.includes(a.employeeId) && extendHalf(a.shiftType, other, other === "MORNING" ? t.morningShiftTypeId : t.afternoonShiftTypeId, shiftTypes))
+      .map((t) => t.id);
+    half[key(a.employeeId, toISODate(a.date))] = { occupied, code: a.shiftType.code, tagIds };
+  }
   return {
     groups,
     hasTags: tagRows.length > 0,
@@ -245,6 +305,7 @@ export async function loadPlanInput(startISO: string, days: number): Promise<Pla
     needs: needs.map((n) => ({ date: toISODate(n.date), part: n.part, tagId: n.tagId, count: n.count })),
     availability: Object.fromEntries(availability.map((a) => [key(a.employeeId, toISODate(a.date)), a.status])),
     busy: existing.map((a) => key(a.employeeId, toISODate(a.date))),
+    half,
     baseHours,
     covered,
   };
@@ -255,9 +316,12 @@ export function shiftTypeForParts(tag: { morningShiftTypeId: string | null; afte
   return parts.size === 2 ? tag.bothShiftTypeId : parts.has("MORNING") ? tag.morningShiftTypeId : tag.afternoonShiftTypeId;
 }
 
-/** Zet het (eventueel aangepaste) voorstel in het rooster. Bestaande diensten blijven onaangeroerd. Geeft terug wat er niet kon. */
+/**
+ * Zet het (eventueel aangepaste) voorstel in het rooster. Een bestaande hele dienst blijft onaangeroerd; een bestaande halve dienst
+ * wordt alleen aangevuld tot de gebroken dienst (XI + IX = X). Geeft terug wat er niet kon.
+ */
 export async function applyPlan(items: PlanItem[]): Promise<{ applied: number; skipped: string[] }> {
-  const tags = await prisma.planTag.findMany();
+  const [tags, allTypes] = await Promise.all([prisma.planTag.findMany(), prisma.shiftType.findMany()]);
   const tagById = new Map(tags.map((t) => [t.id, t]));
   const names = new Map((await prisma.employee.findMany({ select: { id: true, name: true } })).map((e) => [e.id, e.name]));
   const skipped: string[] = [];
@@ -276,12 +340,16 @@ export async function applyPlan(items: PlanItem[]): Promise<{ applied: number; s
     if (tagIds.size > 1) { skipped.push(`${who}: twee verschillende taken op één dag past niet in één dienst.`); continue; }
     const tag = tagById.get(list[0].tagId);
     const parts = new Set(list.map((l) => l.part));
-    const shiftTypeId = tag ? shiftTypeForParts(tag, parts) : null;
+    let shiftTypeId = tag ? shiftTypeForParts(tag, parts) : null;
     if (!shiftTypeId) { skipped.push(`${who}: er is geen dienst ingesteld bij de tag ${tag?.name ?? ""}.`); continue; }
     if (dateFromISO(date) < todayAmsterdam()) { skipped.push(`${who}: de dag is al geweest.`); continue; }
-    // Opnieuw controleren vlak voor het toepassen: een bestaande dienst mag nooit overschreven worden.
-    const exists = await prisma.shiftAssignment.findFirst({ where: { employeeId, date: dateFromISO(date) } });
-    if (exists) { skipped.push(`${who}: er staat inmiddels al een dienst.`); continue; }
+    // Opnieuw controleren vlak voor het toepassen: een hele dienst wordt nooit overschreven, een halve alleen aangevuld.
+    const exists = await prisma.shiftAssignment.findFirst({ where: { employeeId, date: dateFromISO(date) }, include: { shiftType: true } });
+    if (exists) {
+      const combined = parts.size === 1 ? extendHalf(exists.shiftType, [...parts][0], shiftTypeId, allTypes) : null;
+      if (!combined) { skipped.push(`${who}: er staat al een dienst (${exists.shiftType.code}) die niet is aan te vullen.`); continue; }
+      shiftTypeId = combined.id;
+    }
     await applyAssignment({ employeeId, dateISO: date, shiftTypeId });
     applied++;
   }
