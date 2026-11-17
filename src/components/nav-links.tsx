@@ -38,6 +38,7 @@ const groups: { label: string; items: Item[] }[] = [
     items: [
       { href: "/uren/overzicht", label: "Uren", roles: HOURS_ADMIN },
       { href: "/verlofuren", label: "Verlofuren", roles: HOURS_ADMIN },
+      { href: "/ziekte", label: "Ziekte", roles: HOURS_ADMIN },
     ],
   },
   {

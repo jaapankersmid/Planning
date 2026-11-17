@@ -225,6 +225,21 @@ Bij *Gebruikers → Nieuwe gebruiker* staat het vinkje **Welkomstmail sturen** (
 
 > Schemawijziging: nieuwe tabel `HoursChange`. Draai `npx prisma db push` (alleen toevoegen, geen dataverlies).
 
+## Ziekteoverzicht
+
+Onder *Administratie → Ziekte* zie je per medewerker hoeveel en wanneer hij of zij ziek is geweest.
+
+- **Bron.** Het overzicht komt uit het rooster: een dag telt als ziek als de planner er **Z** (Ziek) heeft gezet. Er is geen aparte registratie en er staat geen reden of diagnose bij.
+- **Uren.** De uren van een ziektedag zijn de uren die de medewerker op die weekdag volgens het vaste rooster werkt, net als bij het verlofsaldo. Zonder vaste dienst is dat 0 uur, maar de dag telt wel.
+- **Kolommen.** Per medewerker de dagen en uren in een gekozen periode (standaard dit jaar) en in het lopende jaar, de uren per week, en *ziek sinds …* als iemand nu ziek is. Onderaan staat het totaal van iedereen.
+- **Periodes.** Onder de tabel klap je per medewerker de ziekteperiodes open, met begin- en einddatum.
+  - Aaneengesloten Z-dagen vormen één periode.
+  - Vrije dagen ertussen (geen dienst of V, hooguit 4 achter elkaar, bv. een weekend) onderbreken de periode niet, maar tellen niet als ziektedag.
+  - Een periode die over de rand van de gekozen periode loopt, staat er met de echte data in. De totalen tellen alleen de dagen binnen de periode.
+- **Export.** *Csv totalen* en *Csv periodes* (puntkomma, decimale komma).
+- **Toegang.** Alleen planners en administratie zien de pagina en de export; dat wordt op de server gecontroleerd. Medewerkers zien geen totalen, ook niet die van zichzelf. Dat iemand ziek is, blijft zoals voorheen in het rooster zichtbaar. De totalen komen niet in mails of de agenda.
+- **Code.** `src/lib/sickness.ts`, `src/app/(app)/ziekte/`. Geen schemawijziging.
+
 ## Rechten en urenregistratie
 
 **Rollen.** Er zijn drie vaste rollen. De *planner* (technisch `ADMIN`) beheert rooster, diensten, verlof en gebruikers, en is de enige die rollen van anderen kan aanpassen (*Gebruikers*; een wijziging werkt direct, ook als iemand ingelogd is). Er blijft altijd minstens één actieve planner over en je kunt je eigen rol niet wijzigen. De *administratie* ziet het rooster (alleen lezen, inclusief de uren per maand), kan de uren van iedereen inzien, corrigeren, goedkeuren en exporteren, maar kan niets in het rooster of bij gebruikers wijzigen. De *medewerker* ziet het eigen rooster, vraagt verlof aan en registreert eigen uren.
