@@ -18,7 +18,7 @@ import { dayLabel, isWorking, timesOf, type ShiftTypeLite } from "@/lib/shift-sw
 import { CalendarSyncPanel } from "@/components/calendar-sync-panel";
 import { EmailNotificationsToggle } from "@/components/email-notifications-toggle";
 import { ShiftSwaps, loadSwapOptions } from "@/components/shift-swaps";
-import { AvailabilityCellButton, MyShiftActions, ShiftCellButton } from "@/components/my-shift-actions";
+import { AvailabilityCellButton, AvailabilityTools, MyShiftActions, ShiftCellButton } from "@/components/my-shift-actions";
 
 const CALENDAR_MESSAGES: Record<string, string> = {
   verbonden: "Google Calendar gekoppeld — de sync staat aan.",
@@ -83,6 +83,8 @@ export default async function MijnRoosterPage({
   const availability = Object.fromEntries(availabilityRows.map((r) => [toISODate(r.date), r.status]));
   const swapOptions = allTypes.filter((t) => t.active && isWorking(t)).map((t) => ({ id: t.id, label: `${t.code} · ${t.label} (${timesOf(t)})` }));
   const byDay = new Map(assignments.map((a) => [toISODate(a.date), a]));
+  const range = { fromISO: toISODate(firstMonday), toISO: toISODate(addDays(rangeEnd, -1)) };
+  const emptyDays = weeks.flat().map(toISODate).filter((iso) => iso >= todayISO && !byDay.has(iso));
   const prevStart = toISODate(addDays(firstMonday, -WEEKS * 7));
   const nextStart = toISODate(addDays(firstMonday, WEEKS * 7));
   const hasUpcoming = assignments.some((a) => toISODate(a.date) >= todayISO);
@@ -220,7 +222,10 @@ export default async function MijnRoosterPage({
           </p>
         ) : (
           <>
-            <MyShiftActions data={{ swap, partShifts, swapOptions, todayISO, availability }}>{grid}</MyShiftActions>
+            <MyShiftActions data={{ swap, partShifts, swapOptions, todayISO, availability, range, emptyDays }}>
+              {grid}
+              <AvailabilityTools emptyDays={emptyDays} />
+            </MyShiftActions>
             {!hasUpcoming && (
               <p className="mt-2 text-sm text-foreground-muted">
                 Geen geplande diensten in deze weken.

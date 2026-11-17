@@ -141,7 +141,7 @@ krijgen, anders stopt de agenda-koppeling na een uur.
 
 ## E-mailmeldingen en beschikbaarheid
 
-**Beschikbaarheid.** Iedere medewerker met een gekoppeld account kan onder *Beschikbaarheid* per dag aangeven: hele dag, alleen ochtend, alleen middag of niet beschikbaar (tikken op een dag wisselt door de keuzes heen). Verlofdagen (V) en dagen die al geweest zijn staan vast. De planner ziet dit als gekleurd stipje in elk vakje van het rooster; een rode rand betekent dat iemand is ingepland op een dag waarop hij of zij zich niet beschikbaar heeft gemeld.
+**Beschikbaarheid.** Iedere medewerker met een gekoppeld account geeft zijn beschikbaarheid door in *Mijn rooster*: klik op een komende dag zonder dienst en kies hele dag, alleen ochtend, alleen middag of niet beschikbaar (zie hieronder bij *Beschikbaarheid op een lege dag*). Er is geen aparte pagina meer; het oude adres `/beschikbaarheid` stuurt door naar Mijn rooster. Dagen met een dienst of verlof en dagen die al geweest zijn staan vast. De planner ziet dit als gekleurd stipje in elk vakje van het rooster; een rode rand betekent dat iemand is ingepland op een dag waarop hij of zij zich niet beschikbaar heeft gemeld.
 
 **Mail bij inplannen.** Wijzigt de planner een dienst, dan wordt dat onthouden. Zodra het `NOTIFY_DELAY_MINUTES` (standaard 10) stil is, krijgt elke betrokken medewerker één mail met alle nieuwe en gewijzigde diensten. Medewerkers kunnen dit zelf uitzetten bij *Mijn rooster*. Instellen:
 
@@ -168,7 +168,7 @@ Het verlofformulier is één formulier met drie keuzes. Het staat ook bij *Mijn 
 - **Een dagdeel vrij**: alleen bij een gebroken dienst.
 - **Een andere dienst**: een andere dienst op dezelfde dag.
 
-**Beschikbaarheid op een lege dag.** Een komende dag zonder dienst is ook aan te klikken (op de computer staat er bij aanwijzen *+ beschikbaar?*, op de telefoon een +). Er opent een popup met *Beschikbaar (hele dag)*, *Alleen ochtend*, *Alleen middag* en *Niet beschikbaar*, plus *wissen* en een link naar *Beschikbaarheid* om een hele maand in te vullen. De keuze wordt meteen opgeslagen via dezelfde `setAvailability` als op de pagina Beschikbaarheid (dus ook met de melding aan de planner) en staat daarna als gekleurd label in de dag. Dagen die geweest zijn tonen het label maar zijn niet te wijzigen.
+**Beschikbaarheid op een lege dag.** Een komende dag zonder dienst is ook aan te klikken (op de computer staat er bij aanwijzen *+ beschikbaar?*, op de telefoon een +). Er opent een popup met *Beschikbaar (hele dag)*, *Alleen ochtend*, *Alleen middag* en *Niet beschikbaar*, plus *wissen*. De keuze wordt meteen opgeslagen (`setAvailability` in `src/app/(app)/rooster/mijn/availability-actions.ts`, met de melding aan de planner) en staat daarna als gekleurd label in de dag. Onder het rooster staat een legenda en de knop *Alle N lege dagen op beschikbaar zetten* voor de getoonde weken (`fillEmptyDays`: alleen komende dagen zonder dienst en zonder keuze). Dagen die geweest zijn tonen het label maar zijn niet te wijzigen.
 
 Code: `src/components/my-shift-actions.tsx` (popup), `src/components/leave-request-form.tsx` (verlofformulier), `loadSwapOptions` in `src/components/shift-swaps.tsx`. Geen schemawijziging.
 

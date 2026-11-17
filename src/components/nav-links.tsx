@@ -17,7 +17,6 @@ const links: Item[] = [
   { href: "/rooster", label: "Rooster", roles: ALL },
   { href: "/rooster/mijn", label: "Mijn rooster", roles: PERSONAL, personal: true },
   { href: "/verlof", label: "Mijn verlof", roles: PERSONAL, personal: true },
-  { href: "/beschikbaarheid", label: "Beschikbaarheid", roles: PERSONAL, personal: true },
   { href: "/uren", label: "Mijn uren", roles: PERSONAL, personal: true },
 ];
 

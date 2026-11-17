@@ -1,8 +1,8 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useTransition, type ReactNode } from "react";
-import { setAvailability } from "@/app/(app)/beschikbaarheid/actions";
-import { AVAILABILITY_LABEL, type AvailabilityValue } from "@/components/availability-grid";
+import { fillEmptyDays, setAvailability } from "@/app/(app)/rooster/mijn/availability-actions";
+import { AVAILABILITY_CHOICES, AVAILABILITY_LABEL, type AvailabilityValue } from "@/lib/availability-labels";
 import { SwapForm, type SwapShiftOption } from "@/components/swap-form";
 import { LeaveRequestForm, type PartShift, type SwapOption } from "@/components/leave-request-form";
 
@@ -13,16 +13,20 @@ type Data = {
   todayISO: string;
   /** Doorgegeven beschikbaarheid per dag (ISO) in de getoonde weken. */
   availability: Record<string, AvailabilityValue>;
+  /** Getoonde periode en de komende dagen daarin zonder dienst (voor "lege dagen invullen"). */
+  range: { fromISO: string; toISO: string };
+  emptyDays: string[];
 };
 type Selected = { assignmentId: string; dateISO: string; label: string };
 type DaySelected = { dateISO: string; label: string };
-
-const AVAILABILITY_CHOICES: AvailabilityValue[] = ["AVAILABLE", "MORNING", "AFTERNOON", "UNAVAILABLE"];
 
 const Ctx = createContext<{
   open: (s: Selected) => void;
   openDay: (d: DaySelected) => void;
   availability: Record<string, AvailabilityValue | null>;
+  fillEmpty: () => void;
+  saving: boolean;
+  error: string | null;
 } | null>(null);
 
 /**
@@ -78,6 +82,19 @@ export function MyShiftActions({ data, children }: { data: Data; children: React
           setAvailError(null);
         },
         availability,
+        saving,
+        error: day ? null : availError,
+        fillEmpty: () => {
+          setAvailError(null);
+          startTransition(async () => {
+            try {
+              const filled = await fillEmptyDays({ ...data.range, status: "AVAILABLE" });
+              setAvail((a) => ({ ...a, ...Object.fromEntries(filled.map((iso) => [iso, "AVAILABLE" as const])) }));
+            } catch (e) {
+              setAvailError(e instanceof Error ? e.message : "Opslaan is niet gelukt.");
+            }
+          });
+        },
       }}
     >
       {children}
@@ -123,9 +140,6 @@ export function MyShiftActions({ data, children }: { data: Data; children: React
               </button>
             )}
             {availError && <p className="mt-2 text-xs text-bad-text">{availError}</p>}
-            <a href="/beschikbaarheid" className="mt-3 block text-xs text-foreground-muted underline hover:no-underline">
-              Hele maand invullen bij Beschikbaarheid →
-            </a>
           </div>
         </div>
       )}
@@ -239,5 +253,33 @@ export function AvailabilityCellButton({ dateISO, label, clickable }: DaySelecte
     >
       {chip}
     </button>
+  );
+}
+
+/** Onder Mijn diensten: legenda en alle lege komende dagen in één keer op beschikbaar zetten. */
+export function AvailabilityTools({ emptyDays }: { emptyDays: string[] }) {
+  const ctx = useContext(Ctx);
+  if (!ctx) return null;
+  const open = emptyDays.filter((iso) => !ctx.availability[iso]).length;
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+      <span className="text-foreground-muted">Beschikbaarheid:</span>
+      {AVAILABILITY_CHOICES.map((k) => (
+        <span key={k} className={`rounded px-1.5 py-0.5 font-medium ${AVAILABILITY_LABEL[k].className}`}>
+          {AVAILABILITY_LABEL[k].short}
+        </span>
+      ))}
+      {open > 0 && (
+        <button
+          type="button"
+          disabled={ctx.saving}
+          onClick={ctx.fillEmpty}
+          className="rounded-md border border-border px-2 py-1 hover:bg-surface-muted disabled:opacity-60"
+        >
+          {open === 1 ? "De lege dag" : `Alle ${open} lege dagen`} op beschikbaar zetten
+        </button>
+      )}
+      {ctx.error && <span role="alert" className="text-bad-text">{ctx.error}</span>}
+    </div>
   );
 }

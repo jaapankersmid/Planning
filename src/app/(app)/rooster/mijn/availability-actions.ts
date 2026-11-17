@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { dateFromISO, daysInMonth } from "@/lib/format";
+import { addDays, dateFromISO, toISODate } from "@/lib/format";
 import { todayAmsterdam } from "@/lib/schedule";
 import { recordAvailabilityChange } from "@/lib/planner-alerts";
 import type { AvailabilityStatus } from "@prisma/client";
@@ -44,30 +44,31 @@ export async function setAvailability(input: { dateISO: string; status: Availabi
     oldStatus: before?.status ?? null,
     newStatus: input.status,
   }).catch((error) => console.error("Beschikbaarheidswijziging vastleggen mislukt:", error));
-  revalidatePath("/beschikbaarheid");
   revalidatePath("/rooster");
   revalidatePath("/rooster/mijn");
 }
 
-/** Zet alle nog lege dagen (vanaf vandaag) van een maand op dezelfde keuze. */
-export async function fillEmptyDays(input: { year: number; month: number; status: AvailabilityStatus }) {
+/**
+ * Zet alle nog lege dagen (vanaf vandaag, t/m tot) op dezelfde keuze. Dagen waarop al een dienst of verlof staat,
+ * of waarvoor al iets is doorgegeven, blijven zoals ze zijn. Geeft de ingevulde dagen (ISO) terug.
+ */
+export async function fillEmptyDays(input: { fromISO: string; toISO: string; status: AvailabilityStatus }): Promise<string[]> {
   const employeeId = await currentEmployeeId();
   if (!STATUSES.includes(input.status)) throw new Error("Ongeldige keuze.");
+  if (!/^d{4}-d{2}-d{2}$/.test(input.fromISO) || !/^d{4}-d{2}-d{2}$/.test(input.toISO)) throw new Error("Ongeldige datum.");
   const today = todayAmsterdam();
-  const days = daysInMonth(input.year, input.month).filter((d) => d >= today);
-  const existing = await prisma.availability.findMany({
-    where: { employeeId, date: { in: days } },
-    select: { date: true },
-  });
-  const taken = new Set(existing.map((e) => e.date.getTime()));
-  // Dagen met goedgekeurd verlof (V) laten we leeg.
-  const leave = await prisma.shiftAssignment.findMany({
-    where: { employeeId, date: { in: days }, shiftType: { code: "V" } },
-    select: { date: true },
-  });
-  const onLeave = new Set(leave.map((l) => l.date.getTime()));
+  const from = dateFromISO(input.fromISO) < today ? today : dateFromISO(input.fromISO);
+  const to = dateFromISO(input.toISO);
+  const days: Date[] = [];
+  for (let d = from; d <= to && days.length < 7 * 26; d = addDays(d, 1)) days.push(d);
+  if (days.length === 0) return [];
 
-  const toFill = days.filter((d) => !taken.has(d.getTime()) && !onLeave.has(d.getTime()));
+  const [existing, assigned] = await Promise.all([
+    prisma.availability.findMany({ where: { employeeId, date: { in: days } }, select: { date: true } }),
+    prisma.shiftAssignment.findMany({ where: { employeeId, date: { in: days } }, select: { date: true } }),
+  ]);
+  const skip = new Set([...existing, ...assigned].map((e) => e.date.getTime()));
+  const toFill = days.filter((d) => !skip.has(d.getTime()));
   await prisma.availability.createMany({
     data: toFill.map((date) => ({ employeeId, date, status: input.status })),
     skipDuplicates: true,
@@ -77,7 +78,7 @@ export async function fillEmptyDays(input: { year: number; month: number; status
       console.error("Beschikbaarheidswijziging vastleggen mislukt:", error),
     );
   }
-  revalidatePath("/beschikbaarheid");
   revalidatePath("/rooster");
   revalidatePath("/rooster/mijn");
+  return toFill.map((d) => toISODate(d));
 }
