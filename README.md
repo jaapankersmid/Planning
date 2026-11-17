@@ -168,6 +168,8 @@ Het verlofformulier is één formulier met drie keuzes. Het staat ook bij *Mijn 
 - **Een dagdeel vrij**: alleen bij een gebroken dienst.
 - **Een andere dienst**: een andere dienst op dezelfde dag.
 
+**Beschikbaarheid op een lege dag.** Een komende dag zonder dienst is ook aan te klikken (op de computer staat er bij aanwijzen *+ beschikbaar?*, op de telefoon een +). Er opent een popup met *Beschikbaar (hele dag)*, *Alleen ochtend*, *Alleen middag* en *Niet beschikbaar*, plus *wissen* en een link naar *Beschikbaarheid* om een hele maand in te vullen. De keuze wordt meteen opgeslagen via dezelfde `setAvailability` als op de pagina Beschikbaarheid (dus ook met de melding aan de planner) en staat daarna als gekleurd label in de dag. Dagen die geweest zijn tonen het label maar zijn niet te wijzigen.
+
 Code: `src/components/my-shift-actions.tsx` (popup), `src/components/leave-request-form.tsx` (verlofformulier), `loadSwapOptions` in `src/components/shift-swaps.tsx`. Geen schemawijziging.
 
 ## Dienst ruilen

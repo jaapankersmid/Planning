@@ -18,7 +18,7 @@ import { dayLabel, isWorking, timesOf, type ShiftTypeLite } from "@/lib/shift-sw
 import { CalendarSyncPanel } from "@/components/calendar-sync-panel";
 import { EmailNotificationsToggle } from "@/components/email-notifications-toggle";
 import { ShiftSwaps, loadSwapOptions } from "@/components/shift-swaps";
-import { MyShiftActions, ShiftCellButton } from "@/components/my-shift-actions";
+import { AvailabilityCellButton, MyShiftActions, ShiftCellButton } from "@/components/my-shift-actions";
 
 const CALENDAR_MESSAGES: Record<string, string> = {
   verbonden: "Google Calendar gekoppeld — de sync staat aan.",
@@ -59,7 +59,7 @@ export default async function MijnRoosterPage({
 
   await reconcileTemplate(toISODate(firstMonday), toISODate(rangeEnd));
 
-  const [assignments, holidays, swap, partShifts, allTypes] = await Promise.all([
+  const [assignments, holidays, swap, partShifts, allTypes, availabilityRows] = await Promise.all([
     employee
       ? prisma.shiftAssignment.findMany({
           where: { employeeId: employee.id, date: { gte: firstMonday, lt: rangeEnd } },
@@ -73,7 +73,14 @@ export default async function MijnRoosterPage({
     employee ? loadSwapOptions(employee.id) : null,
     employee ? partialLeaveShifts(employee.id) : [],
     prisma.shiftType.findMany({ orderBy: { code: "asc" } }) as Promise<ShiftTypeLite[]>,
+    employee
+      ? prisma.availability.findMany({
+          where: { employeeId: employee.id, date: { gte: firstMonday, lt: rangeEnd } },
+          select: { date: true, status: true },
+        })
+      : [],
   ]);
+  const availability = Object.fromEntries(availabilityRows.map((r) => [toISODate(r.date), r.status]));
   const swapOptions = allTypes.filter((t) => t.active && isWorking(t)).map((t) => ({ id: t.id, label: `${t.code} · ${t.label} (${timesOf(t)})` }));
   const byDay = new Map(assignments.map((a) => [toISODate(a.date), a]));
   const prevStart = toISODate(addDays(firstMonday, -WEEKS * 7));
@@ -161,6 +168,9 @@ export default async function MijnRoosterPage({
                 ) : (
                   block
                 )}
+                {!a && employee && (
+                  <AvailabilityCellButton dateISO={iso} label={dayLabel(day)} clickable={!past} />
+                )}
                 {!a && holiday && (
                   <div className="hidden text-[11px] leading-tight text-holiday-strong sm:block">
                     {holiday.name}
@@ -210,7 +220,7 @@ export default async function MijnRoosterPage({
           </p>
         ) : (
           <>
-            <MyShiftActions data={{ swap, partShifts, swapOptions, todayISO }}>{grid}</MyShiftActions>
+            <MyShiftActions data={{ swap, partShifts, swapOptions, todayISO, availability }}>{grid}</MyShiftActions>
             {!hasUpcoming && (
               <p className="mt-2 text-sm text-foreground-muted">
                 Geen geplande diensten in deze weken.
@@ -218,7 +228,7 @@ export default async function MijnRoosterPage({
             )}
             <p className="mt-2 text-xs text-foreground-muted">
               Klik op een komende dienst om hem te ruilen met een collega of om vrij te vragen (hele dag, dagdeel of een andere
-              dienst). Een groene stip bij een dag betekent dat de dienst in je Google-agenda staat. Vandaag heeft een gekleurde
+              dienst). Op een dag zonder dienst klik je om je beschikbaarheid door te geven. Een groene stip bij een dag betekent dat de dienst in je Google-agenda staat. Vandaag heeft een gekleurde
               rand, dagen die al geweest zijn zijn lichter.
             </p>
           </>

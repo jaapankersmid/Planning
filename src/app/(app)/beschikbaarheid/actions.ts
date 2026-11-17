@@ -46,6 +46,7 @@ export async function setAvailability(input: { dateISO: string; status: Availabi
   }).catch((error) => console.error("Beschikbaarheidswijziging vastleggen mislukt:", error));
   revalidatePath("/beschikbaarheid");
   revalidatePath("/rooster");
+  revalidatePath("/rooster/mijn");
 }
 
 /** Zet alle nog lege dagen (vanaf vandaag) van een maand op dezelfde keuze. */
@@ -78,4 +79,5 @@ export async function fillEmptyDays(input: { year: number; month: number; status
   }
   revalidatePath("/beschikbaarheid");
   revalidatePath("/rooster");
+  revalidatePath("/rooster/mijn");
 }

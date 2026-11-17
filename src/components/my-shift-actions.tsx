@@ -1,6 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useTransition, type ReactNode } from "react";
+import { setAvailability } from "@/app/(app)/beschikbaarheid/actions";
+import { AVAILABILITY_LABEL, type AvailabilityValue } from "@/components/availability-grid";
 import { SwapForm, type SwapShiftOption } from "@/components/swap-form";
 import { LeaveRequestForm, type PartShift, type SwapOption } from "@/components/leave-request-form";
 
@@ -9,10 +11,19 @@ type Data = {
   partShifts: PartShift[];
   swapOptions: SwapOption[];
   todayISO: string;
+  /** Doorgegeven beschikbaarheid per dag (ISO) in de getoonde weken. */
+  availability: Record<string, AvailabilityValue>;
 };
 type Selected = { assignmentId: string; dateISO: string; label: string };
+type DaySelected = { dateISO: string; label: string };
 
-const Ctx = createContext<{ open: (s: Selected) => void } | null>(null);
+const AVAILABILITY_CHOICES: AvailabilityValue[] = ["AVAILABLE", "MORNING", "AFTERNOON", "UNAVAILABLE"];
+
+const Ctx = createContext<{
+  open: (s: Selected) => void;
+  openDay: (d: DaySelected) => void;
+  availability: Record<string, AvailabilityValue | null>;
+} | null>(null);
 
 /**
  * Mijn diensten: klik op een (komende) dienst voor een popup met "Dienst ruilen" en "Vrij vragen".
@@ -21,13 +32,36 @@ const Ctx = createContext<{ open: (s: Selected) => void } | null>(null);
 export function MyShiftActions({ data, children }: { data: Data; children: ReactNode }) {
   const [selected, setSelected] = useState<Selected | null>(null);
   const [step, setStep] = useState<"choose" | "swap" | "leave">("choose");
+  const [day, setDay] = useState<DaySelected | null>(null);
+  const [availability, setAvail] = useState<Record<string, AvailabilityValue | null>>(data.availability);
+  const [availError, setAvailError] = useState<string | null>(null);
+  const [saving, startTransition] = useTransition();
 
   useEffect(() => {
-    if (!selected) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setSelected(null);
+    if (!selected && !day) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setSelected(null);
+      setDay(null);
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [selected]);
+  }, [selected, day]);
+
+  function chooseAvailability(dateISO: string, status: AvailabilityValue | null) {
+    const before = availability[dateISO] ?? null;
+    setAvail((a) => ({ ...a, [dateISO]: status }));
+    setAvailError(null);
+    startTransition(async () => {
+      try {
+        await setAvailability({ dateISO, status });
+        setDay(null);
+      } catch (e) {
+        setAvail((a) => ({ ...a, [dateISO]: before }));
+        setAvailError(e instanceof Error ? e.message : "Opslaan is niet gelukt.");
+      }
+    });
+  }
 
   const canSwap = !!selected && data.swap.mine.some((m) => m.id === selected.assignmentId);
   const big = "flex flex-col items-start gap-0.5 rounded-lg border border-border p-4 text-left hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50";
@@ -39,9 +73,62 @@ export function MyShiftActions({ data, children }: { data: Data; children: React
           setSelected(s);
           setStep("choose");
         },
+        openDay: (d) => {
+          setDay(d);
+          setAvailError(null);
+        },
+        availability,
       }}
     >
       {children}
+      {day && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4" onClick={() => setDay(null)}>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="day-dialog-title"
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-sm rounded-t-xl border border-border bg-surface p-5 shadow-xl sm:rounded-xl"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 id="day-dialog-title" className="text-sm font-semibold">Beschikbaarheid doorgeven</h2>
+                <p className="text-sm text-foreground-muted">{day.label}</p>
+              </div>
+              <button type="button" onClick={() => setDay(null)} aria-label="Sluiten" className="rounded-md px-2 py-1 text-lg leading-none hover:bg-surface-muted">
+                ×
+              </button>
+            </div>
+            <p className="mt-2 text-xs text-foreground-muted">Je hebt hier nog geen dienst. De planner ziet je keuze bij het inplannen.</p>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              {AVAILABILITY_CHOICES.map((status, i) => {
+                const current = (availability[day.dateISO] ?? null) === status;
+                return (
+                  <button
+                    key={status}
+                    type="button"
+                    autoFocus={i === 0}
+                    disabled={saving}
+                    onClick={() => chooseAvailability(day.dateISO, status)}
+                    className={`rounded-lg px-3 py-2.5 text-left text-sm font-medium disabled:opacity-60 ${AVAILABILITY_LABEL[status].className} ${current ? "ring-2 ring-accent ring-offset-2 ring-offset-surface" : ""}`}
+                  >
+                    {AVAILABILITY_LABEL[status].long}
+                  </button>
+                );
+              })}
+            </div>
+            {availability[day.dateISO] && (
+              <button type="button" disabled={saving} onClick={() => chooseAvailability(day.dateISO, null)} className="mt-3 text-xs underline hover:no-underline">
+                Niets doorgeven (wissen)
+              </button>
+            )}
+            {availError && <p className="mt-2 text-xs text-bad-text">{availError}</p>}
+            <a href="/beschikbaarheid" className="mt-3 block text-xs text-foreground-muted underline hover:no-underline">
+              Hele maand invullen bij Beschikbaarheid →
+            </a>
+          </div>
+        </div>
+      )}
       {selected && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4" onClick={() => setSelected(null)}>
           <div
@@ -124,6 +211,33 @@ export function ShiftCellButton({ assignmentId, dateISO, label, children }: Sele
       className="block w-full rounded text-inherit focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
     >
       {children}
+    </button>
+  );
+}
+
+/** Lege dag in Mijn diensten: toont de doorgegeven beschikbaarheid en is aanklikbaar om die te wijzigen. */
+export function AvailabilityCellButton({ dateISO, label, clickable }: DaySelected & { clickable: boolean }) {
+  const ctx = useContext(Ctx);
+  const status = ctx?.availability[dateISO] ?? null;
+  const chip = status ? (
+    <span className={`block rounded px-1 py-0.5 text-center text-[11px] font-medium leading-tight sm:text-left ${AVAILABILITY_LABEL[status].className}`}>
+      {AVAILABILITY_LABEL[status].short}
+    </span>
+  ) : clickable ? (
+    <span className="block rounded border border-dashed border-border px-1 py-0.5 text-center text-[11px] leading-tight text-foreground-muted opacity-60 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 sm:text-left">
+      +<span className="hidden sm:inline"> beschikbaar?</span>
+    </span>
+  ) : null;
+  if (!ctx || !clickable) return chip;
+  return (
+    <button
+      type="button"
+      onClick={() => ctx.openDay({ dateISO, label })}
+      title="Klik om je beschikbaarheid door te geven"
+      aria-label={`${label}: beschikbaarheid doorgeven${status ? ` (nu: ${AVAILABILITY_LABEL[status].short})` : ""}`}
+      className="group block w-full flex-1 rounded text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+    >
+      {chip}
     </button>
   );
 }
