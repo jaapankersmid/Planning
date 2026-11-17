@@ -33,4 +33,4 @@ cd ~/Planning; git pull; docker compose -f docker-compose.prod.yml up -d --build
 Laat `exec app npx prisma db push` weg als het schema niet is gewijzigd. Geef na elke wijziging de serverstappen kant-en-klaar onder het kopje "Op de server".
 
 ## Openstaande `db push`-punten (controleer of ze zijn uitgevoerd)
-HoursChange (mail over aangepaste uren), AppSetting en AppSettingChange (Instellingen), ShiftSwapRequest, Plan*-tabellen, `ColorGroup.planParticipates`, tijdvelden van PlanTag, en de velden `part`, `shiftTypeId`, `swapShiftTypeId`, `swapDate` op LeaveRequest.
+HoursChange (mail over aangepaste uren), `TimeEntry.workedShiftTypeId` (andere dienst gewerkt), AppSetting en AppSettingChange (Instellingen), ShiftSwapRequest, Plan*-tabellen, `ColorGroup.planParticipates`, tijdvelden van PlanTag, en de velden `part`, `shiftTypeId`, `swapShiftTypeId`, `swapDate` op LeaveRequest.

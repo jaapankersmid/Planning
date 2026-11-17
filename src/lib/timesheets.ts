@@ -33,7 +33,15 @@ export type DayRow = {
   code: string | null;
   label: string | null;
   planned: number;
-  entry: { hours: number; note: string | null; editedByName: string | null } | null;
+  entry: {
+    hours: number;
+    note: string | null;
+    editedByName: string | null;
+    /** Volgens de medewerker gewerkt als een andere dienst dan in het rooster (null = zoals gepland). */
+    workedShiftTypeId: string | null;
+    workedCode: string | null;
+    workedLabel: string | null;
+  } | null;
   /** Valt de dag in de getoonde maand? Voor de dagen van een halve week uit de buurmaand is dit false. */
   inMonth: boolean;
 };
@@ -66,6 +74,12 @@ export type WeekInfo = {
 
 const EMPTY_SHEET: SheetInfo = { status: "DRAFT", submittedAt: null, decidedAt: null, decidedByName: null, decisionNote: null };
 
+/** Diensten die een medewerker kan kiezen bij "andere dienst gewerkt" (actief; Ziek zet alleen de planner). */
+export async function loadShiftOptions() {
+  const types = await prisma.shiftType.findMany({ where: { active: true, code: { not: "Z" } }, orderBy: { code: "asc" } });
+  return types.map((t) => ({ id: t.id, code: t.code, label: t.label, hours: shiftHours(t) }));
+}
+
 /** Effectieve uren van een dag: de bevestigde uren, anders de geplande uren (alleen voor dagen tot en met vandaag). */
 export function effectiveHours(row: DayRow, todayISO: string) {
   if (row.entry) return row.entry.hours;
@@ -92,7 +106,7 @@ export async function loadEmployeeMonth(employeeId: string, year: number, month:
     }),
     prisma.timeEntry.findMany({
       where: { employeeId, date: { gte: first, lt: afterLast } },
-      include: { editedBy: { select: { name: true, email: true } } },
+      include: { editedBy: { select: { name: true, email: true } }, workedShiftType: { select: { code: true, label: true } } },
     }),
     prisma.timesheet.findUnique({
       where: { employeeId_year_month: { employeeId, year, month } },
@@ -125,6 +139,9 @@ export async function loadEmployeeMonth(employeeId: string, year: number, month:
             hours: entry.hours,
             note: entry.note,
             editedByName: entry.editedBy ? (entry.editedBy.name ?? entry.editedBy.email) : null,
+            workedShiftTypeId: entry.workedShiftTypeId,
+            workedCode: entry.workedShiftType?.code ?? null,
+            workedLabel: entry.workedShiftType?.label ?? null,
           }
         : null,
     };
@@ -214,6 +231,8 @@ export type OverviewRow = {
   worked: number;
   status: TimesheetStatus | "NONE";
   unconfirmedDays: number;
+  /** Dagen waarop de medewerker aangeeft een andere dienst te hebben gewerkt dan in het rooster. */
+  otherShiftDays: number;
   /** Wekelijks indienen: aantal weken (die de maand raken) dat is ingediend, goedgekeurd of teruggestuurd, en het totaal. */
   weeksSubmitted: number;
   weeksApproved: number;
@@ -277,6 +296,7 @@ export async function loadOverview(year: number, month: number): Promise<Overvie
       worked,
       status,
       unconfirmedDays,
+      otherShiftDays: [...myEntries.values()].filter((e) => e.workedShiftTypeId).length,
       weeksSubmitted: myWeeks.filter((w) => w.status === "SUBMITTED").length,
       weeksApproved: myWeeks.filter((w) => w.status === "APPROVED").length,
       weeksReturned: myWeeks.filter((w) => w.status === "RETURNED").length,
@@ -291,22 +311,38 @@ export async function loadOverview(year: number, month: number): Promise<Overvie
  * zodat de dag terugvalt op het voorstel uit het rooster). Gedeeld door medewerker en administratie; de
  * aanroeper controleert de rechten.
  */
-export async function writeEntry(employeeId: string, date: Date, hoursInput: string | null, note: string, editedById: string) {
+export async function writeEntry(
+  employeeId: string,
+  date: Date,
+  hoursInput: string | null,
+  note: string,
+  editedById: string,
+  /** Andere dienst gewerkt dan in het rooster: id, null = zoals gepland, undefined = niet wijzigen. */
+  workedShiftTypeIdInput?: string | null,
+) {
   const hours = parseHoursInput(hoursInput);
   const cleanNote = note.trim().slice(0, 300) || null;
-  if (hours === null && !cleanNote) {
+  const [assignment, existing] = await Promise.all([
+    prisma.shiftAssignment.findFirst({ where: { employeeId, date }, include: { shiftType: true } }),
+    prisma.timeEntry.findUnique({ where: { employeeId_date: { employeeId, date } }, select: { workedShiftTypeId: true } }),
+  ]);
+  let workedShiftTypeId = workedShiftTypeIdInput === undefined ? (existing?.workedShiftTypeId ?? null) : workedShiftTypeIdInput;
+  // Dezelfde dienst als in het rooster is geen afwijking.
+  if (workedShiftTypeId && workedShiftTypeId === assignment?.shiftTypeId) workedShiftTypeId = null;
+  const workedShift = workedShiftTypeId ? await prisma.shiftType.findUnique({ where: { id: workedShiftTypeId } }) : null;
+  if (workedShiftTypeId && !workedShift) throw new Error("Onbekende dienst.");
+
+  if (hours === null && !cleanNote && !workedShift) {
     await prisma.timeEntry.deleteMany({ where: { employeeId, date } });
     return;
   }
-  const assignment = await prisma.shiftAssignment.findFirst({
-    where: { employeeId, date },
-    include: { shiftType: true },
-  });
   const planned = assignment ? shiftHours(assignment.shiftType) : 0;
-  const worked = hours ?? planned;
+  // Geen uren ingevuld: de uren van de gewerkte dienst, anders van de geplande dienst.
+  const worked = hours ?? (workedShift ? shiftHours(workedShift) : planned);
+  const data = { hours: worked, plannedHours: planned, note: cleanNote, editedById, workedShiftTypeId: workedShift ? workedShift.id : null };
   await prisma.timeEntry.upsert({
     where: { employeeId_date: { employeeId, date } },
-    update: { hours: worked, plannedHours: planned, note: cleanNote, editedById },
-    create: { employeeId, date, hours: worked, plannedHours: planned, note: cleanNote, editedById },
+    update: data,
+    create: { employeeId, date, ...data },
   });
 }

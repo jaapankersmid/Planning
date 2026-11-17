@@ -71,7 +71,17 @@ export default async function UrenOverzichtPage({
               <Fragment key={r.employeeId}>
               {(i === 0 || rows[i - 1].colorGroup !== r.colorGroup) && <GroupHeaderRow group={r.colorGroup} colSpan={7} />}
               <tr className="border-b border-border last:border-0">
-                <td className="px-4 py-2 font-medium">{r.name}</td>
+                <td className="px-4 py-2 font-medium">
+                  {r.name}
+                  {r.otherShiftDays > 0 && (
+                    <span
+                      className="ml-2 inline-block rounded-full bg-amber-200 px-2 py-0.5 text-xs font-semibold text-amber-950 dark:bg-amber-900 dark:text-amber-100"
+                      title="De medewerker geeft aan op deze dagen een andere dienst te hebben gewerkt dan in het rooster. Controleer het rooster."
+                    >
+                      {r.otherShiftDays === 1 ? "1 dag andere dienst" : `${r.otherShiftDays} dagen andere dienst`}
+                    </span>
+                  )}
+                </td>
                 <td className="px-4 py-2 text-right tabular-nums text-foreground-muted">{formatHours(r.planned)}</td>
                 <td className="px-4 py-2 text-right tabular-nums">
                   {formatHours(r.worked)}

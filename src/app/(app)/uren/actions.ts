@@ -9,6 +9,9 @@ import { confirmPlannedDays, confirmPlannedRange, writeEntry } from "@/lib/times
 
 export type ActionResult = { error: string } | { ok: string } | undefined;
 
+/** undefined (niet wijzigen), null (zoals gepland) of een geldig ogende dienst-id. */
+const validShiftId = (id: string | null | undefined) => id === undefined || id === null || /^[A-Za-z0-9_-]{1,64}$/.test(id);
+
 function revalidate() {
   revalidatePath("/uren");
   revalidatePath("/uren/overzicht");
@@ -41,17 +44,18 @@ async function weekLockedReason(employeeId: string, date: Date) {
 }
 
 /** Slaat de gewerkte uren van één dag van de ingelogde medewerker op. `hours: null` zet de dag terug naar het voorstel. */
-export async function saveOwnEntry(input: { dateISO: string; hours: string | null; note: string }): Promise<ActionResult> {
+export async function saveOwnEntry(input: { dateISO: string; hours: string | null; note: string; workedShiftTypeId?: string | null }): Promise<ActionResult> {
   try {
     const { userId, employeeId } = await ownEmployeeId();
     if (!/^\d{4}-\d{2}-\d{2}$/.test(input.dateISO)) return { error: "Ongeldige datum." };
+    if (!validShiftId(input.workedShiftTypeId)) return { error: "Ongeldige dienst." };
     const date = dateFromISO(input.dateISO);
     if (date > todayAmsterdam()) return { error: "Je kunt nog geen uren invullen voor dagen die nog moeten komen." };
     const locked = await assertEditable(employeeId, date.getUTCFullYear(), date.getUTCMonth() + 1);
     if (locked) return { error: locked };
     const weekLocked = await weekLockedReason(employeeId, date);
     if (weekLocked) return { error: weekLocked };
-    await writeEntry(employeeId, date, input.hours, input.note, userId);
+    await writeEntry(employeeId, date, input.hours, input.note, userId, input.workedShiftTypeId);
     revalidate();
     return undefined;
   } catch (error) {

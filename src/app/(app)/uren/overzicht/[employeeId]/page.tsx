@@ -6,7 +6,7 @@ import { dateFromISO, toISODate } from "@/lib/format";
 import { formatHours } from "@/lib/hours";
 import { canManageHours } from "@/lib/roles";
 import { todayAmsterdam } from "@/lib/schedule";
-import { effectiveHours, loadEmployeeMonth, parseMonth } from "@/lib/timesheets";
+import { effectiveHours, loadEmployeeMonth, loadShiftOptions, parseMonth } from "@/lib/timesheets";
 import { MonthNav } from "@/components/month-nav";
 import { TimesheetTable } from "@/components/timesheet-table";
 import { TimesheetDecision } from "@/components/timesheet-decision";
@@ -31,10 +31,11 @@ export default async function UrenDetailPage({
   if (!employee) notFound();
 
   const { rows, weekRows, sheet, weeks } = await loadEmployeeMonth(employeeId, year, month);
-  const [weekMail, address, mailOn] = await Promise.all([
+  const [weekMail, address, mailOn, shiftOptions] = await Promise.all([
     weeks.length ? pendingHoursChanges(employeeId, dateFromISO(weeks[0].startISO), dateFromISO(weeks[weeks.length - 1].startISO)) : {},
     employeeAddress(employeeId),
     isMailConfigured(),
+    loadShiftOptions(),
   ]);
   // Waarom er na een aanpassing in een goedgekeurde week geen mail komt (of null als dat wel gebeurt).
   const mailHint = session.user.employeeId === employeeId
@@ -93,7 +94,7 @@ export default async function UrenDetailPage({
 
       <p className="text-sm text-foreground-muted">
         Je kunt de uren van een dag aanpassen; dat is ook mogelijk in een ingediende of goedgekeurde maand. Cursieve uren
-        zijn nog niet door de medewerker bevestigd. Bij elke weekregel zie je het weektotaal en keur je de week goed of stuur je hem terug. Bij goedkeuren krijgt de medewerker een mail met de uren (en je opmerking); pas je daarna nog uren aan, dan volgt na de wachttijd één mail per week met oud → nieuw.
+        zijn nog niet door de medewerker bevestigd. Bij elke weekregel zie je het weektotaal en keur je de week goed of stuur je hem terug. Bij goedkeuren krijgt de medewerker een mail met de uren (en je opmerking); pas je daarna nog uren aan, dan volgt na de wachttijd één mail per week met oud → nieuw. Een oranje gemarkeerde dag betekent dat de medewerker aangeeft een andere dienst te hebben gewerkt dan in het rooster staat: controleer dan het rooster.
       </p>
 
       <TimesheetTable
@@ -107,6 +108,7 @@ export default async function UrenDetailPage({
         employeeId={employeeId}
         weekMail={weekMail}
         mailHint={mailHint}
+        shiftOptions={shiftOptions}
       />
     </div>
   );

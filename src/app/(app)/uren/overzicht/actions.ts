@@ -40,15 +40,17 @@ function revalidate() {
  */
 export async function saveEntryForEmployee(
   employeeId: string,
-  input: { dateISO: string; hours: string | null; note: string },
+  input: { dateISO: string; hours: string | null; note: string; workedShiftTypeId?: string | null },
 ): Promise<ActionResult> {
   try {
     const session = await requireHoursAdmin();
     if (!/^\d{4}-\d{2}-\d{2}$/.test(input.dateISO)) return { error: "Ongeldige datum." };
+    const shiftId = input.workedShiftTypeId;
+    if (shiftId !== undefined && shiftId !== null && !/^[A-Za-z0-9_-]{1,64}$/.test(shiftId)) return { error: "Ongeldige dienst." };
     const date = dateFromISO(input.dateISO);
     const track = session.user.employeeId !== employeeId && (await isApprovedDay(employeeId, date));
     const before = track ? await dayHours(employeeId, date) : 0;
-    await writeEntry(employeeId, date, input.hours, input.note, session.user.id);
+    await writeEntry(employeeId, date, input.hours, input.note, session.user.id, input.workedShiftTypeId);
     if (track && (await isMailConfigured()) && (await employeeAddress(employeeId))?.email) {
       await recordHoursChange({
         employeeId,

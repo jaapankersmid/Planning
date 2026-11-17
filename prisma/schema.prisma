@@ -148,6 +148,7 @@ model ShiftType {
   swapsReturned ShiftSwapRequest[] @relation("SwapReturnShift")
   leavePartRequests LeaveRequest[] @relation("LeavePartShift")
   leaveSwapRequests LeaveRequest[] @relation("LeaveSwapFor")
+  workedEntries     TimeEntry[]    @relation("TimeEntryWorkedShift")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -439,6 +440,10 @@ model TimeEntry {
   // Geplande uren op het moment van registreren, om afwijkingen te kunnen tonen.
   plannedHours Float  @default(0)
   note         String?
+  // De medewerker geeft aan dat hij een andere dienst heeft gewerkt dan in het rooster staat (leeg = zoals gepland).
+  // Het rooster zelf verandert hier niet door; de administratie ziet het als melding bij de uren.
+  workedShiftType   ShiftType? @relation("TimeEntryWorkedShift", fields: [workedShiftTypeId], references: [id], onDelete: SetNull)
+  workedShiftTypeId String?
 
   editedBy   User?   @relation("TimeEntryEditedBy", fields: [editedById], references: [id])
   editedById String?

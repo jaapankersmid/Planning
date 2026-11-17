@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { daysInMonth, formatDayMonth, toISODate } from "@/lib/format";
 import { formatHours } from "@/lib/hours";
 import { todayAmsterdam } from "@/lib/schedule";
-import { effectiveHours, loadEmployeeMonth, parseMonth } from "@/lib/timesheets";
+import { effectiveHours, loadEmployeeMonth, loadShiftOptions, parseMonth } from "@/lib/timesheets";
 import { MonthNav } from "@/components/month-nav";
 import { TimesheetTable } from "@/components/timesheet-table";
 import { TimesheetActions } from "@/components/timesheet-actions";
@@ -31,9 +31,10 @@ export default async function MijnUrenPage({
   }
 
   const { year, month } = parseMonth(await searchParams);
-  const [employee, { rows, weekRows, sheet, weeks }] = await Promise.all([
+  const [employee, { rows, weekRows, sheet, weeks }, shiftOptions] = await Promise.all([
     prisma.employee.findUnique({ where: { id: employeeId }, select: { name: true } }),
     loadEmployeeMonth(employeeId, year, month),
+    loadShiftOptions(),
   ]);
 
   const today = todayAmsterdam();
@@ -78,7 +79,7 @@ export default async function MijnUrenPage({
       <p className="text-sm text-foreground-muted">
         De uren zijn voorgevuld met je geplande diensten (zonder pauzes). Klopt een dag, dan hoef je niets te doen;
         was je korter of langer aan het werk, pas dan de uren aan en zet er eventueel een opmerking bij. Cursieve
-        uren zijn nog niet bevestigd. Je kunt per week indienen (vanaf de zondag, bij de weekregel) of de hele maand in één keer; kies wat jou het beste uitkomt.
+        uren zijn nog niet bevestigd. Heb je een andere dienst gewerkt dan in het rooster staat, kies die dan bij de dag onder Dienst (andere dienst?): de uren van die dienst worden ingevuld en de administratie ziet dat je een andere dienst hebt gewerkt. Je rooster zelf verandert daar niet door. Je kunt per week indienen (vanaf de zondag, bij de weekregel) of de hele maand in één keer; kies wat jou het beste uitkomt.
       </p>
 
       <TimesheetTable
@@ -90,6 +91,7 @@ export default async function MijnUrenPage({
         weeks={weeks}
         weekMode="employee"
         monthLocked={locked}
+        shiftOptions={shiftOptions}
       />
 
       <TimesheetActions year={year} month={month} locked={locked} canSubmit={canSubmit} />

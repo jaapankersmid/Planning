@@ -59,7 +59,7 @@ export async function GET(request: Request) {
       lines.push([cell(r.name), num(r.planned), num(r.worked), num(r.worked - r.planned), cell(STATUS_LABEL[r.status]), cell(r.colorGroup ?? "")].join(";"));
     }
   } else {
-    lines.push(["Medewerker", "Datum", "Dienst", "Gepland (uur)", "Gewerkt (uur)", "Opmerking", "Status", "Kleurgroep", "Week", "Weekstatus"].map(cell).join(";"));
+    lines.push(["Medewerker", "Datum", "Dienst", "Gepland (uur)", "Gewerkt (uur)", "Opmerking", "Gewerkte dienst volgens medewerker", "Status", "Kleurgroep", "Week", "Weekstatus"].map(cell).join(";"));
     for (const o of targets) {
       const { rows, sheet, weeks } = await loadEmployeeMonth(o.employeeId, year, month);
       const weekByStart = new Map(weeks.map((w) => [w.startISO, w]));
@@ -67,7 +67,7 @@ export async function GET(request: Request) {
         const worked = effectiveHours(r, todayISO);
         if (!r.code && !r.entry && worked === 0) continue;
         lines.push(
-          [cell(o.name), r.dateISO, cell(r.code ?? ""), num(r.planned), num(worked), cell(r.entry?.note ?? ""), cell(STATUS_LABEL[sheet.status]), cell(o.colorGroup ?? ""), String(weekByStart.get(r.weekStartISO)?.weekNo ?? ""), cell(STATUS_LABEL[weekByStart.get(r.weekStartISO)?.status ?? "DRAFT"])].join(";"),
+          [cell(o.name), r.dateISO, cell(r.code ?? ""), num(r.planned), num(worked), cell(r.entry?.note ?? ""), cell(r.entry?.workedCode ?? ""), cell(STATUS_LABEL[sheet.status]), cell(o.colorGroup ?? ""), String(weekByStart.get(r.weekStartISO)?.weekNo ?? ""), cell(STATUS_LABEL[weekByStart.get(r.weekStartISO)?.status ?? "DRAFT"])].join(";"),
         );
       }
     }

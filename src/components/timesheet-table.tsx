@@ -17,10 +17,20 @@ export type TimesheetRow = {
   planned: number;
   /** Dag valt in de getoonde maand; anders hoort hij bij de buurmaand (halve week). */
   inMonth?: boolean;
-  entry: { hours: number; note: string | null; editedByName: string | null } | null;
+  entry: {
+    hours: number;
+    note: string | null;
+    editedByName: string | null;
+    workedShiftTypeId?: string | null;
+    workedCode?: string | null;
+    workedLabel?: string | null;
+  } | null;
 };
 
-type Save = (input: { dateISO: string; hours: string | null; note: string }) => Promise<void | { error: string } | { ok: string }>;
+/** Dienst die de medewerker kan kiezen als "andere dienst gewerkt". */
+export type ShiftOption = { id: string; code: string; label: string; hours: number };
+
+type Save = (input: { dateISO: string; hours: string | null; note: string; workedShiftTypeId?: string | null }) => Promise<void | { error: string } | { ok: string }>;
 
 type Cell = {
   hours: string;
@@ -30,6 +40,9 @@ type Cell = {
   // Laatst opgeslagen waarden, om te zien of er iets veranderd is.
   savedHours: string;
   savedNote: string;
+  /** Andere dienst gewerkt (id) of "" = zoals gepland. */
+  worked: string;
+  savedWorked: string;
 };
 
 const fmt = (n: number) => String(Math.round(n * 100) / 100).replace(".", ",");
@@ -47,6 +60,7 @@ export function TimesheetTable({
   monthLocked = false,
   weekMail,
   mailHint,
+  shiftOptions = [],
 }: {
   rows: TimesheetRow[];
   todayISO: string;
@@ -65,7 +79,10 @@ export function TimesheetTable({
   weekMail?: Record<string, PendingWeekMail>;
   /** Admin: waarom de medewerker geen mail krijgt (bv. geen e-mailadres), of null. */
   mailHint?: string | null;
+  /** Diensten om "andere dienst gewerkt" te kunnen aangeven. Leeg = niet mogelijk. */
+  shiftOptions?: ShiftOption[];
 }) {
+  const optionById = new Map(shiftOptions.map((o) => [o.id, o]));
   const weekByStart = new Map(weeks.map((w) => [w.startISO, w]));
   const proposal = (r: TimesheetRow) => (r.dateISO <= todayISO && r.planned > 0 ? fmt(r.planned) : "");
   const [cells, setCells] = useState<Record<string, Cell>>(() =>
@@ -73,9 +90,10 @@ export function TimesheetTable({
       rows.map((r) => {
         const hours = r.entry ? fmt(r.entry.hours) : proposal(r);
         const note = r.entry?.note ?? "";
+        const worked = r.entry?.workedShiftTypeId ?? "";
         return [
           r.dateISO,
-          { hours, note, confirmed: !!r.entry, editedByName: r.entry?.editedByName ?? null, savedHours: hours, savedNote: note },
+          { hours, note, worked, confirmed: !!r.entry, editedByName: r.entry?.editedByName ?? null, savedHours: hours, savedNote: note, savedWorked: worked },
         ];
       }),
     ),
@@ -95,16 +113,16 @@ export function TimesheetTable({
     setCells((c) => ({ ...c, [iso]: { ...c[iso], ...change } }));
   }
 
-  function commit(r: TimesheetRow) {
-    const cell = cells[r.dateISO];
+  function commit(r: TimesheetRow, next: Partial<Cell> = {}) {
+    const cell = { ...cells[r.dateISO], ...next };
     const hoursText = cell.hours.trim();
     const noteText = cell.note.trim();
-    if (hoursText === cell.savedHours && noteText === cell.savedNote) return;
+    if (hoursText === cell.savedHours && noteText === cell.savedNote && cell.worked === cell.savedWorked) return;
 
     startTransition(async () => {
       // Uren leeg laten betekent: terug naar het voorstel uit het rooster.
       const hoursToSave = hoursText === "" ? null : hoursText;
-      const result = await save({ dateISO: r.dateISO, hours: hoursToSave, note: noteText });
+      const result = await save({ dateISO: r.dateISO, hours: hoursToSave, note: noteText, workedShiftTypeId: cell.worked || null });
       if (result && "error" in result) {
         setErrors((e) => ({ ...e, [r.dateISO]: result.error }));
         return;
@@ -114,9 +132,9 @@ export function TimesheetTable({
         delete rest[r.dateISO];
         return rest;
       });
-      const confirmed = hoursToSave !== null || noteText !== "";
+      const confirmed = hoursToSave !== null || noteText !== "" || cell.worked !== "";
       const shownHours = hoursText === "" ? proposal(r) : cell.hours;
-      patch(r.dateISO, { confirmed, hours: shownHours, savedHours: hoursText === "" ? proposal(r) : hoursText, savedNote: noteText });
+      patch(r.dateISO, { confirmed, hours: shownHours, savedHours: hoursText === "" ? proposal(r) : hoursText, savedNote: noteText, savedWorked: cell.worked });
     });
   }
 
@@ -155,14 +173,56 @@ export function TimesheetTable({
             return (
               <Fragment key={r.dateISO}>
               <tr
-                className={`border-b border-border last:border-0 ${weekend ? "bg-weekend" : ""} ${future && !allowFuture ? "opacity-50" : ""} ${r.inMonth === false ? "bg-surface-muted/40 text-foreground-muted" : ""}`}
+                className={`border-b border-border last:border-0 ${weekend ? "bg-weekend" : ""} ${future && !allowFuture ? "opacity-50" : ""} ${r.inMonth === false ? "bg-surface-muted/40 text-foreground-muted" : ""} ${cell.worked && weekMode === "admin" ? "bg-amber-50 dark:bg-amber-950/30" : ""}`}
               >
                 <td className={`whitespace-nowrap px-3 py-1.5 ${r.dateISO === todayISO ? "font-semibold" : ""}`}>
                   {weekdayShort(date)} {date.getUTCDate()}
                   {r.inMonth === false && <span className="ml-1 text-xs font-normal">{monthName(date.getUTCMonth() + 1).slice(0, 3)}</span>}
                 </td>
                 <td className="px-3 py-1.5" title={r.label ?? undefined}>
-                  {r.code ?? <span className="text-foreground-muted">–</span>}
+                  {(() => {
+                    const other = cell.worked ? optionById.get(cell.worked) : undefined;
+                    const otherCode = other?.code ?? (cell.worked && cell.worked === r.entry?.workedShiftTypeId ? r.entry?.workedCode : null);
+                    return (
+                      <span className="inline-flex flex-wrap items-center gap-1.5">
+                        <span className={otherCode ? "text-foreground-muted line-through" : ""}>
+                          {r.code ?? <span className="text-foreground-muted">–</span>}
+                        </span>
+                        {otherCode && (
+                          <span
+                            className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-semibold text-amber-900 dark:bg-amber-900/40 dark:text-amber-200"
+                            title={`Volgens de medewerker gewerkt als ${otherCode}${other ? ` (${other.label})` : ""} in plaats van ${r.code ?? "geen dienst"}`}
+                          >
+                            {weekMode === "admin" ? `medewerker: ${otherCode} gewerkt` : `${otherCode} gewerkt`}
+                          </span>
+                        )}
+                        {canEdit && shiftOptions.length > 0 && (
+                          <select
+                            value={cell.worked}
+                            aria-label={`Andere dienst gewerkt op ${r.dateISO}`}
+                            onChange={(e) => {
+                              const id = e.target.value;
+                              const option = optionById.get(id);
+                              // Uren mee laten gaan met de gekozen dienst; terug naar het rooster = terug naar het voorstel.
+                              const change: Partial<Cell> = { worked: id, hours: option ? fmt(option.hours) : proposal(r) };
+                              patch(r.dateISO, change);
+                              commit(r, change);
+                            }}
+                            className="max-w-28 rounded-md border border-border bg-surface px-1 py-0.5 text-xs text-foreground-muted"
+                          >
+                            <option value="">{cell.worked ? "zoals rooster" : "andere dienst?"}</option>
+                            {shiftOptions
+                              .filter((o) => o.code !== r.code)
+                              .map((o) => (
+                                <option key={o.id} value={o.id}>
+                                  {o.code} · {o.label}
+                                </option>
+                              ))}
+                          </select>
+                        )}
+                      </span>
+                    );
+                  })()}
                 </td>
                 <td className="px-3 py-1.5 text-right tabular-nums text-foreground-muted">{r.planned > 0 ? fmt(r.planned) : "–"}</td>
                 <td className="px-3 py-1.5">

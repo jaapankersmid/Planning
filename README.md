@@ -215,6 +215,21 @@ Code: `src/lib/settings.ts` (`getSettings`, `getMailConfig`, validatie), `src/ap
 
 Bij *Gebruikers → Nieuwe gebruiker* staat het vinkje **Welkomstmail sturen** (standaard aan). De nieuwe gebruiker krijgt dan een mail met de inloglink (`AUTH_URL`/login), het e-mailadres en het (tijdelijke) wachtwoord; moet het wachtwoord gewijzigd worden, dan staat erbij dat dat bij de eerste keer inloggen gebeurt. Lukt de mail niet of is SMTP niet ingesteld, dan wordt het account gewoon aangemaakt en zie je dat in de melding. Het wachtwoord komt nooit in de logs. Code: `src/lib/welcome-mail.ts`. Geen schemawijziging.
 
+## Andere dienst gewerkt dan in het rooster
+
+Bij *Mijn uren* kan de medewerker per dag (tot en met vandaag, zolang de week of maand niet is ingediend) onder *Dienst* kiezen **andere dienst?** en de dienst aanwijzen die hij of zij echt heeft gewerkt. Zo vang je fouten in het rooster op.
+
+- De uren worden dan ingevuld met de uren van die dienst; aanpassen kan daarna nog. Terugzetten kan met *zoals rooster*.
+- Het rooster zelf verandert niet. Dat blijft aan de planner, via `applyAssignment`.
+- **Voor de administratie** is het duidelijk te zien:
+  - in *Uren* staat bij de medewerker een oranje label *… dagen andere dienst*;
+  - in de dagtabel is de dag oranje gemarkeerd, de roosterdienst doorgestreept, met het label *medewerker: A gewerkt*;
+  - de export per dag heeft een kolom *Gewerkte dienst volgens medewerker*.
+- De administratie kan de keuze ook zelf aanpassen. Ziek (Z) staat er niet tussen; dat zet alleen de planner.
+- Code: veld `TimeEntry.workedShiftTypeId`, `writeEntry` in `src/lib/timesheets.ts`, `src/components/timesheet-table.tsx`.
+
+> Schemawijziging: nieuw veld `workedShiftTypeId` op TimeEntry. Draai `npx prisma db push` (alleen toevoegen, geen dataverlies).
+
 ## Mail over goedgekeurde en aangepaste uren
 
 - **Goedkeuren.** Keurt de administratie (of een planner) een week of maand goed, dan krijgt de medewerker meteen één mail met de uren per dag en het totaal. Bij de week staat daarvoor een veld *Opmerking voor de mail (optioneel)*; bij de maand gaat de opmerking van *Beoordelen* mee. Na het goedkeuren staat in de melding of de mail is verstuurd, mislukt is, of dat er geen mail kon (geen actief account met e-mailadres, of mail niet ingesteld). De goedkeuring blijft in alle gevallen staan.
