@@ -4,13 +4,12 @@ import { prisma } from "@/lib/prisma";
 import { formatRange, toISODate } from "@/lib/format";
 import { describePartRequest, isShiftRequest, leaveDates, partialLeaveShifts } from "@/lib/leave";
 import { isWorking, timesOf, type ShiftTypeLite } from "@/lib/shift-swap";
-import { PartLeaveForm } from "@/components/part-leave-form";
 import { todayAmsterdam } from "@/lib/schedule";
 import { loadBalance } from "@/lib/leave-balance";
 import { LeaveBalanceCard } from "@/components/leave-balance-card";
-import { LeaveForm } from "@/components/leave-form";
+import { LeaveRequestForm } from "@/components/leave-request-form";
 import { LeaveStatusBadge } from "@/components/leave-status";
-import { cancelOwnRequest, requestLeave, requestPartLeave } from "./actions";
+import { cancelOwnRequest } from "./actions";
 
 export default async function VerlofPage() {
   const session = await auth();
@@ -69,14 +68,13 @@ export default async function VerlofPage() {
       </div>
 
       <div className="rounded-lg border border-border bg-surface p-5">
-        <h2 className="text-sm font-semibold">Verlof aanvragen</h2>
-        <LeaveForm action={requestLeave} submitLabel="Aanvragen" minDate={todayISO} />
-      </div>
-
-      <div className="rounded-lg border border-border bg-surface p-5">
-        <h2 className="text-sm font-semibold">Dagdeel verlof of andere dienst aanvragen</h2>
-        <p className="text-xs text-foreground-muted">Kies een ingeplande dienst. Je kunt een dagdeel vrij vragen (bij een dienst met ochtend en middag), of vragen om een andere dienst in plaats van deze, bijvoorbeeld van O of A naar een gebroken dienst of andersom. Een planner beoordeelt het en past bij goedkeuring het rooster aan.</p>
-        <PartLeaveForm action={requestPartLeave} shifts={partShifts} swapOptions={swapOptions} minDate={todayISO} />
+        <h2 className="text-sm font-semibold">Vrij vragen</h2>
+        <p className="text-xs text-foreground-muted">
+          Vraag hele dagen vrij, een dagdeel van een gebroken dienst (ochtend of middag), of een andere dienst in plaats van
+          een ingeplande dienst. Een planner beoordeelt het en past bij goedkeuring het rooster aan. Je kunt dit ook doen door
+          bij Mijn rooster op een dienst te klikken.
+        </p>
+        <LeaveRequestForm shifts={partShifts} swapOptions={swapOptions} minDate={todayISO} />
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-border bg-surface">

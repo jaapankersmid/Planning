@@ -16,6 +16,7 @@ export type LeaveFormState = { error?: string; ok?: string } | undefined;
 function revalidateLeave() {
   revalidatePath("/verlof");
   revalidatePath("/verlof/overzicht");
+  revalidatePath("/rooster/mijn");
 }
 
 /** De ingelogde medewerker vraagt verlof aan. Een planner moet dit nog goedkeuren. */

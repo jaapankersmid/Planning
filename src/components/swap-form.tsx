@@ -15,9 +15,20 @@ export type SwapShiftOption = {
 };
 
 /** Formulier om een eigen dienst (of alleen de ochtend of middag van een gebroken dienst) met een collega te ruilen. */
-export function SwapForm({ mine, colleagues, theirs }: { mine: SwapShiftOption[]; colleagues: { id: string; name: string }[]; theirs: SwapShiftOption[] }) {
+export function SwapForm({
+  mine,
+  colleagues,
+  theirs,
+  initialMyId,
+}: {
+  mine: SwapShiftOption[];
+  colleagues: { id: string; name: string }[];
+  theirs: SwapShiftOption[];
+  /** Alvast gekozen eigen dienst (bij klikken op een dienst in Mijn diensten). */
+  initialMyId?: string;
+}) {
   const [state, action, pending] = useActionState(createSwapRequest, undefined);
-  const [myId, setMyId] = useState("");
+  const [myId, setMyId] = useState(initialMyId && mine.some((m) => m.id === initialMyId) ? initialMyId : "");
   const [targetId, setTargetId] = useState("");
   const [returnId, setReturnId] = useState("");
   const my = mine.find((m) => m.id === myId);

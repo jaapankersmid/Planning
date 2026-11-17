@@ -13,9 +13,12 @@ import {
   toISODate,
 } from "@/lib/format";
 import { holidayOn } from "@/lib/holidays";
+import { partialLeaveShifts } from "@/lib/leave";
+import { dayLabel, isWorking, timesOf, type ShiftTypeLite } from "@/lib/shift-swap";
 import { CalendarSyncPanel } from "@/components/calendar-sync-panel";
 import { EmailNotificationsToggle } from "@/components/email-notifications-toggle";
-import { ShiftSwaps } from "@/components/shift-swaps";
+import { ShiftSwaps, loadSwapOptions } from "@/components/shift-swaps";
+import { MyShiftActions, ShiftCellButton } from "@/components/my-shift-actions";
 
 const CALENDAR_MESSAGES: Record<string, string> = {
   verbonden: "Google Calendar gekoppeld — de sync staat aan.",
@@ -56,7 +59,7 @@ export default async function MijnRoosterPage({
 
   await reconcileTemplate(toISODate(firstMonday), toISODate(rangeEnd));
 
-  const [assignments, holidays] = await Promise.all([
+  const [assignments, holidays, swap, partShifts, allTypes] = await Promise.all([
     employee
       ? prisma.shiftAssignment.findMany({
           where: { employeeId: employee.id, date: { gte: firstMonday, lt: rangeEnd } },
@@ -67,11 +70,109 @@ export default async function MijnRoosterPage({
       where: { startDate: { lt: rangeEnd }, endDate: { gte: firstMonday } },
       orderBy: { startDate: "asc" },
     }),
+    employee ? loadSwapOptions(employee.id) : null,
+    employee ? partialLeaveShifts(employee.id) : [],
+    prisma.shiftType.findMany({ orderBy: { code: "asc" } }) as Promise<ShiftTypeLite[]>,
   ]);
+  const swapOptions = allTypes.filter((t) => t.active && isWorking(t)).map((t) => ({ id: t.id, label: `${t.code} · ${t.label} (${timesOf(t)})` }));
   const byDay = new Map(assignments.map((a) => [toISODate(a.date), a]));
   const prevStart = toISODate(addDays(firstMonday, -WEEKS * 7));
   const nextStart = toISODate(addDays(firstMonday, WEEKS * 7));
   const hasUpcoming = assignments.some((a) => toISODate(a.date) >= todayISO);
+
+  const grid = (
+    <div className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
+      <div className="grid grid-cols-[2.25rem_repeat(7,minmax(0,1fr))] border-b border-border bg-surface-muted text-center text-xs font-medium text-foreground-muted">
+        <div className="px-1 py-2">wk</div>
+        {["ma", "di", "wo", "do", "vr", "za", "zo"].map((d) => (
+          <div key={d} className="py-2">
+            {d}
+          </div>
+        ))}
+      </div>
+      {weeks.map((week) => (
+        <div
+          key={toISODate(week[0])}
+          className="grid grid-cols-[2.25rem_repeat(7,minmax(0,1fr))] border-b border-border last:border-b-0"
+        >
+          <div className="flex items-start justify-center px-1 py-1.5 text-xs font-medium tabular-nums text-foreground-muted">
+            {isoWeek(week[0])}
+          </div>
+          {week.map((day) => {
+            const iso = toISODate(day);
+            const a = byDay.get(iso);
+            const holiday = holidayOn(holidays, iso);
+            const isToday = iso === todayISO;
+            const past = iso < todayISO;
+            const showMonth = day.getUTCDate() === 1 || iso === toISODate(firstMonday);
+            const block = a && (
+              <span
+                className="block rounded px-1 py-1 text-center sm:text-left"
+                style={{
+                  background: a.shiftType.color,
+                  color: readableTextColor(a.shiftType.color),
+                }}
+              >
+                <span className="block text-xs font-semibold sm:text-sm">{a.shiftType.code}</span>
+                <span className="hidden text-[11px] leading-tight sm:block">{a.shiftType.label}</span>
+                {a.shiftType.startTime && a.shiftType.endTime && (
+                  <span className="hidden text-[11px] leading-tight opacity-90 sm:block">
+                    {a.shiftType.startTime}–{a.shiftType.endTime}
+                    {a.shiftType.secondStartTime && a.shiftType.secondEndTime
+                      ? ` · ${a.shiftType.secondStartTime}–${a.shiftType.secondEndTime}`
+                      : ""}
+                  </span>
+                )}
+              </span>
+            );
+            const clickable = a && !past && isWorking(a.shiftType);
+            return (
+              <div
+                key={iso}
+                className={`flex min-h-16 flex-col gap-1 border-l border-border p-1 sm:min-h-24 sm:p-1.5 ${
+                  isWeekend(day) ? "bg-weekend" : holiday ? "bg-holiday" : ""
+                } ${past ? "opacity-55" : ""} ${isToday ? "ring-2 ring-inset ring-accent" : ""}`}
+                title={holiday ? `${holiday.name}` : undefined}
+              >
+                <div className="flex items-baseline justify-between gap-1 text-xs">
+                  <span className={`font-semibold tabular-nums ${isToday ? "text-accent" : ""}`}>
+                    {day.getUTCDate()}
+                    {showMonth && (
+                      <span className="ml-1 font-normal text-foreground-muted">
+                        {monthName(day.getUTCMonth() + 1).slice(0, 3)}
+                      </span>
+                    )}
+                  </span>
+                  {a?.syncedAt && (
+                    <span
+                      className="h-1.5 w-1.5 rounded-full bg-accent"
+                      title="Staat in je Google-agenda"
+                    />
+                  )}
+                </div>
+                {clickable ? (
+                  <ShiftCellButton
+                    assignmentId={a.id}
+                    dateISO={iso}
+                    label={`${dayLabel(a.date)} · ${a.shiftType.code} ${a.shiftType.label}${timesOf(a.shiftType) ? ` (${timesOf(a.shiftType)})` : ""}`}
+                  >
+                    <span className="block cursor-pointer transition-shadow hover:shadow-md hover:ring-2 hover:ring-accent/50 rounded">{block}</span>
+                  </ShiftCellButton>
+                ) : (
+                  block
+                )}
+                {!a && holiday && (
+                  <div className="hidden text-[11px] leading-tight text-holiday-strong sm:block">
+                    {holiday.name}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <div className="flex max-w-5xl flex-col gap-6">
@@ -81,6 +182,50 @@ export default async function MijnRoosterPage({
           {employee ? employee.name : "Nog niet gekoppeld aan een medewerker."}
         </p>
       </div>
+
+      <div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-sm font-semibold">
+            Mijn diensten
+            <span className="ml-2 font-normal text-foreground-muted">
+              week {isoWeek(firstMonday)} t/m {isoWeek(addDays(rangeEnd, -1))}
+            </span>
+          </h2>
+          <div className="flex items-center gap-2 text-sm">
+            <Link href={`/rooster/mijn?start=${prevStart}`} className="rounded-md border border-border px-3 py-1.5 hover:bg-surface-muted">
+              ← eerder
+            </Link>
+            <Link href="/rooster/mijn" className="rounded-md border border-border px-3 py-1.5 hover:bg-surface-muted">
+              vandaag
+            </Link>
+            <Link href={`/rooster/mijn?start=${nextStart}`} className="rounded-md border border-border px-3 py-1.5 hover:bg-surface-muted">
+              later →
+            </Link>
+          </div>
+        </div>
+
+        {!employee || !swap ? (
+          <p className="mt-2 text-sm text-foreground-muted">
+            Er is nog geen medewerker aan jouw account gekoppeld.
+          </p>
+        ) : (
+          <>
+            <MyShiftActions data={{ swap, partShifts, swapOptions, todayISO }}>{grid}</MyShiftActions>
+            {!hasUpcoming && (
+              <p className="mt-2 text-sm text-foreground-muted">
+                Geen geplande diensten in deze weken.
+              </p>
+            )}
+            <p className="mt-2 text-xs text-foreground-muted">
+              Klik op een komende dienst om hem te ruilen met een collega of om vrij te vragen (hele dag, dagdeel of een andere
+              dienst). Een groene stip bij een dag betekent dat de dienst in je Google-agenda staat. Vandaag heeft een gekleurde
+              rand, dagen die al geweest zijn zijn lichter.
+            </p>
+          </>
+        )}
+      </div>
+
+      {employee && <ShiftSwaps employeeId={employee.id} />}
 
       <div className="max-w-2xl rounded-lg border border-border bg-surface p-5">
         <h2 className="text-sm font-semibold">Google Calendar-koppeling</h2>
@@ -119,136 +264,6 @@ export default async function MijnRoosterPage({
               email={session.user.email ?? user?.email ?? ""}
             />
           </div>
-        )}
-      </div>
-
-      {employee && <ShiftSwaps employeeId={employee.id} />}
-
-      <div>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-sm font-semibold">
-            Mijn diensten
-            <span className="ml-2 font-normal text-foreground-muted">
-              week {isoWeek(firstMonday)} t/m {isoWeek(addDays(rangeEnd, -1))}
-            </span>
-          </h2>
-          <div className="flex items-center gap-2 text-sm">
-            <Link
-              href={`/rooster/mijn?start=${prevStart}`}
-              className="rounded-md border border-border px-3 py-1.5 hover:bg-surface-muted"
-            >
-              ← eerder
-            </Link>
-            <Link
-              href="/rooster/mijn"
-              className="rounded-md border border-border px-3 py-1.5 hover:bg-surface-muted"
-            >
-              vandaag
-            </Link>
-            <Link
-              href={`/rooster/mijn?start=${nextStart}`}
-              className="rounded-md border border-border px-3 py-1.5 hover:bg-surface-muted"
-            >
-              later →
-            </Link>
-          </div>
-        </div>
-
-        {!employee ? (
-          <p className="mt-2 text-sm text-foreground-muted">
-            Er is nog geen medewerker aan jouw account gekoppeld.
-          </p>
-        ) : (
-          <>
-            <div className="mt-3 overflow-hidden rounded-lg border border-border bg-surface">
-              <div className="grid grid-cols-[2.25rem_repeat(7,minmax(0,1fr))] border-b border-border bg-surface-muted text-center text-xs font-medium text-foreground-muted">
-                <div className="px-1 py-2">wk</div>
-                {["ma", "di", "wo", "do", "vr", "za", "zo"].map((d) => (
-                  <div key={d} className="py-2">
-                    {d}
-                  </div>
-                ))}
-              </div>
-              {weeks.map((week) => (
-                <div
-                  key={toISODate(week[0])}
-                  className="grid grid-cols-[2.25rem_repeat(7,minmax(0,1fr))] border-b border-border last:border-b-0"
-                >
-                  <div className="flex items-start justify-center px-1 py-1.5 text-xs font-medium tabular-nums text-foreground-muted">
-                    {isoWeek(week[0])}
-                  </div>
-                  {week.map((day) => {
-                    const iso = toISODate(day);
-                    const a = byDay.get(iso);
-                    const holiday = holidayOn(holidays, iso);
-                    const isToday = iso === todayISO;
-                    const past = iso < todayISO;
-                    const showMonth = day.getUTCDate() === 1 || iso === toISODate(firstMonday);
-                    return (
-                      <div
-                        key={iso}
-                        className={`flex min-h-16 flex-col gap-1 border-l border-border p-1 sm:min-h-24 sm:p-1.5 ${
-                          isWeekend(day) ? "bg-weekend" : holiday ? "bg-holiday" : ""
-                        } ${past ? "opacity-55" : ""} ${isToday ? "ring-2 ring-inset ring-accent" : ""}`}
-                        title={holiday ? `${holiday.name}` : undefined}
-                      >
-                        <div className="flex items-baseline justify-between gap-1 text-xs">
-                          <span className={`font-semibold tabular-nums ${isToday ? "text-accent" : ""}`}>
-                            {day.getUTCDate()}
-                            {showMonth && (
-                              <span className="ml-1 font-normal text-foreground-muted">
-                                {monthName(day.getUTCMonth() + 1).slice(0, 3)}
-                              </span>
-                            )}
-                          </span>
-                          {a?.syncedAt && (
-                            <span
-                              className="h-1.5 w-1.5 rounded-full bg-accent"
-                              title="Staat in je Google-agenda"
-                            />
-                          )}
-                        </div>
-                        {a && (
-                          <div
-                            className="rounded px-1 py-1 text-center sm:text-left"
-                            style={{
-                              background: a.shiftType.color,
-                              color: readableTextColor(a.shiftType.color),
-                            }}
-                          >
-                            <div className="text-xs font-semibold sm:text-sm">{a.shiftType.code}</div>
-                            <div className="hidden text-[11px] leading-tight sm:block">{a.shiftType.label}</div>
-                            {a.shiftType.startTime && a.shiftType.endTime && (
-                              <div className="hidden text-[11px] leading-tight opacity-90 sm:block">
-                                {a.shiftType.startTime}–{a.shiftType.endTime}
-                                {a.shiftType.secondStartTime && a.shiftType.secondEndTime
-                                  ? ` · ${a.shiftType.secondStartTime}–${a.shiftType.secondEndTime}`
-                                  : ""}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                        {!a && holiday && (
-                          <div className="hidden text-[11px] leading-tight text-holiday-strong sm:block">
-                            {holiday.name}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
-            {!hasUpcoming && (
-              <p className="mt-2 text-sm text-foreground-muted">
-                Geen geplande diensten in deze weken.
-              </p>
-            )}
-            <p className="mt-2 text-xs text-foreground-muted">
-              Een groene stip bij een dag betekent dat de dienst in je Google-agenda staat. Vandaag heeft
-              een gekleurde rand, dagen die al geweest zijn zijn lichter.
-            </p>
-          </>
         )}
       </div>
     </div>

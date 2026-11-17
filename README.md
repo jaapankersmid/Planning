@@ -153,9 +153,26 @@ krijgen, anders stopt de agenda-koppeling na een uur.
 
 Nieuwe tabellen: na het updaten eenmalig `docker compose -f docker-compose.prod.yml exec app npx prisma db push` draaien.
 
+## Mijn rooster: klik op een dienst om te ruilen of vrij te vragen
+
+Op *Mijn rooster* staat **Mijn diensten** bovenaan. Een komende werkdienst is aan te klikken en opent een popup met twee keuzes:
+
+- **Dienst ruilen**: het ruilformulier hieronder, met de aangeklikte dienst al gekozen. Dit kan voor diensten in de komende 8 weken.
+- **Vrij vragen**: het verlofformulier, met de datum en de dienst al ingevuld.
+
+Daaronder staan de **Ruilverzoeken**: verzoeken aan jou om te beantwoorden en je eigen verzoeken. Dit blok verschijnt alleen als er verzoeken zijn. Helemaal onderaan staan de *Google Calendar-koppeling* en de *E-mailmeldingen*.
+
+Het verlofformulier is één formulier met drie keuzes. Het staat ook bij *Mijn verlof*:
+
+- **Hele dag(en) vrij**: een periode, die bij goedkeuring V wordt.
+- **Een dagdeel vrij**: alleen bij een gebroken dienst.
+- **Een andere dienst**: een andere dienst op dezelfde dag.
+
+Code: `src/components/my-shift-actions.tsx` (popup), `src/components/leave-request-form.tsx` (verlofformulier), `loadSwapOptions` in `src/components/shift-swaps.tsx`. Geen schemawijziging.
+
 ## Dienst ruilen
 
-Op Mijn rooster kiest een medewerker een eigen dienst (komende 8 weken) en een collega. Optioneel kiest hij een dienst van die collega die hij er voor terugkrijgt. De collega krijgt een mail en ziet het verzoek bij Mijn rooster; pas bij **Accepteren** wordt het rooster aangepast (met agenda-sync en de gewone roostermail) en krijgen de aanvrager en de planners een mail. Bij **Afwijzen** hoort alleen de aanvrager het.
+Op Mijn rooster klikt een medewerker op een eigen dienst (komende 8 weken), kiest *Dienst ruilen* en kiest een collega. Optioneel kiest hij een dienst van die collega die hij er voor terugkrijgt. De collega krijgt een mail en ziet het verzoek bij Mijn rooster; pas bij **Accepteren** wordt het rooster aangepast (met agenda-sync en de gewone roostermail) en krijgen de aanvrager en de planners een mail. Bij **Afwijzen** hoort alleen de aanvrager het.
 
 - Gebroken dienst: ook alleen de ochtend of alleen de middag ruilen. Dat werkt via de losse dienst-typen met dezelfde tijden (X = XI + IX, Uit = UitO + UitA); bestaan die niet, dan kan alleen de hele dienst.
 - Het rooster kent één dienst per medewerker per dag. Heeft de ontvanger die dag al een ochtenddienst en krijgt hij de middag erbij (of andersom), dan wordt het één gebroken dienst (XI + IX = X, UitO + UitA = Uit). Elke andere botsing wordt geweigerd.
@@ -476,7 +493,7 @@ zelf een geldig HTTPS-certificaat.
 
 ## Dagdeel verlof aanvragen
 
-Bij Mijn verlof is er naast "Verlof aanvragen" een blok **Dagdeel verlof aanvragen**. De medewerker kiest een ingeplande gebroken dienst (ochtend + middag, bv. X),
+Bij Mijn verlof (en in de popup bij Mijn rooster) kiest de medewerker in *Vrij vragen* voor **Een dagdeel vrij**. De medewerker kiest een ingeplande gebroken dienst (ochtend + middag, bv. X),
 welk dagdeel vrij moet (ochtend of middag) en optioneel voor welke dienst (en op welke dag) hij dit wil ruilen. De planner ziet dat bij "Te beoordelen" en krijgt een mail.
 Bij goedkeuring blijft alleen het andere dagdeel over in het rooster (bv. X wordt IX); bij intrekken komt de oorspronkelijke dienst terug (als de dag nog niet geweest is en het rooster niet is gewijzigd).
 De gewenste ruildienst is een wens: de planner regelt die zelf in het rooster. Dagdeel-verlof telt niet als V en wordt dus niet automatisch van de verlofuren afgeboekt.
