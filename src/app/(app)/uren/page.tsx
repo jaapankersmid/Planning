@@ -9,7 +9,6 @@ import { TimesheetTable } from "@/components/timesheet-table";
 import { TimesheetActions } from "@/components/timesheet-actions";
 import { TimesheetStatusBadge } from "@/components/timesheet-status";
 import { saveOwnEntry } from "./actions";
-import { HelpButton } from "@/components/help-button";
 
 export default async function MijnUrenPage({
   searchParams,
@@ -50,7 +49,7 @@ export default async function MijnUrenPage({
     <div className="flex max-w-4xl flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-lg font-semibold">Mijn uren<HelpButton topic="uren" /></h1>
+          <h1 className="text-lg font-semibold">Mijn uren</h1>
           <p className="text-sm text-foreground-muted">{employee?.name}</p>
         </div>
         <MonthNav basePath="/uren" year={year} month={month} />

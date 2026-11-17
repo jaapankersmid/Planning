@@ -153,23 +153,6 @@ krijgen, anders stopt de agenda-koppeling na een uur.
 
 Nieuwe tabellen: na het updaten eenmalig `docker compose -f docker-compose.prod.yml exec app npx prisma db push` draaien.
 
-## Hulp: "Hoe werkt het?"
-
-Iedereen die is ingelogd, vindt in het menu **Hulp** (`/hulp`): korte uitleg per taak, in eenvoudig Nederlands, met stappen, tips en een knop naar het juiste scherm.
-
-- **Zoeken.** Bovenaan kun je zoeken.
-- **Per rol.** Elke gebruiker ziet alleen de onderwerpen van zijn rol:
-  - medewerkers (*Mijn werk*): rooster, ruilen, vrij vragen, verlofuren, uren, beschikbaarheid, ziek melden, mails en agenda;
-  - iedereen: inloggen, wachtwoord, menu, feedback;
-  - de planner: rooster aanpassen, verlof beoordelen, vast rooster, vakanties, bezetting, beheer;
-  - planner en administratie: uren, verlofuren, ziekte.
-  - Het Planvoorstel staat er bewust niet in.
-- **?-knopjes.** Een **?** bij Mijn rooster, Ruilverzoeken, Mijn verlof (verlofuren en vrij vragen), Mijn uren, Beschikbaarheid en Uren (administratie) opent een korte uitleg, met een link naar de hele uitleg.
-- **Ziek melden.** Volgens de afspraak: app of bel Mirjam of Kim; de planner zet Z.
-- **Wachtwoord.** Bovenaan, naast je naam, staat nu **Wachtwoord**: zelf je wachtwoord wijzigen. De welkomstmail heeft een link naar de hulp.
-- **Teksten aanpassen.** Dat gaat in `src/lib/help.ts`; ze zijn bewust niet in de app te bewerken. Een nieuw ?-knopje: `<HelpButton topic="id" />`.
-- Geen schemawijziging.
-
 ## Mijn rooster: klik op een dienst om te ruilen of vrij te vragen
 
 Op *Mijn rooster* staat **Mijn diensten** bovenaan. Een komende werkdienst is aan te klikken en opent een popup met twee keuzes:

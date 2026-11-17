@@ -57,9 +57,6 @@ export default async function AppLayout({
               {session.user.name}
               {session.user.role === "ADMIN" ? " · planner" : session.user.role === "ACCOUNTING" ? " · administratie" : ""}
             </span>
-            <a href="/wachtwoord-wijzigen" className="rounded-md px-2 py-1.5 text-xs font-medium hover:bg-surface-muted">
-              Wachtwoord
-            </a>
             <form
               action={async () => {
                 "use server";

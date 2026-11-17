@@ -17,11 +17,6 @@ export default async function WachtwoordWijzigenPage() {
         </p>
 
         <ChangePasswordForm forced={session.user.mustChangePassword} />
-        {!session.user.mustChangePassword && (
-          <a href="/rooster/mijn" className="mt-4 inline-block text-sm underline hover:no-underline">
-            ← terug naar de app
-          </a>
-        )}
       </div>
     </div>
   );

@@ -10,7 +10,6 @@ import { LeaveBalanceCard } from "@/components/leave-balance-card";
 import { LeaveRequestForm } from "@/components/leave-request-form";
 import { LeaveStatusBadge } from "@/components/leave-status";
 import { cancelOwnRequest } from "./actions";
-import { HelpButton } from "@/components/help-button";
 
 export default async function VerlofPage() {
   const session = await auth();
@@ -64,12 +63,12 @@ export default async function VerlofPage() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <h2 className="text-sm font-semibold">Mijn verlofuren<HelpButton topic="verlofuren" /></h2>
+        <h2 className="text-sm font-semibold">Mijn verlofuren</h2>
         <LeaveBalanceCard balance={balance} todayISO={todayISO} />
       </div>
 
       <div className="rounded-lg border border-border bg-surface p-5">
-        <h2 className="text-sm font-semibold">Vrij vragen<HelpButton topic="vrij" /></h2>
+        <h2 className="text-sm font-semibold">Vrij vragen</h2>
         <p className="text-xs text-foreground-muted">
           Vraag hele dagen vrij, een dagdeel van een gebroken dienst (ochtend of middag), of een andere dienst in plaats van
           een ingeplande dienst. Een planner beoordeelt het en past bij goedkeuring het rooster aan. Je kunt dit ook doen door

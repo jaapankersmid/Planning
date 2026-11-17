@@ -5,7 +5,6 @@ import { addDays, addMonths, daysInMonth, monthName, startOfWeek, toISODate } fr
 import { holidayOn } from "@/lib/holidays";
 import { todayAmsterdam } from "@/lib/schedule";
 import { AvailabilityGrid, type GridDay } from "@/components/availability-grid";
-import { HelpButton } from "@/components/help-button";
 
 export default async function BeschikbaarheidPage({
   searchParams,
@@ -78,7 +77,6 @@ export default async function BeschikbaarheidPage({
             <span className="ml-2 text-sm font-normal text-foreground-muted">
               {monthName(month)} {year}
             </span>
-            <HelpButton topic="beschikbaarheid" />
           </h1>
           <p className="text-sm text-foreground-muted">
             Geef per dag door wanneer je kunt werken. De planner ziet dit bij het inplannen.

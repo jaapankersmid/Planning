@@ -19,7 +19,6 @@ import { CalendarSyncPanel } from "@/components/calendar-sync-panel";
 import { EmailNotificationsToggle } from "@/components/email-notifications-toggle";
 import { ShiftSwaps, loadSwapOptions } from "@/components/shift-swaps";
 import { MyShiftActions, ShiftCellButton } from "@/components/my-shift-actions";
-import { HelpButton } from "@/components/help-button";
 
 const CALENDAR_MESSAGES: Record<string, string> = {
   verbonden: "Google Calendar gekoppeld — de sync staat aan.",
@@ -191,7 +190,6 @@ export default async function MijnRoosterPage({
             <span className="ml-2 font-normal text-foreground-muted">
               week {isoWeek(firstMonday)} t/m {isoWeek(addDays(rangeEnd, -1))}
             </span>
-            <HelpButton topic="ruilen" />
           </h2>
           <div className="flex items-center gap-2 text-sm">
             <Link href={`/rooster/mijn?start=${prevStart}`} className="rounded-md border border-border px-3 py-1.5 hover:bg-surface-muted">
