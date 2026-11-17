@@ -19,6 +19,7 @@ const links: Item[] = [
   { href: "/verlof", label: "Mijn verlof", roles: PERSONAL, personal: true },
   { href: "/beschikbaarheid", label: "Beschikbaarheid", roles: PERSONAL, personal: true },
   { href: "/uren", label: "Mijn uren", roles: PERSONAL, personal: true },
+  { href: "/hulp", label: "Hulp", roles: ALL },
 ];
 
 /** Uitklapmenu's: Planner (planning en verlof), Administratie (uren) en Instellingen (beheer). */

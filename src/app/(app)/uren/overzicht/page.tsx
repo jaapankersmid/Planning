@@ -8,6 +8,7 @@ import { loadOverview, parseMonth } from "@/lib/timesheets";
 import { GroupHeaderRow } from "@/components/group-header-row";
 import { MonthNav } from "@/components/month-nav";
 import { TimesheetStatusBadge } from "@/components/timesheet-status";
+import { HelpButton } from "@/components/help-button";
 
 export default async function UrenOverzichtPage({
   searchParams,
@@ -34,7 +35,7 @@ export default async function UrenOverzichtPage({
     <div className="flex max-w-5xl flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-lg font-semibold">Uren</h1>
+          <h1 className="text-lg font-semibold">Uren<HelpButton topic="admin-uren" /></h1>
           <p className="text-sm text-foreground-muted">
             {counts.SUBMITTED > 0 ? `${counts.SUBMITTED} maand${counts.SUBMITTED === 1 ? "" : "en"} wacht${counts.SUBMITTED === 1 ? "" : "en"} op beoordeling · ` : ""}
             {counts.WEEKS > 0 ? `${counts.WEEKS} ingediende we${counts.WEEKS === 1 ? "ek" : "ken"} te beoordelen · ` : ""}

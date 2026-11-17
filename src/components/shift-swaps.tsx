@@ -4,6 +4,7 @@ import { todayAmsterdam } from "@/lib/schedule";
 import { dayLabel, describeGiven, isBroken, isWorking, pieces, timesOf, type ShiftTypeLite } from "@/lib/shift-swap";
 import type { SwapShiftOption } from "@/components/swap-form";
 import { SwapButtons } from "@/components/swap-buttons";
+import { HelpButton } from "@/components/help-button";
 
 const STATUS: Record<string, string> = { PENDING: "Wacht op antwoord", ACCEPTED: "Geaccepteerd", DECLINED: "Afgewezen", CANCELLED: "Niet doorgegaan" };
 
@@ -65,7 +66,7 @@ export async function ShiftSwaps({ employeeId }: { employeeId: string }) {
 
   return (
     <div className="max-w-2xl rounded-lg border border-border bg-surface p-5">
-      <h2 className="text-sm font-semibold">Ruilverzoeken</h2>
+      <h2 className="text-sm font-semibold">Ruilverzoeken<HelpButton topic="ruilen" /></h2>
 
       {incoming.length > 0 && (
         <div className="mt-3 flex flex-col gap-3">

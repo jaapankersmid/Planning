@@ -14,6 +14,7 @@ export async function sendWelcomeMail(user: { name: string; email: string; passw
   if (!(await isMailConfigured())) return "not-configured";
   const base = (process.env.AUTH_URL || "").replace(/\/$/, "");
   const link = base ? `${base}/login` : "";
+  const help = base ? `${base}/hulp` : "";
   const change = user.mustChange
     ? "Dit is een tijdelijk wachtwoord: bij de eerste keer inloggen kies je zelf een nieuw wachtwoord."
     : "Je kunt dit wachtwoord later zelf wijzigen.";
@@ -29,6 +30,7 @@ export async function sendWelcomeMail(user: { name: string; email: string; passw
     "",
     change,
     "",
+    ...(help ? [`Uitleg over de app (Hoe werkt het?): ${help}`, ""] : []),
     "Heb je vragen? Neem contact op met een planner.",
   ].join("\n");
 
@@ -41,6 +43,7 @@ export async function sendWelcomeMail(user: { name: string; email: string; passw
       `<tr><td style="padding:2px 12px 2px 0;color:#5b6660">Wachtwoord</td><td style="font-family:monospace">${escapeHtml(user.password)}</td></tr>` +
       "</table>" +
       `<p>${escapeHtml(change)}</p>` +
+      (help ? `<p>Uitleg over de app vind je bij <a href="${escapeHtml(help)}">Hoe werkt het?</a></p>` : "") +
       "<p>Heb je vragen? Neem contact op met een planner.</p>",
   );
 
