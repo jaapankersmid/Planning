@@ -76,11 +76,16 @@ export default async function MijnUrenPage({
         )}
       </div>
 
-      <p className="text-sm text-foreground-muted">
-        De uren zijn voorgevuld met je geplande diensten (zonder pauzes). Klopt een dag, dan hoef je niets te doen;
-        was je korter of langer aan het werk, pas dan de uren aan en zet er eventueel een opmerking bij. Cursieve
-        uren zijn nog niet bevestigd. Heb je een andere dienst gewerkt dan in het rooster staat, kies die dan bij de dag onder Dienst (andere dienst?): de uren van die dienst worden ingevuld en de administratie ziet dat je een andere dienst hebt gewerkt. Je rooster zelf verandert daar niet door. Je kunt per week indienen (vanaf de zondag, bij de weekregel) of de hele maand in één keer; kies wat jou het beste uitkomt.
-      </p>
+      <details className="text-xs text-foreground-muted">
+        <summary className="cursor-pointer">
+          Uren staan voorgevuld met je rooster. Andere dienst gewerkt? Klik op de dienst. <span className="underline">Meer uitleg</span>
+        </summary>
+        <ul className="mt-1.5 list-disc space-y-1 pl-5">
+          <li>Klopt een dag, dan hoef je niets te doen. Was je korter of langer aan het werk, pas dan de uren aan en zet er eventueel een opmerking bij. Cursieve uren zijn nog niet bevestigd.</li>
+          <li>Heb je een andere dienst gewerkt dan in het rooster staat, klik dan op de dienst en kies de dienst die je echt hebt gewerkt. De uren van die dienst worden ingevuld en de administratie ziet het. Je rooster zelf verandert daar niet door.</li>
+          <li>Je kunt per week indienen (vanaf de zondag, bij de weekregel) of de hele maand in één keer.</li>
+        </ul>
+      </details>
 
       <TimesheetTable
         key={`${year}-${month}-${sheet.status}-${weekRows.filter((r) => r.entry).length}-${weeks.map((w) => w.status).join("")}`}

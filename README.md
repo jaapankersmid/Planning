@@ -234,7 +234,7 @@ Bij *Gebruikers → Nieuwe gebruiker* staat het vinkje **Welkomstmail sturen** (
 
 ## Andere dienst gewerkt dan in het rooster
 
-Bij *Mijn uren* kan de medewerker per dag (tot en met vandaag, zolang de week of maand niet is ingediend) onder *Dienst* kiezen **andere dienst?** en de dienst aanwijzen die hij of zij echt heeft gewerkt. Zo vang je fouten in het rooster op.
+Bij *Mijn uren* kan de medewerker per dag (tot en met vandaag, zolang de week of maand niet is ingediend) op de dienst zelf klikken (de dienstcode is een knop met ▾) en de dienst aanwijzen die hij of zij echt heeft gewerkt; *zoals in het rooster* zet het terug. Zo vang je fouten in het rooster op. De tabel is compact: smallere regels en invulvelden, en de uitleg boven de tabel is ingeklapt tot één regel (*Meer uitleg*).
 
 - De uren worden dan ingevuld met de uren van die dienst; aanpassen kan daarna nog. Terugzetten kan met *zoals rooster*.
 - Het rooster zelf verandert niet. Dat blijft aan de planner, via `applyAssignment`.

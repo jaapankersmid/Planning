@@ -45,6 +45,7 @@ type Cell = {
   savedWorked: string;
 };
 
+const cx = "px-2 py-1";
 const fmt = (n: number) => String(Math.round(n * 100) / 100).replace(".", ",");
 
 /** Dagtabel voor de urenregistratie: voorgevuld met de geplande uren, per dag te bevestigen of aan te passen. */
@@ -149,14 +150,14 @@ export function TimesheetTable({
 
   return (
     <div className="overflow-x-auto rounded-lg border border-border bg-surface">
-      <table className="w-full min-w-[34rem] text-sm">
+      <table className="w-full min-w-[30rem] text-sm">
         <thead>
-          <tr className="border-b border-border bg-surface-muted text-left text-xs font-medium uppercase tracking-wide text-foreground-muted">
-            <th className="px-3 py-2">Dag</th>
-            <th className="px-3 py-2">Dienst</th>
-            <th className="px-3 py-2 text-right">Gepland</th>
-            <th className="px-3 py-2">Gewerkt (uren)</th>
-            <th className="px-3 py-2">Opmerking</th>
+          <tr className="border-b border-border bg-surface-muted text-left text-xs font-medium text-foreground-muted">
+            <th className="px-2 py-1.5">Dag</th>
+            <th className="px-2 py-1.5">Dienst</th>
+            <th className="px-2 py-1.5 text-right">Gepland</th>
+            <th className="px-2 py-1.5">Gewerkt</th>
+            <th className="px-2 py-1.5">Opmerking</th>
           </tr>
         </thead>
         <tbody>
@@ -175,57 +176,66 @@ export function TimesheetTable({
               <tr
                 className={`border-b border-border last:border-0 ${weekend ? "bg-weekend" : ""} ${future && !allowFuture ? "opacity-50" : ""} ${r.inMonth === false ? "bg-surface-muted/40 text-foreground-muted" : ""} ${cell.worked && weekMode === "admin" ? "bg-amber-50 dark:bg-amber-950/30" : ""}`}
               >
-                <td className={`whitespace-nowrap px-3 py-1.5 ${r.dateISO === todayISO ? "font-semibold" : ""}`}>
+                <td className={`whitespace-nowrap ${cx} ${r.dateISO === todayISO ? "font-semibold" : ""}`}>
                   {weekdayShort(date)} {date.getUTCDate()}
                   {r.inMonth === false && <span className="ml-1 text-xs font-normal">{monthName(date.getUTCMonth() + 1).slice(0, 3)}</span>}
                 </td>
-                <td className="px-3 py-1.5" title={r.label ?? undefined}>
+                <td className={cx} title={r.label ?? undefined}>
                   {(() => {
                     const other = cell.worked ? optionById.get(cell.worked) : undefined;
                     const otherCode = other?.code ?? (cell.worked && cell.worked === r.entry?.workedShiftTypeId ? r.entry?.workedCode : null);
-                    return (
-                      <span className="inline-flex flex-wrap items-center gap-1.5">
-                        <span className={otherCode ? "text-foreground-muted line-through" : ""}>
+                    const chip = (
+                      <span className="inline-flex items-center gap-1">
+                        <span className={otherCode ? "text-foreground-muted line-through" : "font-medium"}>
                           {r.code ?? <span className="text-foreground-muted">–</span>}
                         </span>
                         {otherCode && (
                           <span
-                            className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-semibold text-amber-900 dark:bg-amber-900/40 dark:text-amber-200"
+                            className="rounded bg-amber-100 px-1 text-xs font-semibold text-amber-900 dark:bg-amber-900/40 dark:text-amber-200"
                             title={`Volgens de medewerker gewerkt als ${otherCode}${other ? ` (${other.label})` : ""} in plaats van ${r.code ?? "geen dienst"}`}
                           >
-                            {weekMode === "admin" ? `medewerker: ${otherCode} gewerkt` : `${otherCode} gewerkt`}
+                            {weekMode === "admin" ? `medewerker: ${otherCode}` : otherCode}
                           </span>
-                        )}
-                        {canEdit && shiftOptions.length > 0 && (
-                          <select
-                            value={cell.worked}
-                            aria-label={`Andere dienst gewerkt op ${r.dateISO}`}
-                            onChange={(e) => {
-                              const id = e.target.value;
-                              const option = optionById.get(id);
-                              // Uren mee laten gaan met de gekozen dienst; terug naar het rooster = terug naar het voorstel.
-                              const change: Partial<Cell> = { worked: id, hours: option ? fmt(option.hours) : proposal(r) };
-                              patch(r.dateISO, change);
-                              commit(r, change);
-                            }}
-                            className="max-w-28 rounded-md border border-border bg-surface px-1 py-0.5 text-xs text-foreground-muted"
-                          >
-                            <option value="">{cell.worked ? "zoals rooster" : "andere dienst?"}</option>
-                            {shiftOptions
-                              .filter((o) => o.code !== r.code)
-                              .map((o) => (
-                                <option key={o.id} value={o.id}>
-                                  {o.code} · {o.label}
-                                </option>
-                              ))}
-                          </select>
                         )}
                       </span>
                     );
+                    if (!(canEdit && shiftOptions.length > 0)) return chip;
+                    // De dienst zelf is de knop: een onzichtbare select over het label opent de keuzelijst.
+                    return (
+                      <label
+                        className="relative inline-flex cursor-pointer items-center gap-1 rounded-md border border-border px-1.5 py-0.5 hover:border-accent hover:bg-surface-muted focus-within:ring-2 focus-within:ring-accent/50"
+                        title="Klik om aan te geven dat je een andere dienst hebt gewerkt"
+                      >
+                        {chip}
+                        <span className="text-[10px] text-foreground-muted" aria-hidden>▾</span>
+                        <select
+                          value={cell.worked}
+                          aria-label={`Gewerkte dienst op ${r.dateISO}`}
+                          onChange={(e) => {
+                            const id = e.target.value;
+                            const option = optionById.get(id);
+                            // Uren mee laten gaan met de gekozen dienst; terug naar het rooster = terug naar het voorstel.
+                            const change: Partial<Cell> = { worked: id, hours: option ? fmt(option.hours) : proposal(r) };
+                            patch(r.dateISO, change);
+                            commit(r, change);
+                          }}
+                          className="absolute inset-0 cursor-pointer opacity-0"
+                        >
+                          <option value="">{r.code ? `${r.code} · zoals in het rooster` : "geen dienst (zoals in het rooster)"}</option>
+                          {shiftOptions
+                            .filter((o) => o.code !== r.code)
+                            .map((o) => (
+                              <option key={o.id} value={o.id}>
+                                {o.code} · {o.label} (andere dienst gewerkt)
+                              </option>
+                            ))}
+                        </select>
+                      </label>
+                    );
                   })()}
                 </td>
-                <td className="px-3 py-1.5 text-right tabular-nums text-foreground-muted">{r.planned > 0 ? fmt(r.planned) : "–"}</td>
-                <td className="px-3 py-1.5">
+                <td className={`${cx} text-right tabular-nums text-foreground-muted`}>{r.planned > 0 ? fmt(r.planned) : "–"}</td>
+                <td className={cx}>
                   {canEdit ? (
                     <input
                       inputMode="decimal"
@@ -234,7 +244,7 @@ export function TimesheetTable({
                       placeholder="0"
                       onChange={(e) => patch(r.dateISO, { hours: e.target.value })}
                       onBlur={() => commit(r)}
-                      className={`w-20 rounded-md border bg-surface px-2 py-1 text-right tabular-nums text-base sm:text-sm ${
+                      className={`w-16 rounded-md border bg-surface px-1.5 py-0.5 text-right tabular-nums text-base sm:text-sm ${
                         cell.confirmed ? "border-border font-semibold" : "border-dashed border-border italic text-foreground-muted"
                       }`}
                     />
@@ -250,7 +260,7 @@ export function TimesheetTable({
                   )}
                   {errors[r.dateISO] && <div className="text-xs text-bad-text">{errors[r.dateISO]}</div>}
                 </td>
-                <td className="px-3 py-1.5">
+                <td className={cx}>
                   {canEdit ? (
                     <input
                       value={cell.note}
@@ -259,7 +269,7 @@ export function TimesheetTable({
                       placeholder={r.dateISO <= todayISO ? "bv. overwerk" : ""}
                       onChange={(e) => patch(r.dateISO, { note: e.target.value })}
                       onBlur={() => commit(r)}
-                      className="w-full min-w-32 rounded-md border border-border bg-surface px-2 py-1 text-base sm:text-sm"
+                      className="w-full min-w-28 rounded-md border border-border bg-surface px-1.5 py-0.5 text-base sm:text-sm"
                     />
                   ) : (
                     <span className="text-foreground-muted">{cell.note}</span>
@@ -274,14 +284,14 @@ export function TimesheetTable({
                 const end = new Date(`${week.endISO}T00:00:00Z`);
                 return (
                   <tr className="border-b border-border bg-surface-muted/70 text-xs">
-                    <td className="px-3 py-1.5 font-semibold" colSpan={2}>
+                    <td className={`${cx} font-semibold`} colSpan={2}>
                       Week {week.weekNo}
                       <span className="ml-1.5 font-normal text-foreground-muted">
                         {formatDayMonth(start)} – {formatDayMonth(end)}
                       </span>
                     </td>
-                    <td className="px-3 py-1.5 text-right tabular-nums text-foreground-muted">{formatHours(plannedWeek)}</td>
-                    <td className="px-3 py-1.5 font-semibold tabular-nums" colSpan={2}>
+                    <td className={`${cx} text-right tabular-nums text-foreground-muted`}>{formatHours(plannedWeek)}</td>
+                    <td className={`${cx} font-semibold tabular-nums`} colSpan={2}>
                       <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-1.5">
                         <span>
                           {formatHours(liveWeek)} uur
@@ -317,11 +327,11 @@ export function TimesheetTable({
         </tbody>
         <tfoot>
           <tr className="border-t border-border bg-surface-muted font-semibold">
-            <td className="px-3 py-2" colSpan={2}>
+            <td className="px-2 py-1.5" colSpan={2}>
               Totaal
             </td>
-            <td className="px-3 py-2 text-right tabular-nums">{formatHours(plannedTotal)}</td>
-            <td className="px-3 py-2 tabular-nums" colSpan={2}>
+            <td className="px-2 py-1.5 text-right tabular-nums">{formatHours(plannedTotal)}</td>
+            <td className="px-2 py-1.5 tabular-nums" colSpan={2}>
               {formatHours(total)} uur
             </td>
           </tr>
