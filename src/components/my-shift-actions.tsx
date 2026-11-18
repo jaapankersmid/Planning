@@ -190,6 +190,7 @@ export function MyShiftActions({ data, children }: { data: Data; children: React
             )}
 
             {step === "leave" && (
+              <div className="mt-3">
               <LeaveRequestForm
                 key={selected.assignmentId}
                 shifts={data.partShifts}
@@ -198,6 +199,7 @@ export function MyShiftActions({ data, children }: { data: Data; children: React
                 initialDateISO={selected.dateISO}
                 initialAssignmentId={selected.assignmentId}
               />
+              </div>
             )}
 
             {step !== "choose" && (

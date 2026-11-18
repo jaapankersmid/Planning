@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { requestLeave, requestPartLeave } from "@/app/(app)/verlof/actions";
 
-const inputClass = "rounded-md border border-border bg-surface px-3 py-2 text-sm";
+const inputClass = "rounded-md border border-border bg-surface px-2 py-1.5 text-sm";
 
 /** Ingeplande dienst om een dagdeel of andere dienst voor te vragen (bij een gebroken dienst met de tijden van ochtend en middag). */
 export type PartShift = { id: string; label: string; morning?: string; afternoon?: string };
@@ -47,7 +47,7 @@ export function LeaveRequestForm({
   );
 
   return (
-    <form action={whole ? wholeAction : partAction} className="mt-3 grid grid-cols-2 gap-3">
+    <form action={whole ? wholeAction : partAction} className="grid grid-cols-2 gap-2.5">
       <fieldset className="col-span-2 flex flex-wrap gap-x-4 gap-y-2 text-sm">
         <legend className="mb-1 text-xs text-foreground-muted">Wat wil je vragen?</legend>
         {choice("WHOLE", "Hele dag(en) vrij")}
@@ -131,7 +131,7 @@ export function LeaveRequestForm({
       <button
         type="submit"
         disabled={pending || (!whole && (shifts.length === 0 || (mode === "PART" && !!shift && !broken)))}
-        className="col-span-2 rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 disabled:opacity-60"
+        className="col-span-2 rounded-md bg-accent px-4 py-1.5 text-sm font-medium text-accent-foreground hover:opacity-90 disabled:opacity-60"
       >
         {pending ? "Bezig…" : whole ? "Verlof aanvragen" : mode === "CHANGE" ? "Andere dienst aanvragen" : "Dagdeel aanvragen"}
       </button>

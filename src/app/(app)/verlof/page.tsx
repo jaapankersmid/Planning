@@ -53,81 +53,61 @@ export default async function VerlofPage() {
   const balance = await loadBalance(employeeId, todayISO);
 
   return (
-    <div className="flex max-w-3xl flex-col gap-6">
+    <div className="flex max-w-4xl flex-col gap-4">
       <div>
         <h1 className="text-lg font-semibold">Mijn verlof</h1>
-        <p className="text-sm text-foreground-muted">
-          Vraag hier vrij aan. Een planner moet het goedkeuren; daarna staan de dagen als V (Vrij) in
-          het rooster.
-        </p>
+        <p className="text-xs text-foreground-muted">Een planner keurt je aanvraag goed; daarna staat het in je rooster.</p>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <h2 className="text-sm font-semibold">Mijn verlofuren</h2>
-        <LeaveBalanceCard balance={balance} todayISO={todayISO} />
+      <div className="grid items-start gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+        <div className="flex flex-col gap-1.5">
+          <h2 className="text-sm font-semibold">Mijn verlofuren</h2>
+          <LeaveBalanceCard balance={balance} todayISO={todayISO} compact />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <h2 className="text-sm font-semibold">Vrij vragen</h2>
+          <div className="rounded-lg border border-border bg-surface p-4">
+            <LeaveRequestForm shifts={partShifts} swapOptions={swapOptions} minDate={todayISO} />
+          </div>
+        </div>
       </div>
 
-      <div className="rounded-lg border border-border bg-surface p-5">
-        <h2 className="text-sm font-semibold">Vrij vragen</h2>
-        <p className="text-xs text-foreground-muted">
-          Vraag hele dagen vrij, een dagdeel van een gebroken dienst (ochtend of middag), of een andere dienst in plaats van
-          een ingeplande dienst. Een planner beoordeelt het en past bij goedkeuring het rooster aan. Je kunt dit ook doen door
-          bij Mijn rooster op een dienst te klikken.
-        </p>
-        <LeaveRequestForm shifts={partShifts} swapOptions={swapOptions} minDate={todayISO} />
-      </div>
-
-      <div className="overflow-x-auto rounded-lg border border-border bg-surface">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border bg-surface-muted text-left text-xs font-medium uppercase tracking-wide text-foreground-muted">
-              <th className="px-4 py-2">Periode</th>
-              <th className="px-4 py-2">Dagen</th>
-              <th className="px-4 py-2">Status</th>
-              <th className="px-4 py-2" />
-            </tr>
-          </thead>
-          <tbody>
-            {requests.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-foreground-muted">
-                  Je hebt nog geen verlof aangevraagd.
-                </td>
-              </tr>
-            )}
-            {requests.map((r) => (
-              <tr key={r.id} className="border-b border-border align-top last:border-0">
-                <td className="px-4 py-2">
-                  <div className="font-medium">{formatRange(r.startDate, r.endDate)}</div>
-                  {describePartRequest(r) && <div className="text-xs">{describePartRequest(r)}</div>}
-                  {r.note && <div className="text-xs text-foreground-muted">{r.note}</div>}
-                </td>
-                <td className="px-4 py-2 tabular-nums">
-                  {isShiftRequest(r) ? "1 dienst" : leaveDates(r.startDate, r.endDate, r.includeWeekends).length}
-                </td>
-                <td className="px-4 py-2">
+      <div className="flex flex-col gap-1.5">
+        <h2 className="text-sm font-semibold">Mijn aanvragen</h2>
+        {requests.length === 0 ? (
+          <p className="text-sm text-foreground-muted">Je hebt nog geen verlof aangevraagd.</p>
+        ) : (
+          <ul className="divide-y divide-border rounded-lg border border-border bg-surface text-sm">
+            {requests.map((r) => {
+              const part = describePartRequest(r);
+              const days = isShiftRequest(r) ? null : leaveDates(r.startDate, r.endDate, r.includeWeekends).length;
+              const decided = (r.status === "APPROVED" || r.status === "REJECTED") && r.decidedBy;
+              return (
+                <li key={r.id} className="flex flex-wrap items-center gap-x-3 gap-y-0.5 px-3 py-2">
+                  <span className="font-medium">{formatRange(r.startDate, r.endDate)}</span>
+                  <span className="text-xs text-foreground-muted">{part ?? `${days} ${days === 1 ? "dag" : "dagen"}`}</span>
                   <LeaveStatusBadge status={r.status} />
-                  {(r.status === "APPROVED" || r.status === "REJECTED") && r.decidedBy && (
-                    <div className="mt-1 text-xs text-foreground-muted">
-                      door {r.decidedBy.name}
-                      {r.decisionNote ? ` — ${r.decisionNote}` : ""}
-                    </div>
+                  <span className="ml-auto text-xs">
+                    {r.status === "PENDING" && (
+                      <form action={cancelOwnRequest.bind(null, r.id)}>
+                        <button className="underline hover:no-underline">intrekken</button>
+                      </form>
+                    )}
+                  </span>
+                  {(r.note || decided) && (
+                    <span className="w-full text-xs text-foreground-muted">
+                      {r.note}
+                      {r.note && decided ? " · " : ""}
+                      {decided && `${r.status === "APPROVED" ? "goedgekeurd" : "afgewezen"} door ${r.decidedBy!.name}${r.decisionNote ? `: ${r.decisionNote}` : ""}`}
+                    </span>
                   )}
-                </td>
-                <td className="px-4 py-2 text-right">
-                  {r.status === "PENDING" && (
-                    <form action={cancelOwnRequest.bind(null, r.id)}>
-                      <button className="text-xs underline hover:no-underline">intrekken</button>
-                    </form>
-                  )}
-                  {r.status === "APPROVED" && r.endDate >= todayAmsterdam() && (
-                    <span className="text-xs text-foreground-muted">wijzigen? vraag een planner</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        <p className="text-xs text-foreground-muted">Goedgekeurd verlof wijzigen? Vraag een planner.</p>
       </div>
     </div>
   );
