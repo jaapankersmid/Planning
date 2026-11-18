@@ -83,6 +83,7 @@ export default async function MijnUrenPage({
         <ul className="mt-1.5 list-disc space-y-1 pl-5">
           <li>Klopt een dag, dan hoef je niets te doen. Was je korter of langer aan het werk, pas dan de uren aan en zet er eventueel een opmerking bij. Cursieve uren zijn nog niet bevestigd.</li>
           <li>Heb je een andere dienst gewerkt dan in het rooster staat, klik dan op de dienst en kies de dienst die je echt hebt gewerkt. De uren van die dienst worden ingevuld en de administratie ziet het. Je rooster zelf verandert daar niet door.</li>
+          <li>Was je ziek? Klik op de dienst en kies Ziek geweest. Heb je nog een deel gewerkt, vul dan die uren in. De planner verwerkt het in het rooster; tot dan kun je het zelf terugzetten. Vul geen klachten of reden in.</li>
           <li>Je kunt per week indienen (vanaf de zondag, bij de weekregel) of de hele maand in één keer.</li>
         </ul>
       </details>

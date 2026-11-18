@@ -81,6 +81,14 @@ export default async function UrenOverzichtPage({
                       {r.otherShiftDays === 1 ? "1 dag andere dienst" : `${r.otherShiftDays} dagen andere dienst`}
                     </span>
                   )}
+                  {r.sickReportedDays > 0 && (
+                    <span
+                      className="ml-2 inline-block rounded-full bg-rose-200 px-2 py-0.5 text-xs font-semibold text-rose-950 dark:bg-rose-900 dark:text-rose-100"
+                      title="De medewerker meldt bij de uren dat hij ziek was. Open de uren en zet Z in het rooster als het klopt."
+                    >
+                      {r.sickReportedDays === 1 ? "1 dag ziek gemeld" : `${r.sickReportedDays} dagen ziek gemeld`}
+                    </span>
+                  )}
                 </td>
                 <td className="px-4 py-2 text-right tabular-nums text-foreground-muted">{formatHours(r.planned)}</td>
                 <td className="px-4 py-2 text-right tabular-nums">

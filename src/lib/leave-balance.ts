@@ -293,7 +293,7 @@ export async function loadBalances(todayISO: string, employeeIds?: string[]) {
   const [assignments, entries, templates] = rangeStart
     ? await Promise.all([
         prisma.shiftAssignment.findMany({ where: { ...filter, date: { gte: rangeStart, lt: rangeEnd } }, include: { shiftType: true } }),
-        prisma.timeEntry.findMany({ where: { ...filter, date: { gte: rangeStart, lt: rangeEnd } }, select: { employeeId: true, date: true, hours: true } }),
+        prisma.timeEntry.findMany({ where: { ...filter, date: { gte: rangeStart, lt: rangeEnd } }, select: { employeeId: true, date: true, hours: true, sickReported: true } }),
         prisma.weeklyScheduleEntry.findMany({ where: filter, include: { shiftType: true } }),
       ])
     : [[], [], []];
@@ -304,7 +304,11 @@ export async function loadBalances(todayISO: string, employeeIds?: string[]) {
   const assignmentsBy = new Map<string, (typeof assignments)[number]>();
   for (const a of assignments) assignmentsBy.set(`${a.employeeId}_${toISODate(a.date)}`, a);
   const entriesBy = new Map<string, number>();
-  for (const e of entries) entriesBy.set(`${e.employeeId}_${toISODate(e.date)}`, e.hours);
+  const sickReportedBy = new Set<string>();
+  for (const e of entries) {
+    entriesBy.set(`${e.employeeId}_${toISODate(e.date)}`, e.hours);
+    if (e.sickReported) sickReportedBy.add(`${e.employeeId}_${toISODate(e.date)}`);
+  }
 
   const result = new Map<string, Balance & { weeklyHours: number | null }>();
   const ids = employeeIds ?? [...new Set([...byEmployee.keys(), ...adjustmentsByEmployee.keys()])];
@@ -325,6 +329,8 @@ export async function loadBalances(todayISO: string, employeeIds?: string[]) {
           if (assignment || entry !== undefined) active = true;
           // Ziek (Z) telt altijd volgens het vaste rooster, ook als er voor die dag uren zijn ingevuld.
           if (assignment?.shiftType.code === "Z") worked += templateHours.get(`${id}_${weekdayNumber(day)}`) ?? 0;
+          // Ziek gemeld in de uren (nog geen Z): kost ook geen verlof; minstens de uren uit het vaste rooster.
+          else if (sickReportedBy.has(key)) worked += Math.max(entry ?? 0, templateHours.get(`${id}_${weekdayNumber(day)}`) ?? 0);
           else if (entry !== undefined) worked += entry;
           else if (assignment) worked += shiftHours(assignment.shiftType);
         }

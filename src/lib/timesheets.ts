@@ -42,6 +42,8 @@ export type DayRow = {
     workedShiftTypeId: string | null;
     workedCode: string | null;
     workedLabel: string | null;
+    /** De medewerker meldt dat hij (een deel van) de dag ziek was; hours = wat hij nog werkte. */
+    sickReported: boolean;
   } | null;
   /** Valt de dag in de getoonde maand? Voor de dagen van een halve week uit de buurmaand is dit false. */
   inMonth: boolean;
@@ -144,6 +146,7 @@ export async function loadEmployeeMonth(employeeId: string, year: number, month:
             workedShiftTypeId: entry.workedShiftTypeId,
             workedCode: entry.workedShiftType?.code ?? null,
             workedLabel: entry.workedShiftType?.label ?? null,
+            sickReported: entry.sickReported,
           }
         : null,
     };
@@ -235,6 +238,8 @@ export type OverviewRow = {
   unconfirmedDays: number;
   /** Dagen waarop de medewerker aangeeft een andere dienst te hebben gewerkt dan in het rooster. */
   otherShiftDays: number;
+  /** Ziek gemeld door de medewerker en nog geen Z in het rooster. */
+  sickReportedDays: number;
   /** Wekelijks indienen: aantal weken (die de maand raken) dat is ingediend, goedgekeurd of teruggestuurd, en het totaal. */
   weeksSubmitted: number;
   weeksApproved: number;
@@ -299,6 +304,9 @@ export async function loadOverview(year: number, month: number): Promise<Overvie
       status,
       unconfirmedDays,
       otherShiftDays: [...myEntries.values()].filter((e) => e.workedShiftTypeId).length,
+      sickReportedDays: [...myEntries.values()].filter(
+        (e) => e.sickReported && mine.find((a) => toISODate(a.date) === toISODate(e.date))?.shiftType.code !== "Z",
+      ).length,
       weeksSubmitted: myWeeks.filter((w) => w.status === "SUBMITTED").length,
       weeksApproved: myWeeks.filter((w) => w.status === "APPROVED").length,
       weeksReturned: myWeeks.filter((w) => w.status === "RETURNED").length,
@@ -321,27 +329,32 @@ export async function writeEntry(
   editedById: string,
   /** Andere dienst gewerkt dan in het rooster: id, null = zoals gepland, undefined = niet wijzigen. */
   workedShiftTypeIdInput?: string | null,
+  /** Ziek gemeld: true/false, undefined = niet wijzigen. Sluit een andere gewerkte dienst uit. */
+  sickReportedInput?: boolean,
 ) {
   const hours = parseHoursInput(hoursInput);
   const cleanNote = note.trim().slice(0, 300) || null;
   const [assignment, existing] = await Promise.all([
     prisma.shiftAssignment.findFirst({ where: { employeeId, date }, include: { shiftType: true } }),
-    prisma.timeEntry.findUnique({ where: { employeeId_date: { employeeId, date } }, select: { workedShiftTypeId: true } }),
+    prisma.timeEntry.findUnique({ where: { employeeId_date: { employeeId, date } }, select: { workedShiftTypeId: true, sickReported: true } }),
   ]);
   let workedShiftTypeId = workedShiftTypeIdInput === undefined ? (existing?.workedShiftTypeId ?? null) : workedShiftTypeIdInput;
   // Dezelfde dienst als in het rooster is geen afwijking.
   if (workedShiftTypeId && workedShiftTypeId === assignment?.shiftTypeId) workedShiftTypeId = null;
   const workedShift = workedShiftTypeId ? await prisma.shiftType.findUnique({ where: { id: workedShiftTypeId } }) : null;
   if (workedShiftTypeId && !workedShift) throw new Error("Onbekende dienst.");
+  const sickReported = sickReportedInput === undefined ? (existing?.sickReported ?? false) : sickReportedInput;
+  if (sickReported && workedShift) throw new Error("Kies óf ziek geweest óf een andere dienst.");
 
-  if (hours === null && !cleanNote && !workedShift) {
+  if (hours === null && !cleanNote && !workedShift && !sickReported) {
     await prisma.timeEntry.deleteMany({ where: { employeeId, date } });
     return;
   }
   const planned = assignment ? shiftHours(assignment.shiftType) : 0;
   // Geen uren ingevuld: de uren van de gewerkte dienst, anders van de geplande dienst.
-  const worked = hours ?? (workedShift ? shiftHours(workedShift) : planned);
-  const data = { hours: worked, plannedHours: planned, note: cleanNote, editedById, workedShiftTypeId: workedShift ? workedShift.id : null };
+  // Ziek gemeld zonder uren: niets gewerkt.
+  const worked = hours ?? (sickReported ? 0 : workedShift ? shiftHours(workedShift) : planned);
+  const data = { hours: worked, plannedHours: planned, note: cleanNote, editedById, workedShiftTypeId: workedShift ? workedShift.id : null, sickReported };
   await prisma.timeEntry.upsert({
     where: { employeeId_date: { employeeId, date } },
     update: data,

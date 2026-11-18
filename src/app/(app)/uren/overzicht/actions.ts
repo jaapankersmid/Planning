@@ -18,6 +18,7 @@ import {
   weekLabel,
 } from "@/lib/hours-mail";
 import { isMailConfigured } from "@/lib/mail";
+import { applyAssignment } from "@/lib/assignments";
 import type { ActionResult } from "../actions";
 
 async function requireHoursAdmin() {
@@ -40,7 +41,7 @@ function revalidate() {
  */
 export async function saveEntryForEmployee(
   employeeId: string,
-  input: { dateISO: string; hours: string | null; note: string; workedShiftTypeId?: string | null },
+  input: { dateISO: string; hours: string | null; note: string; workedShiftTypeId?: string | null; sickReported?: boolean },
 ): Promise<ActionResult> {
   try {
     const session = await requireHoursAdmin();
@@ -50,7 +51,8 @@ export async function saveEntryForEmployee(
     const date = dateFromISO(input.dateISO);
     const track = session.user.employeeId !== employeeId && (await isApprovedDay(employeeId, date));
     const before = track ? await dayHours(employeeId, date) : 0;
-    await writeEntry(employeeId, date, input.hours, input.note, session.user.id, input.workedShiftTypeId);
+    if (input.sickReported !== undefined && typeof input.sickReported !== "boolean") return { error: "Ongeldige keuze." };
+    await writeEntry(employeeId, date, input.hours, input.note, session.user.id, input.workedShiftTypeId, input.sickReported);
     if (track && (await isMailConfigured()) && (await employeeAddress(employeeId))?.email) {
       await recordHoursChange({
         employeeId,
@@ -206,5 +208,32 @@ export async function decideWeek(input: {
     };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Opslaan is niet gelukt." };
+  }
+}
+
+/**
+ * Verwerkt een ziekmelding uit de uren: zet Z in het rooster op die dag (via applyAssignment, dus met agenda-sync en
+ * roostermail zoals bij elke dienstwijziging). Daarna telt de dag in het ziekteoverzicht en de verlofuren.
+ */
+export async function confirmSickReport(employeeId: string, dateISO: string): Promise<ActionResult> {
+  const input = { employeeId, dateISO };
+  try {
+    await requireHoursAdmin();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(input.dateISO)) return { error: "Ongeldige datum." };
+    const date = dateFromISO(input.dateISO);
+    const entry = await prisma.timeEntry.findUnique({
+      where: { employeeId_date: { employeeId: input.employeeId, date } },
+      select: { sickReported: true },
+    });
+    if (!entry?.sickReported) return { error: "Er is op deze dag geen ziekmelding (meer)." };
+    const sick = await prisma.shiftType.findFirst({ where: { code: "Z" }, select: { id: true } });
+    if (!sick) return { error: "De dienst Z (ziek) bestaat niet. Maak hem aan bij Diensten." };
+    await applyAssignment({ employeeId: input.employeeId, dateISO: input.dateISO, shiftTypeId: sick.id });
+    revalidate();
+    revalidatePath("/rooster");
+    revalidatePath("/ziekte");
+    return { ok: "Z staat in het rooster." };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Verwerken is niet gelukt." };
   }
 }

@@ -44,7 +44,7 @@ async function weekLockedReason(employeeId: string, date: Date) {
 }
 
 /** Slaat de gewerkte uren van één dag van de ingelogde medewerker op. `hours: null` zet de dag terug naar het voorstel. */
-export async function saveOwnEntry(input: { dateISO: string; hours: string | null; note: string; workedShiftTypeId?: string | null }): Promise<ActionResult> {
+export async function saveOwnEntry(input: { dateISO: string; hours: string | null; note: string; workedShiftTypeId?: string | null; sickReported?: boolean }): Promise<ActionResult> {
   try {
     const { userId, employeeId } = await ownEmployeeId();
     if (!/^\d{4}-\d{2}-\d{2}$/.test(input.dateISO)) return { error: "Ongeldige datum." };
@@ -55,7 +55,14 @@ export async function saveOwnEntry(input: { dateISO: string; hours: string | nul
     if (locked) return { error: locked };
     const weekLocked = await weekLockedReason(employeeId, date);
     if (weekLocked) return { error: weekLocked };
-    await writeEntry(employeeId, date, input.hours, input.note, userId, input.workedShiftTypeId);
+    if (input.sickReported !== undefined && typeof input.sickReported !== "boolean") return { error: "Ongeldige keuze." };
+    if (input.sickReported === false) {
+      // Terugzetten kan alleen zolang de planner of administratie het nog niet als Z in het rooster heeft gezet.
+      const assignment = await prisma.shiftAssignment.findFirst({ where: { employeeId, date }, include: { shiftType: { select: { code: true } } } });
+      const entry = await prisma.timeEntry.findUnique({ where: { employeeId_date: { employeeId, date } }, select: { sickReported: true } });
+      if (entry?.sickReported && assignment?.shiftType.code === "Z") return { error: "Je ziekmelding is al verwerkt in het rooster. Vraag de planner als het niet klopt." };
+    }
+    await writeEntry(employeeId, date, input.hours, input.note, userId, input.workedShiftTypeId, input.sickReported);
     revalidate();
     return undefined;
   } catch (error) {

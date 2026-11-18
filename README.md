@@ -240,6 +240,19 @@ Code: `src/lib/settings.ts` (`getSettings`, `getMailConfig`, validatie), `src/ap
 
 Bij *Gebruikers → Nieuwe gebruiker* staat het vinkje **Welkomstmail sturen** (standaard aan). De nieuwe gebruiker krijgt dan een mail met de inloglink (`AUTH_URL`/login), het e-mailadres en het (tijdelijke) wachtwoord; moet het wachtwoord gewijzigd worden, dan staat erbij dat dat bij de eerste keer inloggen gebeurt. Lukt de mail niet of is SMTP niet ingesteld, dan wordt het account gewoon aangemaakt en zie je dat in de melding. Het wachtwoord komt nooit in de logs. Code: `src/lib/welcome-mail.ts`. Geen schemawijziging.
 
+## Ziek geweest melden bij Mijn uren
+
+Bij *Mijn uren* kiest de medewerker via de dienstknop (dezelfde als bij *andere dienst gewerkt*) **Ziek geweest (hele of halve dag)**. De uren springen op 0; heeft hij nog een deel gewerkt (halve dag), dan vult hij die uren in. Dit kan alleen achteraf (t/m vandaag) en zolang de week of maand niet is ingediend, net als bij andere dienst. Er is bewust geen veld voor een reden of klachten (AVG); het opmerkingenveld is er wel, maar de uitleg vraagt om daar geen klachten in te zetten.
+
+- **Alleen een melding.** Er verandert nog niets in het rooster en in het ziekteoverzicht. De medewerker kan het zelf terugzetten (kies *zoals in het rooster*) tot het verwerkt is.
+- **Verwerken.** Bij *Uren* staat bij de medewerker een roze label *… dagen ziek gemeld*; in de uren van die medewerker is de dag roze, met *medewerker: ziek* en de knop **Z in rooster**. Die zet Z in het rooster via `applyAssignment` (dus met agenda-sync en roostermail, zoals elke dienstwijziging door de planner). Daarna staat bij de dag *ziek gemeld ✓* en telt hij in het ziekteoverzicht; de medewerker kan het dan niet meer zelf terugzetten.
+- **Verlofuren.** Een ziek gemelde dag kost geen verlof, ook voordat hij verwerkt is: hij telt (net als Z) minstens voor de uren uit het vaste rooster.
+- **Geen mail** aan planner of administratie; alleen het label. De export per dag heeft een kolom *Ziek gemeld door medewerker* (ja / ja, Z in rooster), zonder reden.
+- **Wie ziet het.** Alleen de medewerker zelf en planners/administratie (uren zijn al alleen voor hen; de actie controleert `canManageHours` op de server). Collega's zien pas iets als er Z in het rooster staat, zoals voorheen.
+- Halve dag: na verwerken staat de hele dag als Z in het rooster en telt het ziekteoverzicht de hele dag (uren uit het vaste rooster); de gewerkte uren blijven in de urenregistratie staan.
+
+Code: `TimeEntry.sickReported`, `writeEntry` in `src/lib/timesheets.ts`, `confirmSickReport` in `src/app/(app)/uren/overzicht/actions.ts`, `src/components/timesheet-table.tsx`. **`prisma db push` nodig** (nieuw veld, standaard uit, geen dataverlies).
+
 ## Andere dienst gewerkt dan in het rooster
 
 Bij *Mijn uren* kan de medewerker per dag (tot en met vandaag, zolang de week of maand niet is ingediend) op de dienst zelf klikken (de dienstcode is een knop met ▾) en de dienst aanwijzen die hij of zij echt heeft gewerkt; *zoals in het rooster* zet het terug. Zo vang je fouten in het rooster op. De tabel is compact: smallere regels en invulvelden, en de uitleg boven de tabel is ingeklapt tot één regel (*Meer uitleg*).

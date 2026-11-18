@@ -13,7 +13,7 @@ import { TimesheetDecision } from "@/components/timesheet-decision";
 import { TimesheetStatusBadge } from "@/components/timesheet-status";
 import { employeeAddress, pendingHoursChanges } from "@/lib/hours-mail";
 import { isMailConfigured } from "@/lib/mail";
-import { saveEntryForEmployee } from "../actions";
+import { confirmSickReport, saveEntryForEmployee } from "../actions";
 
 export default async function UrenDetailPage({
   params,
@@ -103,6 +103,7 @@ export default async function UrenDetailPage({
         todayISO={todayISO}
         editable
         save={saveEntryForEmployee.bind(null, employeeId)}
+        confirmSick={confirmSickReport.bind(null, employeeId)}
         weeks={weeks}
         weekMode="admin"
         employeeId={employeeId}

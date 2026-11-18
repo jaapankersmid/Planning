@@ -446,6 +446,10 @@ model TimeEntry {
   // Het rooster zelf verandert hier niet door; de administratie ziet het als melding bij de uren.
   workedShiftType   ShiftType? @relation("TimeEntryWorkedShift", fields: [workedShiftTypeId], references: [id], onDelete: SetNull)
   workedShiftTypeId String?
+  // De medewerker meldt achteraf dat hij (een deel van) de dag ziek was; hours = wat hij nog werkte.
+  // Alleen een melding: pas als planner of administratie Z in het rooster zet, telt het in het ziekteoverzicht.
+  // Bewust geen reden of klachten (AVG).
+  sickReported Boolean @default(false)
 
   editedBy   User?   @relation("TimeEntryEditedBy", fields: [editedById], references: [id])
   editedById String?
