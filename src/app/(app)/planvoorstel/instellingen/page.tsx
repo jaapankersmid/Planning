@@ -3,6 +3,7 @@ import { requireAutoPlan } from "@/lib/auto-plan-guard";
 import { ensureColorGroups, sortEmployees } from "@/lib/schedule";
 import { addTag, deleteTag, moveTag, saveParticipation, saveTag } from "../actions";
 import { PlanSubnav } from "@/components/plan-subnav";
+import { sortShiftTypes } from "@/lib/shift-order";
 
 export const dynamic = "force-dynamic";
 const input = "rounded-md border border-border bg-surface px-3 py-2 text-sm";
@@ -10,13 +11,14 @@ const input = "rounded-md border border-border bg-surface px-3 py-2 text-sm";
 export default async function PlanSettingsPage() {
   await requireAutoPlan();
   await ensureColorGroups();
-  const [groups, tags, shiftTypes, employeesRaw] = await Promise.all([
+  const [groups, tags, shiftTypesRaw, employeesRaw] = await Promise.all([
     prisma.colorGroup.findMany({ orderBy: { sortOrder: "asc" } }),
     prisma.planTag.findMany({ include: { employees: true }, orderBy: [{ sortOrder: "asc" }, { name: "asc" }] }),
     prisma.shiftType.findMany({ where: { active: true }, orderBy: { code: "asc" } }),
     prisma.employee.findMany({ where: { active: true } }),
   ]);
   const employees = sortEmployees(employeesRaw, groups);
+  const shiftTypes = sortShiftTypes(shiftTypesRaw);
   const typeLabel = (t: (typeof shiftTypes)[number]) => `${t.code} · ${t.label}`;
 
   return (

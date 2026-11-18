@@ -153,6 +153,12 @@ krijgen, anders stopt de agenda-koppeling na een uur.
 
 Nieuwe tabellen: na het updaten eenmalig `docker compose -f docker-compose.prod.yml exec app npx prisma db push` draaien.
 
+## Volgorde van diensten en kiesbaar voor medewerkers
+
+In elke keuzelijst met diensten (rooster, vast rooster, vrij vragen, andere dienst, uren, Planvoorstel-instellingen en de beheerlijst *Diensten*) staan **O, A, X, XI, IX, V, Z** bovenaan, in die volgorde; de rest volgt op code. Aanpassen: `PREFERRED_SHIFT_CODES` in `src/lib/shift-order.ts`.
+
+Bij *Diensten* staat per dienst een schakelaar **Medewerkers kiezen**. Staat die uit, dan kunnen medewerkers die dienst niet kiezen of aanvragen (bij *Vrij vragen*: andere dienst, en de ruildienst bij een dagdeel), ook niet via de server. Bij **uren invullen** (andere dienst gewerkt) geldt dit bewust niet: daar is altijd elke actieve dienst te kiezen. De planner kan in het rooster ook altijd alles kiezen. Nieuw veld `ShiftType.employeeSelectable` (standaard aan): **`prisma db push` nodig**, zonder dataverlies.
+
 ## Mijn rooster: klik op een dienst om te ruilen of vrij te vragen
 
 Op *Mijn rooster* staat **Mijn diensten** bovenaan. Een komende werkdienst is aan te klikken en opent een popup met twee keuzes:

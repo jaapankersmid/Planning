@@ -127,3 +127,12 @@ export async function updateShiftType(shiftTypeId: string, formData: FormData) {
   revalidatePath("/bezetting");
   redirect("/diensten");
 }
+
+/** Bepaalt of medewerkers deze dienst kunnen kiezen of aanvragen (niet bij uren invullen: daar kan altijd alles). */
+export async function setShiftTypeSelectable(shiftTypeId: string, employeeSelectable: boolean) {
+  await requireAdmin();
+  await prisma.shiftType.update({ where: { id: shiftTypeId }, data: { employeeSelectable } });
+  revalidatePath("/diensten");
+  revalidatePath("/verlof");
+  revalidatePath("/rooster/mijn");
+}

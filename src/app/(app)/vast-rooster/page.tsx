@@ -6,6 +6,7 @@ import { colorGroupSwatch } from "@/lib/format";
 import { ensureColorGroups, sortEmployees } from "@/lib/schedule";
 import { setColorGroupTemplate } from "@/app/(app)/medewerkers/actions";
 import { TemplateCell } from "@/components/template-cell";
+import { sortShiftTypes } from "@/lib/shift-order";
 
 const WEEKDAYS = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"];
 
@@ -14,12 +15,13 @@ export default async function VastRoosterPage() {
   if (session?.user.role !== "ADMIN") redirect("/rooster");
 
   const groups = await ensureColorGroups();
-  const [employeesRaw, shiftTypes, entries] = await Promise.all([
+  const [employeesRaw, shiftTypesRaw, entries] = await Promise.all([
     prisma.employee.findMany({ where: { active: true } }),
     prisma.shiftType.findMany({ where: { active: true }, orderBy: { code: "asc" } }),
     prisma.weeklyScheduleEntry.findMany(),
   ]);
   const employees = sortEmployees(employeesRaw, groups);
+  const shiftTypes = sortShiftTypes(shiftTypesRaw);
   const groupByName = new Map(groups.map((g) => [g.name, g]));
   const entryByKey = new Map(entries.map((e) => [`${e.employeeId}_${e.weekday}`, e.shiftTypeId]));
 

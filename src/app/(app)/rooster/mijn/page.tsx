@@ -14,11 +14,12 @@ import {
 } from "@/lib/format";
 import { holidayOn } from "@/lib/holidays";
 import { partialLeaveShifts } from "@/lib/leave";
-import { dayLabel, isWorking, timesOf, type ShiftTypeLite } from "@/lib/shift-swap";
+import { dayLabel, isWorking, timesOf } from "@/lib/shift-swap";
 import { CalendarSyncPanel } from "@/components/calendar-sync-panel";
 import { EmailNotificationsToggle } from "@/components/email-notifications-toggle";
 import { ShiftSwaps, loadSwapOptions } from "@/components/shift-swaps";
 import { AvailabilityCellButton, AvailabilityTools, MyShiftActions, ShiftCellButton } from "@/components/my-shift-actions";
+import { sortShiftTypes } from "@/lib/shift-order";
 
 const CALENDAR_MESSAGES: Record<string, string> = {
   verbonden: "Google Calendar gekoppeld — de sync staat aan.",
@@ -72,7 +73,7 @@ export default async function MijnRoosterPage({
     }),
     employee ? loadSwapOptions(employee.id) : null,
     employee ? partialLeaveShifts(employee.id) : [],
-    prisma.shiftType.findMany({ orderBy: { code: "asc" } }) as Promise<ShiftTypeLite[]>,
+    prisma.shiftType.findMany({ orderBy: { code: "asc" } }),
     employee
       ? prisma.availability.findMany({
           where: { employeeId: employee.id, date: { gte: firstMonday, lt: rangeEnd } },
@@ -81,7 +82,7 @@ export default async function MijnRoosterPage({
       : [],
   ]);
   const availability = Object.fromEntries(availabilityRows.map((r) => [toISODate(r.date), r.status]));
-  const swapOptions = allTypes.filter((t) => t.active && isWorking(t)).map((t) => ({ id: t.id, label: `${t.code} · ${t.label} (${timesOf(t)})` }));
+  const swapOptions = sortShiftTypes(allTypes.filter((t) => t.active && t.employeeSelectable && isWorking(t))).map((t) => ({ id: t.id, label: `${t.code} · ${t.label} (${timesOf(t)})` }));
   const byDay = new Map(assignments.map((a) => [toISODate(a.date), a]));
   const range = { fromISO: toISODate(firstMonday), toISO: toISODate(addDays(rangeEnd, -1)) };
   const emptyDays = weeks.flat().map(toISODate).filter((iso) => iso >= todayISO && !byDay.has(iso));

@@ -3,13 +3,14 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatRange, toISODate } from "@/lib/format";
 import { describePartRequest, isShiftRequest, leaveDates, partialLeaveShifts } from "@/lib/leave";
-import { isWorking, timesOf, type ShiftTypeLite } from "@/lib/shift-swap";
+import { isWorking, timesOf } from "@/lib/shift-swap";
 import { todayAmsterdam } from "@/lib/schedule";
 import { loadBalance } from "@/lib/leave-balance";
 import { LeaveBalanceCard } from "@/components/leave-balance-card";
 import { LeaveRequestForm } from "@/components/leave-request-form";
 import { LeaveStatusBadge } from "@/components/leave-status";
 import { cancelOwnRequest } from "./actions";
+import { sortShiftTypes } from "@/lib/shift-order";
 
 export default async function VerlofPage() {
   const session = await auth();
@@ -48,8 +49,8 @@ export default async function VerlofPage() {
   });
   const todayISO = toISODate(todayAmsterdam());
   const partShifts = await partialLeaveShifts(employeeId);
-  const allTypes: ShiftTypeLite[] = await prisma.shiftType.findMany({ orderBy: { code: "asc" } });
-  const swapOptions = allTypes.filter((t) => t.active && isWorking(t)).map((t) => ({ id: t.id, label: `${t.code} · ${t.label} (${timesOf(t)})` }));
+  const allTypes = await prisma.shiftType.findMany({ orderBy: { code: "asc" } });
+  const swapOptions = sortShiftTypes(allTypes.filter((t) => t.active && t.employeeSelectable && isWorking(t))).map((t) => ({ id: t.id, label: `${t.code} · ${t.label} (${timesOf(t)})` }));
   const balance = await loadBalance(employeeId, todayISO);
 
   return (

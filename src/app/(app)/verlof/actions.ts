@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { findOverlappingLeave, parseLeaveForm } from "@/lib/leave";
-import { dayLabel, isWorking, pieces, type ShiftTypeLite } from "@/lib/shift-swap";
+import { dayLabel, isWorking, pieces } from "@/lib/shift-swap";
 import { todayAmsterdam } from "@/lib/schedule";
 import { dateFromISO } from "@/lib/format";
 import { formatRange } from "@/lib/format";
@@ -74,13 +74,13 @@ export async function requestPartLeave(_prev: LeaveFormState, formData: FormData
     const assignment = await prisma.shiftAssignment.findFirst({ where: { id: String(formData.get("assignmentId") ?? ""), employeeId } });
     if (!assignment) throw new Error("Kies een ingeplande dienst.");
     if (assignment.date < todayAmsterdam()) throw new Error("Die dienst is al geweest.");
-    const types: ShiftTypeLite[] = await prisma.shiftType.findMany();
+    const types = await prisma.shiftType.findMany();
     const shift = types.find((t) => t.id === assignment.shiftTypeId);
     if (!shift || !isWorking(shift)) throw new Error("Kies een dienst met werktijden.");
     if (mode === "PART" && !pieces(shift, types)) throw new Error("Van deze dienst kun je niet alleen de ochtend of middag vrij vragen.");
 
     const swapId = String(formData.get("swapShiftTypeId") ?? "");
-    const swap = swapId ? types.find((t) => t.id === swapId && t.active && isWorking(t)) : undefined;
+    const swap = swapId ? types.find((t) => t.id === swapId && t.active && t.employeeSelectable && isWorking(t)) : undefined;
     if (swapId && !swap) throw new Error("De dienst waarvoor je wilt ruilen bestaat niet (meer).");
     if (mode === "CHANGE") {
       if (!swap) throw new Error("Kies de dienst die je in plaats hiervan wilt.");

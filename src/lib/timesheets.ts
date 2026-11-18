@@ -3,6 +3,7 @@ import { addDays, daysInMonth, isoWeek, startOfWeek, toISODate } from "@/lib/for
 import { shiftHours } from "@/lib/hours";
 import { ensureColorGroups, sortEmployees, todayAmsterdam } from "@/lib/schedule";
 import type { TimesheetStatus } from "@prisma/client";
+import { sortShiftTypes } from "@/lib/shift-order";
 
 export { STATUS_LABEL, isLockedStatus } from "@/lib/timesheet-labels";
 
@@ -77,7 +78,8 @@ const EMPTY_SHEET: SheetInfo = { status: "DRAFT", submittedAt: null, decidedAt: 
 /** Diensten die een medewerker kan kiezen bij "andere dienst gewerkt" (actief; Ziek zet alleen de planner). */
 export async function loadShiftOptions() {
   const types = await prisma.shiftType.findMany({ where: { active: true, code: { not: "Z" } }, orderBy: { code: "asc" } });
-  return types.map((t) => ({ id: t.id, code: t.code, label: t.label, hours: shiftHours(t) }));
+  // "Kiesbaar voor medewerkers" geldt hier bewust niet: bij uren invullen kun je elke dienst kiezen.
+  return sortShiftTypes(types).map((t) => ({ id: t.id, code: t.code, label: t.label, hours: shiftHours(t) }));
 }
 
 /** Effectieve uren van een dag: de bevestigde uren, anders de geplande uren (alleen voor dagen tot en met vandaag). */

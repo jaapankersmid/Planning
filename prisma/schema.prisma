@@ -142,6 +142,8 @@ model ShiftType {
   paidHours Float?
 
   active        Boolean               @default(true)
+  // Mogen medewerkers deze dienst kiezen of aanvragen (bv. andere dienst vragen)? Uren invullen kan altijd met elke dienst.
+  employeeSelectable Boolean @default(true)
   assignments   ShiftAssignment[]
   weeklyEntries WeeklyScheduleEntry[]
   swapsGiven    ShiftSwapRequest[] @relation("SwapShift")

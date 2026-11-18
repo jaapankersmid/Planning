@@ -36,6 +36,7 @@ import {
   todayAmsterdam,
   weekdayNumber,
 } from "@/lib/schedule";
+import { sortShiftTypes } from "@/lib/shift-order";
 
 const NAME_COLUMN = 132;
 const NAME_COLUMN_PHONE = 84;
@@ -107,7 +108,7 @@ export default async function RoosterPage({
   const groups = await ensureColorGroups();
   await ensureCoverageDefaults();
 
-  const [employeesRaw, shiftTypes, assignments, templateEntries, holidays, availabilityRows] = await Promise.all([
+  const [employeesRaw, shiftTypesRaw, assignments, templateEntries, holidays, availabilityRows] = await Promise.all([
     prisma.employee.findMany({ where: { active: true } }),
     prisma.shiftType.findMany({
       where: { active: true },
@@ -140,6 +141,7 @@ export default async function RoosterPage({
       ? prisma.availability.findMany({ where: { date: { gte: rangeStart, lt: rangeEnd } } })
       : Promise.resolve([]),
   ]);
+  const shiftTypes = sortShiftTypes(shiftTypesRaw);
   const availabilityByKey = new Map(
     availabilityRows.map((a) => [`${a.employeeId}_${toISODate(a.date)}`, a.status]),
   );

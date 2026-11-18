@@ -4,7 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { readableTextColor } from "@/lib/format";
 import Link from "next/link";
 import { shiftHours, formatHours, DEFAULT_PAID_HOURS } from "@/lib/hours";
-import { addShiftType, setShiftTypeActive, updateShiftType } from "./actions";
+import { addShiftType, setShiftTypeActive, setShiftTypeSelectable, updateShiftType } from "./actions";
+import { sortShiftTypes } from "@/lib/shift-order";
 
 const inputClass =
   "rounded-md border border-border bg-surface px-3 py-2 text-sm";
@@ -18,9 +19,8 @@ export default async function DienstenPage({
   const session = await auth();
   if (session?.user.role !== "ADMIN") redirect("/rooster");
 
-  const shiftTypes = await prisma.shiftType.findMany({
-    orderBy: [{ active: "desc" }, { code: "asc" }],
-  });
+  const all = sortShiftTypes(await prisma.shiftType.findMany());
+  const shiftTypes = [...all.filter((s) => s.active), ...all.filter((s) => !s.active)];
 
   const editing = bewerk ? shiftTypes.find((s) => s.id === bewerk) : undefined;
 
@@ -30,7 +30,8 @@ export default async function DienstenPage({
         <h1 className="text-lg font-semibold">Diensten</h1>
         <p className="text-sm text-foreground-muted">
           De shiftcodes en tijden die in het rooster te kiezen zijn — dit is
-          de digitale versie van de “Legenda uren” uit Planning V2.0.
+          de digitale versie van de “Legenda uren” uit Planning V2.0. Met <em>Medewerkers kiezen</em> bepaal je welke diensten
+          medewerkers kunnen aanvragen (bv. een andere dienst); bij uren invullen kunnen ze altijd elke dienst kiezen.
         </p>
       </div>
 
@@ -107,6 +108,9 @@ export default async function DienstenPage({
               <th className="px-4 py-2">Uren</th>
               <th className="px-4 py-2">Telt mee als</th>
               <th className="px-4 py-2">Status</th>
+              <th className="px-4 py-2" title="Mogen medewerkers deze dienst kiezen of aanvragen? Bij uren invullen kan altijd elke dienst.">
+                Medewerkers kiezen
+              </th>
               <th className="px-4 py-2" />
             </tr>
           </thead>
@@ -152,6 +156,20 @@ export default async function DienstenPage({
                   >
                     {s.active ? "actief" : "inactief"}
                   </span>
+                </td>
+                <td className="px-4 py-2">
+                  <form action={setShiftTypeSelectable.bind(null, s.id, !s.employeeSelectable)}>
+                    <button
+                      type="submit"
+                      role="switch"
+                      aria-checked={s.employeeSelectable}
+                      aria-label={`${s.code} kiesbaar voor medewerkers`}
+                      title={s.employeeSelectable ? "Aan: medewerkers kunnen deze dienst kiezen. Klik om uit te zetten." : "Uit: medewerkers kunnen deze dienst niet kiezen. Klik om aan te zetten."}
+                      className={`inline-flex h-5 w-9 items-center rounded-full p-0.5 transition-colors ${s.employeeSelectable ? "bg-accent" : "bg-border"}`}
+                    >
+                      <span className={`h-4 w-4 rounded-full bg-surface shadow transition-transform ${s.employeeSelectable ? "translate-x-4" : ""}`} />
+                    </button>
+                  </form>
                 </td>
                 <td className="px-4 py-2 text-right">
                   <div className="flex flex-col items-end gap-1.5">
