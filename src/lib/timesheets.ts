@@ -4,6 +4,7 @@ import { shiftHours } from "@/lib/hours";
 import { ensureColorGroups, sortEmployees, todayAmsterdam } from "@/lib/schedule";
 import type { TimesheetStatus } from "@prisma/client";
 import { sortShiftTypes } from "@/lib/shift-order";
+import { employeeShiftHours, employeeShiftHoursInfo, loadHoursOverrides, rulesFor } from "@/lib/shift-hours-overrides";
 
 export { STATUS_LABEL, isLockedStatus } from "@/lib/timesheet-labels";
 
@@ -34,6 +35,8 @@ export type DayRow = {
   code: string | null;
   label: string | null;
   planned: number;
+  /** De geplande uren komen uit een afwijking voor deze medewerker (bv. A = 9 uur). */
+  plannedOverride?: boolean;
   entry: {
     hours: number;
     note: string | null;
@@ -78,10 +81,15 @@ export type WeekInfo = {
 const EMPTY_SHEET: SheetInfo = { status: "DRAFT", submittedAt: null, decidedAt: null, decidedByName: null, decisionNote: null };
 
 /** Diensten die een medewerker kan kiezen bij "andere dienst gewerkt" (actief; Ziek zet alleen de planner). */
-export async function loadShiftOptions() {
-  const types = await prisma.shiftType.findMany({ where: { active: true, code: { not: "Z" } }, orderBy: { code: "asc" } });
+export async function loadShiftOptions(employeeId?: string) {
+  const [types, overrides] = await Promise.all([
+    prisma.shiftType.findMany({ where: { active: true, code: { not: "Z" } }, orderBy: { code: "asc" } }),
+    employeeId ? loadHoursOverrides([employeeId]) : null,
+  ]);
+  const rules = overrides && employeeId ? rulesFor(overrides, employeeId) : {};
   // "Kiesbaar voor medewerkers" geldt hier bewust niet: bij uren invullen kun je elke dienst kiezen.
-  return sortShiftTypes(types).map((t) => ({ id: t.id, code: t.code, label: t.label, hours: shiftHours(t) }));
+  // rules: afwijkende diensturen van deze medewerker, zodat de browser per dag de juiste uren invult.
+  return sortShiftTypes(types).map((t) => ({ id: t.id, code: t.code, label: t.label, hours: shiftHours(t), rules: rules[t.id] }));
 }
 
 /** Effectieve uren van een dag: de bevestigde uren, anders de geplande uren (alleen voor dagen tot en met vandaag). */
@@ -103,7 +111,7 @@ export async function loadEmployeeMonth(employeeId: string, year: number, month:
   const days = daysInMonth(year, month);
   const { first, last, afterLast } = weekSpan(year, month);
 
-  const [assignments, entries, sheet, weekSheets] = await Promise.all([
+  const [assignments, entries, sheet, weekSheets, overrides] = await Promise.all([
     prisma.shiftAssignment.findMany({
       where: { employeeId, date: { gte: first, lt: afterLast } },
       include: { shiftType: true },
@@ -120,6 +128,7 @@ export async function loadEmployeeMonth(employeeId: string, year: number, month:
       where: { employeeId, weekStart: { gte: first, lte: last } },
       include: { decidedBy: { select: { name: true, email: true } } },
     }),
+    loadHoursOverrides([employeeId]),
   ]);
   const byDate = new Map(assignments.map((a) => [toISODate(a.date), a]));
   const entryByDate = new Map(entries.map((e) => [toISODate(e.date), e]));
@@ -131,13 +140,15 @@ export async function loadEmployeeMonth(employeeId: string, year: number, month:
     const dateISO = toISODate(day);
     const assignment = byDate.get(dateISO);
     const entry = entryByDate.get(dateISO);
+    const plannedInfo = assignment ? employeeShiftHoursInfo(overrides, employeeId, assignment.shiftType, dateISO) : null;
     return {
       dateISO,
       weekStartISO: toISODate(startOfWeek(day)),
       inMonth: dateISO >= monthStartISO && dateISO <= monthEndISO,
       code: assignment?.shiftType.code ?? null,
       label: assignment?.shiftType.label ?? null,
-      planned: assignment ? shiftHours(assignment.shiftType) : 0,
+      planned: plannedInfo?.hours ?? 0,
+      plannedOverride: plannedInfo?.override ?? false,
       entry: entry
         ? {
             hours: entry.hours,
@@ -206,13 +217,14 @@ export async function loadEmployeeMonth(employeeId: string, year: number, month:
 export async function confirmPlannedRange(employeeId: string, from: Date, toInclusive: Date, editedById: string | null) {
   const todayISO = toISODate(todayAmsterdam());
   const afterEnd = addDays(toInclusive, 1);
-  const [assignments, entries] = await Promise.all([
+  const [assignments, entries, overrides] = await Promise.all([
     prisma.shiftAssignment.findMany({ where: { employeeId, date: { gte: from, lt: afterEnd } }, include: { shiftType: true } }),
     prisma.timeEntry.findMany({ where: { employeeId, date: { gte: from, lt: afterEnd } }, select: { date: true } }),
+    loadHoursOverrides([employeeId]),
   ]);
   const have = new Set(entries.map((e) => toISODate(e.date)));
   const missing = assignments
-    .map((a) => ({ date: a.date, iso: toISODate(a.date), planned: shiftHours(a.shiftType) }))
+    .map((a) => ({ date: a.date, iso: toISODate(a.date), planned: employeeShiftHours(overrides, employeeId, a.shiftType, toISODate(a.date)) }))
     .filter((a) => !have.has(a.iso) && a.planned > 0 && a.iso <= todayISO);
   if (missing.length === 0) return 0;
   await prisma.timeEntry.createMany({
@@ -257,13 +269,14 @@ export async function loadOverview(year: number, month: number): Promise<Overvie
 
   const span = weekSpan(year, month);
   const weeksTotal = Math.round((span.afterLast.getTime() - span.first.getTime()) / (7 * 86400000));
-  const [employeesRaw, groups, assignments, entries, sheets, weekSheets] = await Promise.all([
+  const [employeesRaw, groups, assignments, entries, sheets, weekSheets, overrides] = await Promise.all([
     prisma.employee.findMany({ select: { id: true, name: true, active: true, colorGroup: true, experience: true } }),
     ensureColorGroups(),
     prisma.shiftAssignment.findMany({ where: { date: { gte: from, lt: to } }, include: { shiftType: true } }),
     prisma.timeEntry.findMany({ where: { date: { gte: from, lt: to } } }),
     prisma.timesheet.findMany({ where: { year, month } }),
     prisma.weekSubmission.findMany({ where: { weekStart: { gte: span.first, lte: span.last } } }),
+    loadHoursOverrides(),
   ]);
 
   // Zelfde volgorde als in het rooster: kleurgroep, dan ervaring, dan naam.
@@ -277,7 +290,7 @@ export async function loadOverview(year: number, month: number): Promise<Overvie
     let unconfirmedDays = 0;
     const plannedByDate = new Map<string, number>();
     for (const a of mine) {
-      const hours = shiftHours(a.shiftType);
+      const hours = employeeShiftHours(overrides, employee.id, a.shiftType, toISODate(a.date));
       plannedByDate.set(toISODate(a.date), hours);
       planned += hours;
     }
@@ -350,10 +363,12 @@ export async function writeEntry(
     await prisma.timeEntry.deleteMany({ where: { employeeId, date } });
     return;
   }
-  const planned = assignment ? shiftHours(assignment.shiftType) : 0;
-  // Geen uren ingevuld: de uren van de gewerkte dienst, anders van de geplande dienst.
+  const overrides = await loadHoursOverrides([employeeId]);
+  const dateISO = toISODate(date);
+  const planned = assignment ? employeeShiftHours(overrides, employeeId, assignment.shiftType, dateISO) : 0;
+  // Geen uren ingevuld: de uren van de gewerkte dienst (met afwijking), anders van de geplande dienst.
   // Ziek gemeld zonder uren: niets gewerkt.
-  const worked = hours ?? (sickReported ? 0 : workedShift ? shiftHours(workedShift) : planned);
+  const worked = hours ?? (sickReported ? 0 : workedShift ? employeeShiftHours(overrides, employeeId, workedShift, dateISO) : planned);
   const data = { hours: worked, plannedHours: planned, note: cleanNote, editedById, workedShiftTypeId: workedShift ? workedShift.id : null, sickReported };
   await prisma.timeEntry.upsert({
     where: { employeeId_date: { employeeId, date } },

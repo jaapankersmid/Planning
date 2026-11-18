@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { escapeHtml, isMailConfigured, sendMail } from "@/lib/mail";
 import { quietMinutes } from "@/lib/notifications";
-import { shiftHours } from "@/lib/hours";
 import { addDays, formatDayMonth, isoWeek, startOfWeek, toISODate, weekdayFull } from "@/lib/format";
 import { todayAmsterdam } from "@/lib/schedule";
+import { employeeShiftHours, loadHoursOverrides } from "@/lib/shift-hours-overrides";
 
 /*
  * Mail aan de medewerker over de gewerkte uren:
@@ -49,9 +49,10 @@ export function outcomeMessage(outcome: MailOutcome, name: string) {
 /** Effectieve uren per dag: de geregistreerde uren, anders de geplande uren (alleen tot en met vandaag). */
 export async function effectiveByDay(employeeId: string, from: Date, toInclusive: Date) {
   const afterEnd = addDays(toInclusive, 1);
-  const [assignments, entries] = await Promise.all([
+  const [assignments, entries, overrides] = await Promise.all([
     prisma.shiftAssignment.findMany({ where: { employeeId, date: { gte: from, lt: afterEnd } }, include: { shiftType: true } }),
     prisma.timeEntry.findMany({ where: { employeeId, date: { gte: from, lt: afterEnd } }, select: { date: true, hours: true } }),
+    loadHoursOverrides([employeeId]),
   ]);
   const todayISO = toISODate(todayAmsterdam());
   const byAssignment = new Map(assignments.map((a) => [toISODate(a.date), a]));
@@ -61,7 +62,7 @@ export async function effectiveByDay(employeeId: string, from: Date, toInclusive
     const iso = toISODate(d);
     const a = byAssignment.get(iso);
     const entry = byEntry.get(iso);
-    const hours = entry ?? (a && iso <= todayISO ? shiftHours(a.shiftType) : 0);
+    const hours = entry ?? (a && iso <= todayISO ? employeeShiftHours(overrides, employeeId, a.shiftType, iso) : 0);
     out.push({ date: d, iso, code: a?.shiftType.code ?? null, hours });
   }
   return out;

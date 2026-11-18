@@ -4,6 +4,7 @@ import { addDays, dateFromISO, toISODate } from "@/lib/format";
 import { shiftHours } from "@/lib/hours";
 import { todayAmsterdam } from "@/lib/schedule";
 import { combine, isBroken, pieces, type ShiftTypeLite } from "@/lib/shift-swap";
+import { employeeShiftHours, loadHoursOverrides } from "@/lib/shift-hours-overrides";
 
 /* Automatisch planvoorstel. Per dag, dagdeel (ochtend 8:00-12:30, middag 15:30-19:30) en tag (taak) is een aantal
    mensen nodig. De tags worden gevuld in volgorde van prioriteit (sortOrder, laagste = hoogste prioriteit): eerst alle
@@ -285,7 +286,8 @@ export async function loadPlanInput(startISO: string, days: number): Promise<Pla
   const covered = coverFromShifts(tagsWithHolders, shiftTypes, existingAll.map((a) => ({ employeeId: a.employeeId, shiftTypeId: a.shiftTypeId, date: toISODate(a.date) })), needs.map((n) => ({ date: toISODate(n.date), part: n.part, tagId: n.tagId, count: n.count })))
     .map((c) => ({ ...c, employeeName: who.get(key(c.employeeId, c.date))?.name, shiftCode: who.get(key(c.employeeId, c.date))?.code }));
   const baseHours: Record<string, number> = {};
-  for (const a of existing) baseHours[a.employeeId] = (baseHours[a.employeeId] ?? 0) + shiftHours(a.shiftType);
+  const overrides = await loadHoursOverrides(ids);
+  for (const a of existing) baseHours[a.employeeId] = (baseHours[a.employeeId] ?? 0) + employeeShiftHours(overrides, a.employeeId, a.shiftType, toISODate(a.date));
   // Halve diensten (bv. XI): welk dagdeel bezet is en bij welke tags het andere dagdeel erbij kan.
   const half: NonNullable<PlanInput["half"]> = {};
   for (const a of existing) {

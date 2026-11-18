@@ -19,6 +19,7 @@ Gebruik altijd `canAutoPlan(email)`, `requireAutoPlan()` en `assertAutoPlan()` (
 
 ## Opbouw
 - Het rooster kent één dienst per medewerker per dag. Een gebroken dienst (ochtend + middag, bv. X) bestaat ook als losse delen (XI ochtend, IX middag): zie `src/lib/shift-swap.ts` (`pieces`, `combine`, `remainderOf`).
+- Uren van een dienst voor een medewerker op een dag: altijd `employeeShiftHours` (`src/lib/shift-hours-overrides.ts`), niet `shiftHours`, zodat afwijkende diensturen meetellen.
 - Diensten wijzigen altijd via `applyAssignment` (`src/lib/assignments.ts`): dat regelt agenda-sync en roostermail.
 - Verlof (`src/lib/leave.ts`): hele dagen worden V (Vrij); een aanvraag voor één dienst (dagdeel vrij of andere dienst) wijzigt alleen die dienst (`isShiftRequest`).
 - Ruilen met een collega: `ShiftSwapRequest`, `src/lib/shift-swap.ts`.
@@ -33,4 +34,4 @@ cd ~/Planning; git pull; docker compose -f docker-compose.prod.yml up -d --build
 Laat `exec app npx prisma db push` weg als het schema niet is gewijzigd. Geef na elke wijziging de serverstappen kant-en-klaar onder het kopje "Op de server".
 
 ## Openstaande `db push`-punten (controleer of ze zijn uitgevoerd)
-HoursChange (mail over aangepaste uren), `TimeEntry.workedShiftTypeId` (andere dienst gewerkt), `ShiftType.employeeSelectable` (kiesbaar voor medewerkers), `TimeEntry.sickReported` (ziek gemeld bij de uren), AppSetting en AppSettingChange (Instellingen), ShiftSwapRequest, Plan*-tabellen, `ColorGroup.planParticipates`, tijdvelden van PlanTag, en de velden `part`, `shiftTypeId`, `swapShiftTypeId`, `swapDate` op LeaveRequest.
+HoursChange (mail over aangepaste uren), `TimeEntry.workedShiftTypeId` (andere dienst gewerkt), `ShiftType.employeeSelectable` (kiesbaar voor medewerkers), `TimeEntry.sickReported` (ziek gemeld bij de uren), tabel `ShiftHoursOverride` (afwijkende diensturen), AppSetting en AppSettingChange (Instellingen), ShiftSwapRequest, Plan*-tabellen, `ColorGroup.planParticipates`, tijdvelden van PlanTag, en de velden `part`, `shiftTypeId`, `swapShiftTypeId`, `swapDate` op LeaveRequest.

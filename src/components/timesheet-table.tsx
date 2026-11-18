@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { Fragment } from "react";
 import { formatDayMonth, monthName, weekdayShort } from "@/lib/format";
 import { formatHours } from "@/lib/hours";
+import { hoursFromRules, type OverrideRule } from "@/lib/shift-hours-rules";
 import { isLockedStatus } from "@/lib/timesheet-labels";
 import type { WeekInfo } from "@/lib/timesheets";
 import { TimesheetStatusBadge } from "@/components/timesheet-status";
@@ -15,6 +16,8 @@ export type TimesheetRow = {
   code: string | null;
   label: string | null;
   planned: number;
+  /** Geplande uren komen uit een afwijking voor deze medewerker (bv. A = 9 uur). */
+  plannedOverride?: boolean;
   /** Dag valt in de getoonde maand; anders hoort hij bij de buurmaand (halve week). */
   inMonth?: boolean;
   entry: {
@@ -30,7 +33,7 @@ export type TimesheetRow = {
 };
 
 /** Dienst die de medewerker kan kiezen als "andere dienst gewerkt". */
-export type ShiftOption = { id: string; code: string; label: string; hours: number };
+export type ShiftOption = { id: string; code: string; label: string; hours: number; /** Afwijkende diensturen van deze medewerker. */ rules?: OverrideRule[] };
 
 type Save = (input: { dateISO: string; hours: string | null; note: string; workedShiftTypeId?: string | null; sickReported?: boolean }) => Promise<void | { error: string } | { ok: string }>;
 type ConfirmSick = (dateISO: string) => Promise<void | { error: string } | { ok: string } | undefined>;
@@ -242,7 +245,7 @@ export function TimesheetTable({
                             const change: Partial<Cell> =
                               id === SICK
                                 ? { sick: true, worked: "", hours: "0" }
-                                : { sick: false, worked: id, hours: option ? fmt(option.hours) : proposal(r) };
+                                : { sick: false, worked: id, hours: option ? fmt(hoursFromRules(option.rules, r.dateISO, option.hours)) : proposal(r) };
                             patch(r.dateISO, change);
                             commit(r, change);
                           }}
@@ -277,7 +280,14 @@ export function TimesheetTable({
                     </button>
                   )}
                 </td>
-                <td className={`${cx} text-right tabular-nums text-foreground-muted`}>{r.planned > 0 ? fmt(r.planned) : "–"}</td>
+                <td className={`${cx} text-right tabular-nums text-foreground-muted`}>
+                  {r.planned > 0 ? fmt(r.planned) : "–"}
+                  {r.plannedOverride && r.planned > 0 && (
+                    <span className="ml-1 text-[10px]" title="Afwijkende diensturen voor deze medewerker (ingesteld door de administratie)">
+                      afw.
+                    </span>
+                  )}
+                </td>
                 <td className={cx}>
                   {canEdit ? (
                     <input

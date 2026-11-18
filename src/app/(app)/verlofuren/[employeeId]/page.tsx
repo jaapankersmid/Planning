@@ -10,6 +10,9 @@ import { AdjustmentForm } from "@/components/adjustment-form";
 import { WeeklyHoursEditor } from "@/components/weekly-hours-editor";
 import { AllowanceEditor } from "@/components/allowance-editor";
 import { LeaveBalanceCard } from "@/components/leave-balance-card";
+import { HoursOverrideEditor } from "@/components/hours-override-editor";
+import { shiftHours } from "@/lib/hours";
+import { sortShiftTypes } from "@/lib/shift-order";
 
 /** De planning is pas ingevuld vanaf augustus 2026: voor 2026 geldt het tegoed als stand per 1 november. */
 const defaultCountFrom = (year: number) => (year === 2026 ? "2026-11-01" : null);
@@ -24,7 +27,21 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
 
   const today = todayAmsterdam();
   const todayISO = toISODate(today);
-  const balance = await loadBalance(employeeId, todayISO);
+  const [balance, overrideRows, shiftTypes] = await Promise.all([
+    loadBalance(employeeId, todayISO),
+    prisma.shiftHoursOverride.findMany({
+      where: { employeeId },
+      include: { shiftType: { select: { code: true, label: true } } },
+      orderBy: [{ validFrom: "desc" }, { createdAt: "desc" }],
+    }),
+    prisma.shiftType.findMany({ where: { active: true } }),
+  ]);
+  const overrideShifts = sortShiftTypes(shiftTypes)
+    .filter((t) => shiftHours(t) > 0)
+    .map((t) => ({ id: t.id, label: `${t.code} · ${t.label} (gewoon ${fmtHours(shiftHours(t))} uur)`, standard: shiftHours(t) }));
+  // Per dienst geldt de regel met de laatste ingangsdatum t/m vandaag.
+  const currentRule = new Map<string, string>();
+  for (const r of [...overrideRows].reverse()) if (toISODate(r.validFrom) <= todayISO) currentRule.set(r.shiftTypeId, r.id);
 
   // Jaren om in te vullen: alle jaren met tegoed, plus vorig, dit en volgend jaar.
   const thisYear = today.getUTCFullYear();
@@ -53,6 +70,50 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
           </p>
         </div>
         <WeeklyHoursEditor key={`${employeeId}_${balance.weeklyHours}`} employeeId={employeeId} hours={balance.weeklyHours} label={`Standaard uren per week van ${employee.name}`} />
+      </div>
+
+      <div className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5">
+        <div>
+          <h2 className="text-sm font-semibold">Afwijkende diensturen</h2>
+          <p className="text-xs text-foreground-muted">
+            Telt een dienst voor {employee.name} als een ander aantal uren dan normaal (bv. A en O als 9 uur bij 3 dagen van 9 uur)?
+            Stel het hier in met een ingangsdatum. Het geldt voor de uren, het verlof en de overzichten; de tijden en de
+            bezetting in het rooster blijven gelijk. Een wijziging later is een nieuwe regel met een nieuwe ingangsdatum.
+          </p>
+        </div>
+        {overrideRows.length > 0 && (
+          <table className="w-full max-w-2xl text-sm">
+            <thead>
+              <tr className="text-left text-xs text-foreground-muted">
+                <th className="py-1 pr-3 font-normal">Dienst</th>
+                <th className="py-1 pr-3 text-right font-normal">Uren</th>
+                <th className="py-1 pr-3 font-normal">Vanaf</th>
+                <th className="py-1 font-normal">Ingesteld</th>
+              </tr>
+            </thead>
+            <tbody>
+              {overrideRows.map((r) => {
+                const iso = toISODate(r.validFrom);
+                const status = currentRule.get(r.shiftTypeId) === r.id ? "geldt nu" : iso > todayISO ? "komt nog" : "vervangen";
+                return (
+                  <tr key={r.id} className={`border-t border-border align-top ${status === "vervangen" ? "text-foreground-muted" : ""}`}>
+                    <td className="py-1 pr-3 font-medium">{r.shiftType.code}</td>
+                    <td className="py-1 pr-3 text-right tabular-nums">{r.hours === null ? "gewoon" : `${fmtHours(r.hours)} uur`}</td>
+                    <td className="py-1 pr-3 whitespace-nowrap">
+                      {formatDayMonth(r.validFrom)} {r.validFrom.getUTCFullYear()}
+                      <span className="ml-1.5 text-xs text-foreground-muted">({status})</span>
+                    </td>
+                    <td className="py-1 text-xs text-foreground-muted">
+                      {r.createdByName ?? "–"}, {formatDayMonth(r.createdAt)} {r.createdAt.getUTCFullYear()}
+                      {r.note ? ` · ${r.note}` : ""}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+        <HoursOverrideEditor employeeId={employeeId} shifts={overrideShifts} todayISO={todayISO} />
       </div>
 
       <div className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5">

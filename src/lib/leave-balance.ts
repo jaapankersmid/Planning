@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
-import { shiftHours } from "@/lib/hours";
 import { addDays, dateFromISO, isoWeek, startOfWeek, toISODate } from "@/lib/format";
 import { weekdayNumber } from "@/lib/schedule";
+import { buildOverrides, employeeShiftHours, loadOverrideRows, type HoursOverrides } from "@/lib/shift-hours-overrides";
 
 /**
  * Verlofuren: het tegoed van kalenderjaar Y geldt van 1 januari Y tot en met 30 juni Y+1
@@ -251,7 +251,12 @@ export function computeBalance(
  * uren zijn ingevuld, zodat ziekte nooit verlof kost.
  * Weken zonder enige dienst of registratie tellen niet mee: daar is nog niets gepland.
  */
-export async function loadBalances(todayISO: string, employeeIds?: string[]) {
+export async function loadBalances(
+  todayISO: string,
+  employeeIds?: string[],
+  /** Voorvertoning: extra afwijkende diensturen die nog niet zijn opgeslagen. */
+  extraOverrides: { employeeId: string; shiftTypeId: string; validFromISO: string; hours: number | null }[] = [],
+) {
   const filter = employeeIds ? { employeeId: { in: employeeIds } } : {};
   const [allowances, adjustmentRows, employees] = await Promise.all([
     prisma.leaveAllowance.findMany({ where: filter, include: { updatedBy: { select: { name: true, email: true } } } }),
@@ -298,8 +303,15 @@ export async function loadBalances(todayISO: string, employeeIds?: string[]) {
       ])
     : [[], [], []];
 
-  const templateHours = new Map<string, number>();
-  for (const t of templates) templateHours.set(`${t.employeeId}_${t.weekday}`, t.shiftType.code === "V" ? 0 : shiftHours(t.shiftType));
+  const overrides: HoursOverrides = buildOverrides([...(await loadOverrideRows(employeeIds)), ...extraOverrides]);
+  // Vast rooster per weekdag; de uren hangen van de dag af (afwijkende diensturen met een ingangsdatum).
+  const templateShift = new Map<string, (typeof templates)[number]["shiftType"]>();
+  for (const t of templates) templateShift.set(`${t.employeeId}_${t.weekday}`, t.shiftType);
+  const templateHoursOn = (employeeId: string, day: Date) => {
+    const shift = templateShift.get(`${employeeId}_${weekdayNumber(day)}`);
+    if (!shift || shift.code === "V") return 0;
+    return employeeShiftHours(overrides, employeeId, shift, toISODate(day));
+  };
 
   const assignmentsBy = new Map<string, (typeof assignments)[number]>();
   for (const a of assignments) assignmentsBy.set(`${a.employeeId}_${toISODate(a.date)}`, a);
@@ -328,11 +340,11 @@ export async function loadBalances(todayISO: string, employeeIds?: string[]) {
           const entry = entriesBy.get(key);
           if (assignment || entry !== undefined) active = true;
           // Ziek (Z) telt altijd volgens het vaste rooster, ook als er voor die dag uren zijn ingevuld.
-          if (assignment?.shiftType.code === "Z") worked += templateHours.get(`${id}_${weekdayNumber(day)}`) ?? 0;
+          if (assignment?.shiftType.code === "Z") worked += templateHoursOn(id, day);
           // Ziek gemeld in de uren (nog geen Z): kost ook geen verlof; minstens de uren uit het vaste rooster.
-          else if (sickReportedBy.has(key)) worked += Math.max(entry ?? 0, templateHours.get(`${id}_${weekdayNumber(day)}`) ?? 0);
+          else if (sickReportedBy.has(key)) worked += Math.max(entry ?? 0, templateHoursOn(id, day));
           else if (entry !== undefined) worked += entry;
-          else if (assignment) worked += shiftHours(assignment.shiftType);
+          else if (assignment) worked += employeeShiftHours(overrides, id, assignment.shiftType, toISODate(day));
         }
         if (!active) continue;
         const leave = round(Math.max(0, contract - worked));

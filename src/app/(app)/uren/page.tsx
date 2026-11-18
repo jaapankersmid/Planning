@@ -34,7 +34,7 @@ export default async function MijnUrenPage({
   const [employee, { rows, weekRows, sheet, weeks }, shiftOptions] = await Promise.all([
     prisma.employee.findUnique({ where: { id: employeeId }, select: { name: true } }),
     loadEmployeeMonth(employeeId, year, month),
-    loadShiftOptions(),
+    loadShiftOptions(employeeId),
   ]);
 
   const today = todayAmsterdam();

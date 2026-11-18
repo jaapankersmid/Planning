@@ -35,7 +35,7 @@ export default async function UrenDetailPage({
     weeks.length ? pendingHoursChanges(employeeId, dateFromISO(weeks[0].startISO), dateFromISO(weeks[weeks.length - 1].startISO)) : {},
     employeeAddress(employeeId),
     isMailConfigured(),
-    loadShiftOptions(),
+    loadShiftOptions(employeeId),
   ]);
   // Waarom er na een aanpassing in een goedgekeurde week geen mail komt (of null als dat wel gebeurt).
   const mailHint = session.user.employeeId === employeeId

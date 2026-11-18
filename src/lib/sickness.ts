@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
-import { shiftHours } from "@/lib/hours";
 import { addDays, dateFromISO, toISODate } from "@/lib/format";
 import { weekdayNumber } from "@/lib/schedule";
+import { employeeShiftHours, loadHoursOverrides } from "@/lib/shift-hours-overrides";
 
 /*
  * Ziekte uit het rooster: een dag telt als ziek als de planner er Z (Ziek) heeft gezet. Er wordt niets apart
@@ -101,15 +101,22 @@ export async function loadSickness(employeeIds: string[], fromISO: string, toISO
   const windowStart = addDays(dateFromISO(startISO), -366);
   const windowEnd = addDays(dateFromISO(endISO), 60);
 
-  const [assignments, templates] = await Promise.all([
+  const [assignments, templates, overrides] = await Promise.all([
     prisma.shiftAssignment.findMany({
       where: { employeeId: { in: employeeIds }, date: { gte: windowStart, lt: windowEnd } },
       select: { employeeId: true, date: true, shiftType: { select: { code: true } } },
     }),
     prisma.weeklyScheduleEntry.findMany({ where: { employeeId: { in: employeeIds } }, include: { shiftType: true } }),
+    loadHoursOverrides(employeeIds),
   ]);
-  const templateHours = new Map<string, number>();
-  for (const t of templates) templateHours.set(`${t.employeeId}_${t.weekday}`, FREE_CODES.has(t.shiftType.code) || t.shiftType.code === SICK_CODE ? 0 : shiftHours(t.shiftType));
+  // Vast rooster per weekdag; de uren hangen van de dag af (afwijkende diensturen met een ingangsdatum).
+  const templateShift = new Map<string, (typeof templates)[number]["shiftType"]>();
+  for (const t of templates) templateShift.set(`${t.employeeId}_${t.weekday}`, t.shiftType);
+  const templateHoursOn = (employeeId: string, day: Date) => {
+    const shift = templateShift.get(`${employeeId}_${weekdayNumber(day)}`);
+    if (!shift || FREE_CODES.has(shift.code) || shift.code === SICK_CODE) return 0;
+    return employeeShiftHours(overrides, employeeId, shift, toISODate(day));
+  };
 
   const codeBy = new Map<string, string>();
   const sickBy = new Map<string, SickDay[]>();
@@ -118,7 +125,7 @@ export async function loadSickness(employeeIds: string[], fromISO: string, toISO
     codeBy.set(`${a.employeeId}_${iso}`, a.shiftType.code);
     if (a.shiftType.code !== SICK_CODE) continue;
     const list = sickBy.get(a.employeeId) ?? [];
-    list.push({ iso, hours: templateHours.get(`${a.employeeId}_${weekdayNumber(a.date)}`) ?? 0 });
+    list.push({ iso, hours: templateHoursOn(a.employeeId, a.date) });
     sickBy.set(a.employeeId, list);
   }
 

@@ -109,6 +109,7 @@ model Employee {
   swapsRequested      ShiftSwapRequest[] @relation("SwapRequester")
   swapsReceived       ShiftSwapRequest[] @relation("SwapTarget")
   hoursChanges        HoursChange[]
+  shiftHoursOverrides ShiftHoursOverride[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -151,6 +152,7 @@ model ShiftType {
   leavePartRequests LeaveRequest[] @relation("LeavePartShift")
   leaveSwapRequests LeaveRequest[] @relation("LeaveSwapFor")
   workedEntries     TimeEntry[]    @relation("TimeEntryWorkedShift")
+  hoursOverrides    ShiftHoursOverride[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -667,4 +669,25 @@ model AppSettingChange {
   createdAt     DateTime @default(now())
 
   @@index([createdAt])
+}
+
+// Afwijkende diensturen per medewerker: deze dienst telt voor deze medewerker vanaf validFrom als `hours` uur
+// (bv. A en O = 9 uur bij 3 dagen van 9 uur). hours = null zet het vanaf validFrom terug naar de gewone uren.
+// Een wijziging is altijd een nieuwe regel met een nieuwe ingangsdatum; oude regels blijven als historie staan.
+// Alleen voor uren en verlof; de tijden en de bezetting in het rooster veranderen niet.
+model ShiftHoursOverride {
+  id          String    @id @default(cuid())
+  employee    Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId  String
+  shiftType   ShiftType @relation(fields: [shiftTypeId], references: [id], onDelete: Cascade)
+  shiftTypeId String
+  hours       Float?
+  validFrom   DateTime  @db.Date
+  note        String?
+  createdById   String?
+  createdByName String?
+  createdAt   DateTime  @default(now())
+
+  @@unique([employeeId, shiftTypeId, validFrom])
+  @@index([employeeId])
 }

@@ -20,7 +20,7 @@ import {
   weekdayShort,
 } from "@/lib/format";
 import { holidayOn, holidaySegments } from "@/lib/holidays";
-import { formatHours, shiftHours } from "@/lib/hours";
+import { formatHours } from "@/lib/hours";
 import { canManageHours, isPlanner } from "@/lib/roles";
 import { canAutoPlan } from "@/lib/auto-plan-access";
 import { extendHalf, shiftTypeForParts, type Part } from "@/lib/auto-plan";
@@ -37,6 +37,7 @@ import {
   weekdayNumber,
 } from "@/lib/schedule";
 import { sortShiftTypes } from "@/lib/shift-order";
+import { employeeShiftHours, loadHoursOverrides } from "@/lib/shift-hours-overrides";
 
 const NAME_COLUMN = 132;
 const NAME_COLUMN_PHONE = 84;
@@ -211,8 +212,11 @@ export default async function RoosterPage({
   // Uren per medewerker in de getoonde periode (alleen voor de planner), uit de tijden van de diensttypen.
   const hoursByEmployee = new Map<string, number>();
   if (showHours) {
+    // Met afwijkende diensturen per medewerker (bv. A = 9 uur), net als bij de uren en het verlof.
+    const overrides = await loadHoursOverrides();
     for (const a of assignments) {
-      hoursByEmployee.set(a.employeeId, (hoursByEmployee.get(a.employeeId) ?? 0) + shiftHours(a.shiftType));
+      const hours = employeeShiftHours(overrides, a.employeeId, { ...a.shiftType, id: a.shiftTypeId }, toISODate(a.date));
+      hoursByEmployee.set(a.employeeId, (hoursByEmployee.get(a.employeeId) ?? 0) + hours);
     }
   }
   const hoursLabel = weekView ? "Uren deze week" : "Uren deze maand";
