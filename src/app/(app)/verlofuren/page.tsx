@@ -9,6 +9,7 @@ import { canManageHours } from "@/lib/roles";
 import { ensureColorGroups, sortEmployees, todayAmsterdam } from "@/lib/schedule";
 import { GroupHeaderRow } from "@/components/group-header-row";
 import { ExpandableRow } from "@/components/expandable-row";
+import { balanceView } from "@/lib/leave-view";
 
 const input = "rounded-md border border-border bg-surface px-2 py-1 text-sm";
 const COLS = 7; // pijltje + 6 kolommen
@@ -85,8 +86,8 @@ export default async function VerlofurenPage({ searchParams }: { searchParams: P
                 Opgen. / gepland
               </th>
               <th className="px-3 py-2 text-right">Nu over</th>
-              <th className="px-3 py-2 text-right" title={`Verwacht over op 31 december ${year} en 30 juni ${year + 1}, als het ingeplande verlof wordt opgenomen`}>
-                31-12 / 30-6
+              <th className="px-3 py-2 text-right" title={`Verwacht over op 31 december ${year}, en hoeveel daarvan in ${year + 1} (t/m 30 juni) wordt gebruikt of ingepland. Is het tegoed eind december op, dan staat er op.`}>
+                31-12 / in {year + 1}
               </th>
               <th className="px-3 py-2 text-right" title="Verwacht aantal uren dat vervalt, na aftrek van ingepland verlof">
                 Vervalt
@@ -98,6 +99,7 @@ export default async function VerlofurenPage({ searchParams }: { searchParams: P
               const b = balances.get(e.id)!;
               const empty = b.buckets.length === 0;
               const period = periods.get(e.id)!;
+              const view = empty ? null : balanceView(b, todayISO);
               const name = (
                 <td className="px-3 py-1.5">
                   <Link href={`/verlofuren/${e.id}`} className="font-medium hover:underline">
@@ -134,16 +136,24 @@ export default async function VerlofurenPage({ searchParams }: { searchParams: P
                   <td className={num}>
                     <span className={neg(b.forecastYearEnd)}>{fmtHours(b.forecastYearEnd)}</span>
                     <span className="text-foreground-muted"> / </span>
-                    <span className={neg(b.forecast)}>{fmtHours(b.forecast)}</span>
+                    {view?.nextYear ? (
+                      <span title={`${fmtHours(view.nextYear.taken)} opgenomen, ${fmtHours(view.nextYear.planned)} ingepland van ${fmtHours(view.nextYear.of)} uur`}>
+                        {fmtHours(view.nextYear.taken + view.nextYear.planned)} van {fmtHours(view.nextYear.of)}
+                      </span>
+                    ) : view?.usedUpThisYear ? (
+                      <span className="text-xs text-foreground-muted">op</span>
+                    ) : (
+                      <span className="text-foreground-muted">–</span>
+                    )}
                   </td>
                   <td
-                    className={`${num} ${b.expiring && b.expiring.forecastHours > 0 ? "text-amber-700 dark:text-amber-300" : "text-foreground-muted"}`}
-                    title={b.expiring ? `na ${dayBefore(b.expiring.dateISO)}` : undefined}
+                    className={`${num} ${view?.expires ? "text-amber-700 dark:text-amber-300" : "text-foreground-muted"}`}
+                    title={view?.expires ? `na ${dayBefore(view.expires.dateISO)}` : undefined}
                   >
-                    {b.expiring ? (
+                    {view?.expires ? (
                       <>
-                        {fmtHours(b.expiring.forecastHours)}
-                        <span className="ml-1 text-xs text-foreground-muted">{dayBefore(b.expiring.dateISO).replace(/ \d{4}$/, "")}</span>
+                        {fmtHours(view.expires.hours)}
+                        <span className="ml-1 text-xs text-foreground-muted">{dayBefore(view.expires.dateISO).replace(/ \d{4}$/, "")}</span>
                       </>
                     ) : (
                       "–"
@@ -199,8 +209,8 @@ export default async function VerlofurenPage({ searchParams }: { searchParams: P
           <li>Het tegoed van een jaar geldt van 1 januari tot en met 30 juni van het jaar erna. Klik op een naam om het tegoed in te vullen of aan te passen.</li>
           <li>Opgenomen verlof per week is de standaard uren per week min de gewerkte uren; voor komende weken de geplande uren. Een ziektedag telt altijd voor de uren uit het vaste rooster (ook als er uren zijn ingevuld), dus ziekte kost geen verlof.</li>
           <li>In periode: de weken waarvan de maandag in de gekozen periode valt. Tussen haakjes het deel dat nog ingepland is.</li>
-          <li>31-12 / 30-6: wat er naar verwachting over is als het ingeplande verlof wordt opgenomen. Wat er op 30 juni over is, vervalt daarna.</li>
-          <li>Vervalt: de verwachte uren die vervallen en de datum waarop (na aftrek van ingepland verlof).</li>
+          <li>31-12 / in volgend jaar: wat er eind december naar verwachting over is, en hoeveel daarvan in het volgende jaar (t/m 30 juni) wordt opgenomen of is ingepland. Is het tegoed eind december op, dan staat er op en vervalt er niets meer.</li>
+          <li>Vervalt: alleen als er na aftrek van ingepland verlof echt iets vervalt, met de datum.</li>
           <li>In de weken: een gestippeld blokje is ingepland, doorgestreept telt niet mee (voor de peildatum).</li>
         </ul>
       </details>

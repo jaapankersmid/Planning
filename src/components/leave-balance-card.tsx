@@ -1,5 +1,6 @@
 import { dateFromISO, formatDayMonth } from "@/lib/format";
-import { expiryISO, fmtHours, type Balance, type Bucket } from "@/lib/leave-balance";
+import { expiryISO, fmtHours, type Balance } from "@/lib/leave-balance";
+import { balanceView, type BalanceView, type BucketView } from "@/lib/leave-view";
 
 /** "2027-07-01" -> "30 juni 2027": de laatste dag dat het tegoed geldt. */
 const dayBefore = (iso: string) => {
@@ -12,22 +13,86 @@ const dayMonthYear = (iso: string) => {
   return `${formatDayMonth(d)} ${d.getUTCFullYear()}`;
 };
 const lastDay = (year: number) => dayBefore(expiryISO(year));
+const neg = (n: number) => (n < 0 ? "text-bad-text" : "");
 
-/** Het gebruik van één tegoed in één kalenderjaar, bv. "40 (8 opgenomen + 32 ingepland)". */
-function UsageCell({ bucket, year }: { bucket: Bucket; year: number }) {
-  const usage = bucket.usage.find((u) => u.year === year);
-  const total = (usage?.taken ?? 0) + (usage?.planned ?? 0);
-  if (!usage || total === 0) return <span className="text-foreground-muted">–</span>;
+/** "12 van 20 uur (4 opgenomen + 8 ingepland)". */
+function NextYearUse({ next }: { next: NonNullable<BucketView["nextYear"]> }) {
+  const used = next.taken + next.planned;
   return (
     <>
-      <span className="font-medium tabular-nums">{fmtHours(total)}</span>
-      <div className="text-xs text-foreground-muted">
-        {usage.taken > 0 && `${fmtHours(usage.taken)} opgenomen`}
-        {usage.taken > 0 && usage.planned > 0 && " + "}
-        {usage.planned > 0 && `${fmtHours(usage.planned)} ingepland`}
-      </div>
+      <span className="font-medium tabular-nums">
+        {fmtHours(used)} van {fmtHours(next.of)}
+      </span>
+      {used > 0 && (
+        <div className="text-xs text-foreground-muted">
+          {next.taken > 0 && `${fmtHours(next.taken)} opgenomen`}
+          {next.taken > 0 && next.planned > 0 && " + "}
+          {next.planned > 0 && `${fmtHours(next.planned)} ingepland`}
+        </div>
+      )}
     </>
   );
+}
+
+/** Meldingen onder de kerncijfers: tekort, wat vervalt, ontbrekende uren per week. */
+function Notes({ balance, view, todayISO, small }: { balance: Balance & { weeklyHours?: number | null }; view: BalanceView; todayISO: string; small?: boolean }) {
+  const size = small ? "text-xs" : "text-sm";
+  const soon = view.expires && dateFromISO(view.expires.dateISO).getTime() - dateFromISO(todayISO).getTime() < 120 * 86400000;
+  const short = balance.available < 0 || view.yearEnd < 0 || balance.forecast < 0;
+  return (
+    <>
+      {balance.available < 0 ? (
+        <p className={`${size} text-bad-text`}>Er is meer verlof opgenomen dan er tegoed was.</p>
+      ) : (
+        short && (
+          <p className={`${size} text-bad-text`}>
+            Met het ingeplande verlof komt het saldo onder nul
+            {view.yearEnd < 0 ? ` (${fmtHours(view.yearEnd)} uur eind ${view.year})` : ""}.
+            {view.nextBucket && view.yearEnd < 0 && (
+              <span className="text-foreground-muted">
+                {" "}
+                Het tegoed van {view.nextBucket.year} ({fmtHours(view.nextBucket.total)} uur) geldt vanaf 1 januari {view.nextBucket.year}.
+              </span>
+            )}
+          </p>
+        )
+      )}
+      {view.expires && (
+        <p className={`${size} ${soon ? "text-amber-700 dark:text-amber-300" : "text-foreground-muted"}`}>
+          {fmtHours(view.expires.hours)} uur vervalt na {dayBefore(view.expires.dateISO)} als dat niet wordt opgenomen.
+        </p>
+      )}
+      {(balance.weeklyHours ?? 0) <= 0 && (
+        <p className={`${size} text-amber-700 dark:text-amber-300`}>
+          De standaard uren per week zijn nog niet ingevuld, dus er kan geen opgenomen verlof worden berekend.
+        </p>
+      )}
+    </>
+  );
+}
+
+/** Tweede kerncijfer naast "31 december": gebruik in het volgende jaar, of dat het tegoed al op is. */
+function NextYearBlock({ view, cls, valueCls }: { view: BalanceView; cls: string; valueCls: string }) {
+  if (view.nextYear) {
+    const used = view.nextYear.taken + view.nextYear.planned;
+    return (
+      <div className={cls}>
+        <dt className="text-xs text-foreground-muted">Gebruikt in {view.nextYear.year}</dt>
+        <dd className={`${valueCls} tabular-nums`}>
+          {fmtHours(used)} van {fmtHours(view.nextYear.of)} uur
+        </dd>
+      </div>
+    );
+  }
+  if (view.usedUpThisYear) {
+    return (
+      <div className={cls}>
+        <dt className="text-xs text-foreground-muted">Tegoed {view.year}</dt>
+        <dd className={`${valueCls} text-foreground-muted`}>op in {view.year}</dd>
+      </div>
+    );
+  }
+  return null;
 }
 
 /** Overzicht van verlofuren: wat er nog is, wat er is opgenomen en ingepland, en wat wanneer vervalt. Voor medewerker en administratie. */
@@ -41,8 +106,7 @@ export function LeaveBalanceCard({
   /** Mijn verlof: alleen de kern, de tabel per jaar en de uitleg ingeklapt. */
   compact?: boolean;
 }) {
-  const { buckets } = balance;
-  if (buckets.length === 0) {
+  if (balance.buckets.length === 0) {
     return (
       <div className="rounded-lg border border-border bg-surface p-5 text-sm text-foreground-muted">
         De administratie heeft nog geen verlofuren ingevuld.
@@ -50,21 +114,14 @@ export function LeaveBalanceCard({
     );
   }
 
-  const thisYear = Number(todayISO.slice(0, 4));
-  const soon = balance.expiring && dateFromISO(balance.expiring.dateISO).getTime() - dateFromISO(todayISO).getTime() < 120 * 86400000;
-  const visible = buckets.filter((b) => !(b.expired && b.remaining === 0 && b.used === 0));
+  const view = balanceView(balance, todayISO);
+  const visible = view.buckets.filter((v) => !(v.bucket.expired && v.bucket.remaining === 0 && v.bucket.used === 0));
 
   if (compact) {
-    const warn =
-      balance.available < 0
-        ? "Je hebt meer verlof opgenomen dan je tegoed."
-        : balance.forecastYearEnd < 0 || balance.forecast < 0
-          ? "Met je ingeplande verlof kom je onder nul."
-          : null;
     return (
       <div className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-4">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-          <div className={`text-2xl font-semibold tabular-nums ${balance.available < 0 ? "text-bad-text" : ""}`}>
+          <div className={`text-2xl font-semibold tabular-nums ${neg(balance.available)}`}>
             {fmtHours(balance.available)} <span className="text-sm font-normal text-foreground-muted">uur over</span>
           </div>
           <div className="text-xs text-foreground-muted tabular-nums">
@@ -74,22 +131,11 @@ export function LeaveBalanceCard({
         <dl className="grid grid-cols-2 gap-2 text-xs">
           <div className="rounded-md bg-surface-muted px-2 py-1.5">
             <dt className="text-foreground-muted">Verwacht 31 dec</dt>
-            <dd className={`text-sm font-semibold tabular-nums ${balance.forecastYearEnd < 0 ? "text-bad-text" : ""}`}>{fmtHours(balance.forecastYearEnd)} uur</dd>
+            <dd className={`text-sm font-semibold tabular-nums ${neg(view.yearEnd)}`}>{fmtHours(view.yearEnd)} uur</dd>
           </div>
-          <div className="rounded-md bg-surface-muted px-2 py-1.5">
-            <dt className="text-foreground-muted">Verwacht {dayMonthYear(balance.forecastISO).replace(/ d{4}$/, "")}</dt>
-            <dd className={`text-sm font-semibold tabular-nums ${balance.forecast < 0 ? "text-bad-text" : ""}`}>{fmtHours(balance.forecast)} uur</dd>
-          </div>
+          <NextYearBlock view={view} cls="rounded-md bg-surface-muted px-2 py-1.5" valueCls="text-sm font-semibold" />
         </dl>
-        {warn && <p className="text-xs text-bad-text">{warn}</p>}
-        {balance.expiring && balance.expiring.forecastHours > 0 && (
-          <p className={`text-xs ${soon ? "text-amber-700 dark:text-amber-300" : "text-foreground-muted"}`}>
-            {fmtHours(balance.expiring.forecastHours)} uur vervalt na {dayBefore(balance.expiring.dateISO)} als je die niet opneemt.
-          </p>
-        )}
-        {(balance.weeklyHours ?? 0) <= 0 && (
-          <p className="text-xs text-amber-700 dark:text-amber-300">Je uren per week zijn nog niet ingevuld; vraag de administratie.</p>
-        )}
+        <Notes balance={balance} view={view} todayISO={todayISO} small />
         <details className="text-xs">
           <summary className="cursor-pointer text-foreground-muted">Per jaar{balance.adjustments.length > 0 ? " en correcties" : ""}</summary>
           <table className="mt-2 w-full">
@@ -97,20 +143,31 @@ export function LeaveBalanceCard({
               <tr className="text-left text-foreground-muted">
                 <th className="py-1 pr-2 font-normal">Tegoed</th>
                 <th className="py-1 pr-2 text-right font-normal">Uren</th>
-                <th className="py-1 pr-2 text-right font-normal">Over</th>
+                <th className="py-1 pr-2 text-right font-normal">31 dec</th>
+                <th className="py-1 pr-2 font-normal">Jaar erna</th>
                 <th className="py-1 font-normal">Geldig</th>
               </tr>
             </thead>
             <tbody>
-              {visible.map((b) => (
-                <tr key={b.year} className="border-t border-border align-top">
-                  <td className="py-1 pr-2 font-medium">{b.year}</td>
-                  <td className="py-1 pr-2 text-right tabular-nums">{fmtHours(b.hours + (b.adjustment ?? 0))}</td>
-                  <td className={`py-1 pr-2 text-right tabular-nums ${b.remaining < 0 ? "text-bad-text" : ""}`}>
-                    {b.expired && b.lost > 0 ? <span className="text-foreground-muted line-through">{fmtHours(b.lost)}</span> : fmtHours(b.remaining)}
+              {visible.map((v) => (
+                <tr key={v.bucket.year} className="border-t border-border align-top">
+                  <td className="py-1 pr-2 font-medium">{v.bucket.year}</td>
+                  <td className="py-1 pr-2 text-right tabular-nums">{fmtHours(v.total)}</td>
+                  <td className={`py-1 pr-2 text-right tabular-nums ${neg(v.endOfYear ?? 0)}`}>{v.endOfYear === null ? "–" : fmtHours(v.endOfYear)}</td>
+                  <td className="py-1 pr-2">
+                    {v.nextYear ? (
+                      <>
+                        {fmtHours(v.nextYear.taken + v.nextYear.planned)} van {fmtHours(v.nextYear.of)} in {v.nextYear.year}
+                        {v.expires > 0 && <div className="text-amber-700 dark:text-amber-300">{fmtHours(v.expires)} {v.bucket.expired ? "vervallen" : "vervalt"}</div>}
+                      </>
+                    ) : v.usedUp ? (
+                      <span className="text-foreground-muted">op in {v.bucket.year}</span>
+                    ) : (
+                      "–"
+                    )}
                   </td>
                   <td className="py-1 text-foreground-muted">
-                    {b.future ? `vanaf 1 jan ${b.year}` : b.expired ? "verlopen" : `t/m ${lastDay(b.year)}`}
+                    {v.bucket.future ? `vanaf 1 jan ${v.bucket.year}` : v.bucket.expired ? "verlopen" : `t/m ${lastDay(v.bucket.year)}`}
                   </td>
                 </tr>
               ))}
@@ -120,7 +177,7 @@ export function LeaveBalanceCard({
                   <td className={`py-1 pr-2 text-right tabular-nums ${a.hours < 0 ? "text-bad-text" : ""}`}>
                     {a.hours > 0 ? "+" : "−"}{fmtHours(Math.abs(a.hours))}
                   </td>
-                  <td className="py-1">{a.reason}</td>
+                  <td className="py-1" colSpan={2}>{a.reason}</td>
                 </tr>
               ))}
             </tbody>
@@ -139,7 +196,7 @@ export function LeaveBalanceCard({
       <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
         <div>
           <div className="text-xs font-medium uppercase tracking-wide text-foreground-muted">Nog op te nemen</div>
-          <div className={`text-3xl font-semibold tabular-nums ${balance.available < 0 ? "text-bad-text" : ""}`}>
+          <div className={`text-3xl font-semibold tabular-nums ${neg(balance.available)}`}>
             {fmtHours(balance.available)} <span className="text-base font-normal text-foreground-muted">uur</span>
           </div>
         </div>
@@ -153,33 +210,14 @@ export function LeaveBalanceCard({
             <dd className="tabular-nums">{fmtHours(balance.plannedFuture)} uur</dd>
           </div>
           <div>
-            <dt className="text-xs text-foreground-muted">Verwacht over op 31 december {thisYear}</dt>
-            <dd className={`font-semibold tabular-nums ${balance.forecastYearEnd < 0 ? "text-bad-text" : ""}`}>{fmtHours(balance.forecastYearEnd)} uur</dd>
+            <dt className="text-xs text-foreground-muted">Verwacht over op 31 december {view.year}</dt>
+            <dd className={`font-semibold tabular-nums ${neg(view.yearEnd)}`}>{fmtHours(view.yearEnd)} uur</dd>
           </div>
-          <div>
-            <dt className="text-xs text-foreground-muted">Verwacht over op {dayMonthYear(balance.forecastISO)}</dt>
-            <dd className={`font-semibold tabular-nums ${balance.forecast < 0 ? "text-bad-text" : ""}`}>{fmtHours(balance.forecast)} uur</dd>
-          </div>
+          <NextYearBlock view={view} cls="" valueCls="font-semibold" />
         </dl>
       </div>
 
-      {balance.available < 0 && <p className="text-sm text-bad-text">Er is meer verlof opgenomen dan er tegoed was.</p>}
-      {balance.available >= 0 && (balance.forecastYearEnd < 0 || balance.forecast < 0) && (
-        <p className="text-sm text-bad-text">Met het ingeplande verlof komt het saldo onder nul.</p>
-      )}
-      {balance.expiring && (
-        <p className={`text-sm ${soon ? "text-amber-700 dark:text-amber-300" : "text-foreground-muted"}`}>
-          Van het tegoed dat vervalt na {dayBefore(balance.expiring.dateISO)} is nu nog {fmtHours(balance.expiring.hours)} uur over.
-          {balance.expiring.forecastHours > 0
-            ? ` Met het ingeplande verlof tot en met die dag vervalt naar verwachting ${fmtHours(balance.expiring.forecastHours)} uur.`
-            : " Met het ingeplande verlof tot en met die dag is dat tegoed op."}
-        </p>
-      )}
-      {(balance.weeklyHours ?? 0) <= 0 && (
-        <p className="text-sm text-amber-700 dark:text-amber-300">
-          De standaard uren per week zijn nog niet ingevuld, dus er kan geen opgenomen verlof worden berekend.
-        </p>
-      )}
+      <Notes balance={balance} view={view} todayISO={todayISO} />
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
@@ -188,52 +226,71 @@ export function LeaveBalanceCard({
               <th className="py-1.5 pr-4">Tegoed</th>
               <th className="py-1.5 pr-4 text-right">Uren</th>
               <th className="py-1.5 pr-4">Gebruikt in het jaar zelf</th>
-              <th className="py-1.5 pr-4">Meegenomen naar het jaar erna (t/m 30 juni)</th>
+              <th className="py-1.5 pr-4 text-right">Over op 31 december</th>
+              <th className="py-1.5 pr-4">Gebruikt in het jaar erna (t/m 30 juni)</th>
               <th className="py-1.5 pr-4 text-right">Nu over</th>
-              <th className="py-1.5 pr-4 text-right">Verwacht over op 30 juni</th>
               <th className="py-1.5">Geldig</th>
             </tr>
           </thead>
           <tbody>
-            {visible.map((b) => (
-              <tr key={b.year} className="border-b border-border align-top last:border-0">
-                <td className="py-1.5 pr-4 font-medium">{b.year}</td>
-                <td className="py-1.5 pr-4 text-right tabular-nums">
-                  {fmtHours(b.hours + (b.adjustment ?? 0))}
-                  {!!b.adjustment && (
-                    <div className="text-xs text-foreground-muted">
-                      {fmtHours(b.hours)} {b.adjustment > 0 ? "+" : "−"} {fmtHours(Math.abs(b.adjustment))} correctie
-                    </div>
-                  )}
-                </td>
-                <td className="py-1.5 pr-4">
-                  <div className="text-xs text-foreground-muted">in {b.year}</div>
-                  <UsageCell bucket={b} year={b.year} />
-                </td>
-                <td className="py-1.5 pr-4">
-                  <div className="text-xs text-foreground-muted">in {b.year + 1}</div>
-                  <UsageCell bucket={b} year={b.year + 1} />
-                </td>
-                <td className={`py-1.5 pr-4 text-right tabular-nums ${b.remaining < 0 ? "text-bad-text" : ""}`}>
-                  {b.expired && b.lost > 0 ? <span className="text-foreground-muted line-through">{fmtHours(b.lost)}</span> : fmtHours(b.remaining)}
-                </td>
-                <td className={`py-1.5 pr-4 text-right tabular-nums ${b.forecastRemaining < 0 ? "text-bad-text" : ""}`}>
-                  {b.expired ? (
-                    <span className="text-foreground-muted">–</span>
-                  ) : (
-                    <>
-                      {fmtHours(b.forecastRemaining)}
-                      {b.forecastRemaining > 0 && <div className="text-xs text-foreground-muted">vervalt daarna</div>}
-                    </>
-                  )}
-                </td>
-                <td className="py-1.5 text-foreground-muted">
-                  {b.future ? `vanaf 1 januari ${b.year}` : b.expired ? `verlopen op ${lastDay(b.year)}` : `t/m ${lastDay(b.year)}`}
-                  {b.countFromISO && <div className="text-xs">stand per {dayMonthYear(b.countFromISO)}</div>}
-                  {b.note && <div className="text-xs">{b.note}</div>}
-                </td>
-              </tr>
-            ))}
+            {visible.map((v) => {
+              const b = v.bucket;
+              const ownUsed = v.inYear.taken + v.inYear.planned;
+              return (
+                <tr key={b.year} className="border-b border-border align-top last:border-0">
+                  <td className="py-1.5 pr-4 font-medium">{b.year}</td>
+                  <td className="py-1.5 pr-4 text-right tabular-nums">
+                    {fmtHours(v.total)}
+                    {!!b.adjustment && (
+                      <div className="text-xs text-foreground-muted">
+                        {fmtHours(b.hours)} {b.adjustment > 0 ? "+" : "−"} {fmtHours(Math.abs(b.adjustment))} correctie
+                      </div>
+                    )}
+                  </td>
+                  <td className="py-1.5 pr-4">
+                    {ownUsed === 0 ? (
+                      <span className="text-foreground-muted">–</span>
+                    ) : (
+                      <>
+                        <span className="font-medium tabular-nums">{fmtHours(ownUsed)}</span>
+                        <div className="text-xs text-foreground-muted">
+                          {v.inYear.taken > 0 && `${fmtHours(v.inYear.taken)} opgenomen`}
+                          {v.inYear.taken > 0 && v.inYear.planned > 0 && " + "}
+                          {v.inYear.planned > 0 && `${fmtHours(v.inYear.planned)} ingepland`}
+                        </div>
+                      </>
+                    )}
+                  </td>
+                  <td className={`py-1.5 pr-4 text-right tabular-nums ${neg(v.endOfYear ?? 0)}`}>
+                    {v.endOfYear === null ? <span className="text-foreground-muted">–</span> : fmtHours(v.endOfYear)}
+                    {v.usedUp && <div className="text-xs text-foreground-muted">op in {b.year}</div>}
+                  </td>
+                  <td className="py-1.5 pr-4">
+                    {v.nextYear ? (
+                      <>
+                        <div className="text-xs text-foreground-muted">in {v.nextYear.year}</div>
+                        <NextYearUse next={v.nextYear} />
+                        {v.expires > 0 && (
+                          <div className="text-xs text-amber-700 dark:text-amber-300">
+                            {fmtHours(v.expires)} uur {b.expired ? "vervallen" : `vervalt na ${lastDay(b.year)}`}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <span className="text-foreground-muted">–</span>
+                    )}
+                  </td>
+                  <td className={`py-1.5 pr-4 text-right tabular-nums ${neg(b.remaining)}`}>
+                    {b.expired && b.lost > 0 ? <span className="text-foreground-muted line-through">{fmtHours(b.lost)}</span> : fmtHours(b.remaining)}
+                  </td>
+                  <td className="py-1.5 text-foreground-muted">
+                    {b.future ? `vanaf 1 januari ${b.year}` : b.expired ? `verlopen op ${lastDay(b.year)}` : `t/m ${lastDay(b.year)}`}
+                    {b.countFromISO && <div className="text-xs">stand per {dayMonthYear(b.countFromISO)}</div>}
+                    {b.note && <div className="text-xs">{b.note}</div>}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -264,7 +321,8 @@ export function LeaveBalanceCard({
         Verlofuren van een jaar gelden van 1 januari tot en met 30 juni van het jaar erna: wat je in dat jaar niet opneemt, neem je mee
         naar de eerste helft van het volgende jaar. Opgenomen verlof per week is de standaard uren per week
         {balance.weeklyHours ? ` (${fmtHours(balance.weeklyHours)} uur)` : ""} min de uren die je die week hebt gewerkt; voor weken die nog
-        komen de uren uit het rooster. Het gaat eerst van het oudste tegoed af.
+        komen de uren uit het rooster. Het gaat eerst van het oudste tegoed af. Is een tegoed eind december al op, dan vervalt er
+        op 30 juni ook niets meer.
       </p>
     </div>
   );
