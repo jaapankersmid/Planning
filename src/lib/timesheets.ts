@@ -252,6 +252,10 @@ export type OverviewRow = {
   otherShiftDays: number;
   /** Ziek gemeld door de medewerker en nog geen Z in het rooster. */
   sickReportedDays: number;
+  /** Goedgekeurde dagen (goedgekeurde weken of maand): gepland en gewerkt, en het aantal dagen. */
+  approvedPlanned: number;
+  approvedWorked: number;
+  approvedDays: number;
   /** Wekelijks indienen: aantal weken (die de maand raken) dat is ingediend, goedgekeurd of teruggestuurd, en het totaal. */
   weeksSubmitted: number;
   weeksApproved: number;
@@ -304,10 +308,25 @@ export async function loadOverview(year: number, month: number): Promise<Overvie
       }
     }
     const status = sheets.find((s) => s.employeeId === employee.id)?.status ?? "NONE";
+    const myWeeks = weekSheets.filter((w) => w.employeeId === employee.id);
+    // Goedgekeurd: de hele maand, of de dagen van goedgekeurde weken.
+    const approvedWeekStarts = new Set(myWeeks.filter((w) => w.status === "APPROVED").map((w) => toISODate(w.weekStart)));
+    let approvedPlanned = 0;
+    let approvedWorked = 0;
+    let approvedDays = 0;
+    for (const day of days) {
+      const iso = toISODate(day);
+      const approved = status === "APPROVED" || approvedWeekStarts.has(toISODate(startOfWeek(day)));
+      if (!approved) continue;
+      const plannedHours = plannedByDate.get(iso) ?? 0;
+      const entry = myEntries.get(iso);
+      approvedPlanned += plannedHours;
+      approvedWorked += entry ? entry.hours : iso <= todayISO ? plannedHours : 0;
+      approvedDays += 1;
+    }
     // Inactieve medewerkers zonder uren of planning in deze maand laten we weg.
     if (!employee.active && planned === 0 && worked === 0) continue;
     if (planned === 0 && worked === 0 && status === "NONE" && !employee.active) continue;
-    const myWeeks = weekSheets.filter((w) => w.employeeId === employee.id);
     rows.push({
       employeeId: employee.id,
       name: employee.name,
@@ -320,6 +339,9 @@ export async function loadOverview(year: number, month: number): Promise<Overvie
       sickReportedDays: [...myEntries.values()].filter(
         (e) => e.sickReported && mine.find((a) => toISODate(a.date) === toISODate(e.date))?.shiftType.code !== "Z",
       ).length,
+      approvedPlanned,
+      approvedWorked,
+      approvedDays,
       weeksSubmitted: myWeeks.filter((w) => w.status === "SUBMITTED").length,
       weeksApproved: myWeeks.filter((w) => w.status === "APPROVED").length,
       weeksReturned: myWeeks.filter((w) => w.status === "RETURNED").length,

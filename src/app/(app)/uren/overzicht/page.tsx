@@ -60,7 +60,9 @@ export default async function UrenOverzichtPage({
               <th className="px-4 py-2">Medewerker</th>
               <th className="px-4 py-2 text-right">Gepland</th>
               <th className="px-4 py-2 text-right">Gewerkt</th>
-              <th className="px-4 py-2 text-right">Verschil</th>
+              <th className="px-4 py-2 text-right" title="Gewerkt min gepland, alleen over goedgekeurde weken (of de hele maand als die is goedgekeurd)">
+                Verschil
+              </th>
               <th className="px-4 py-2">Maand</th>
               <th className="px-4 py-2">Weken</th>
               <th className="px-4 py-2" />
@@ -99,9 +101,23 @@ export default async function UrenOverzichtPage({
                     </span>
                   )}
                 </td>
-                <td className={`px-4 py-2 text-right tabular-nums ${Math.abs(r.worked - r.planned) > 0.001 ? "text-amber-700 dark:text-amber-300" : "text-foreground-muted"}`}>
-                  {diff(Math.round((r.worked - r.planned) * 100) / 100)}
-                </td>
+                {(() => {
+                  const d = Math.round((r.approvedWorked - r.approvedPlanned) * 100) / 100;
+                  if (r.approvedDays === 0)
+                    return (
+                      <td className="px-4 py-2 text-right text-xs text-foreground-muted" title="Nog geen week of maand goedgekeurd">
+                        nog niet
+                      </td>
+                    );
+                  return (
+                    <td
+                      className={`px-4 py-2 text-right tabular-nums ${Math.abs(d) > 0.001 ? "text-amber-700 dark:text-amber-300" : "text-foreground-muted"}`}
+                      title={`Goedgekeurd: ${formatHours(r.approvedWorked)} gewerkt tegen ${formatHours(r.approvedPlanned)} gepland${r.status === "APPROVED" ? " (hele maand)" : ` (${r.weeksApproved} goedgekeurde ${r.weeksApproved === 1 ? "week" : "weken"})`}`}
+                    >
+                      {diff(d)}
+                    </td>
+                  );
+                })()}
                 <td className="px-4 py-2">
                   <TimesheetStatusBadge status={r.status} />
                 </td>
@@ -141,7 +157,8 @@ export default async function UrenOverzichtPage({
       </div>
       <p className="text-xs text-foreground-muted">
         Gepland is het hele rooster van de maand; gewerkt telt de bevestigde uren, en voor dagen tot en met vandaag die
-        nog niet bevestigd zijn de geplande uren. Uren zijn netto, zonder pauzes.
+        nog niet bevestigd zijn de geplande uren. Verschil is gewerkt min gepland, alleen over wat is goedgekeurd (de
+        goedgekeurde weken, of de hele maand). Uren zijn netto, zonder pauzes.
       </p>
     </div>
   );
