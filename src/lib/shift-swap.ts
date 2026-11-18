@@ -32,6 +32,18 @@ export function pieces(t: ShiftTypeLite, all: ShiftTypeLite[]): { morning: Shift
   return morning && afternoon ? { morning, afternoon } : null;
 }
 
+/** Is dit een halve dienst (het ochtend- of middagdeel van een gebroken dienst, bv. XI of IX)? Dan welk deel. */
+export function halfPartOf(t: ShiftTypeLite, all: ShiftTypeLite[]): "MORNING" | "AFTERNOON" | null {
+  if (!isWorking(t) || isBroken(t)) return null;
+  for (const b of all) {
+    if (!b.active || !isBroken(b)) continue;
+    const p = pieces(b, all);
+    if (p?.morning.id === t.id) return "MORNING";
+    if (p?.afternoon.id === t.id) return "AFTERNOON";
+  }
+  return null;
+}
+
 /** Twee losse delen (bv. ochtend XI en middag IX) samen: de gebroken dienst waar ze bij horen (X). null als die niet bestaat of het geen ochtend + middag is. */
 export function combine(a: ShiftTypeLite, b: ShiftTypeLite, all: ShiftTypeLite[]): ShiftTypeLite | null {
   for (const t of all) {

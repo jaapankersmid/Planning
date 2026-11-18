@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { addDays, dateFromISO, toISODate } from "@/lib/format";
 import { todayAmsterdam } from "@/lib/schedule";
 import { recordAvailabilityChange } from "@/lib/planner-alerts";
+import { halfPartOf } from "@/lib/shift-swap";
 import type { AvailabilityStatus } from "@prisma/client";
 
 const STATUSES: AvailabilityStatus[] = ["AVAILABLE", "MORNING", "AFTERNOON", "UNAVAILABLE"];
@@ -23,6 +24,19 @@ export async function setAvailability(input: { dateISO: string; status: Availabi
   if (!/^\d{4}-\d{2}-\d{2}$/.test(input.dateISO)) throw new Error("Ongeldige datum.");
   const date = dateFromISO(input.dateISO);
   if (date < todayAmsterdam()) throw new Error("Dagen die al geweest zijn kun je niet meer wijzigen.");
+
+  // Staat er al een dienst, dan alleen bij een halve dienst (XI/IX): het andere dagdeel ook beschikbaar.
+  const assignment = await prisma.shiftAssignment.findFirst({
+    where: { employeeId, date },
+    include: { shiftType: true },
+  });
+  if (assignment && input.status !== null) {
+    const all = await prisma.shiftType.findMany();
+    const occupied = halfPartOf(assignment.shiftType, all);
+    const other = occupied === "MORNING" ? "AFTERNOON" : occupied === "AFTERNOON" ? "MORNING" : null;
+    if (!other || input.status !== other)
+      throw new Error("Op een dag met een dienst kun je alleen bij een halve dienst het andere dagdeel doorgeven.");
+  }
 
   const before = await prisma.availability.findUnique({
     where: { employeeId_date: { employeeId, date } },
@@ -55,7 +69,7 @@ export async function setAvailability(input: { dateISO: string; status: Availabi
 export async function fillEmptyDays(input: { fromISO: string; toISO: string; status: AvailabilityStatus }): Promise<string[]> {
   const employeeId = await currentEmployeeId();
   if (!STATUSES.includes(input.status)) throw new Error("Ongeldige keuze.");
-  if (!/^d{4}-d{2}-d{2}$/.test(input.fromISO) || !/^d{4}-d{2}-d{2}$/.test(input.toISO)) throw new Error("Ongeldige datum.");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(input.fromISO) || !/^\d{4}-\d{2}-\d{2}$/.test(input.toISO)) throw new Error("Ongeldige datum.");
   const today = todayAmsterdam();
   const from = dateFromISO(input.fromISO) < today ? today : dateFromISO(input.fromISO);
   const to = dateFromISO(input.toISO);

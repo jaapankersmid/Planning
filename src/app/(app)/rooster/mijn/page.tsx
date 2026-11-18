@@ -14,7 +14,7 @@ import {
 } from "@/lib/format";
 import { holidayOn } from "@/lib/holidays";
 import { partialLeaveShifts } from "@/lib/leave";
-import { dayLabel, isWorking, timesOf } from "@/lib/shift-swap";
+import { dayLabel, halfPartOf, isWorking, timesOf } from "@/lib/shift-swap";
 import { CalendarSyncPanel } from "@/components/calendar-sync-panel";
 import { EmailNotificationsToggle } from "@/components/email-notifications-toggle";
 import { ShiftSwaps, loadSwapOptions } from "@/components/shift-swaps";
@@ -173,6 +173,9 @@ export default async function MijnRoosterPage({
                 )}
                 {!a && employee && (
                   <AvailabilityCellButton dateISO={iso} label={dayLabel(day)} clickable={!past} />
+                )}
+                {a && employee && halfPartOf(a.shiftType, allTypes) && (
+                  <AvailabilityCellButton dateISO={iso} label={dayLabel(day)} clickable={!past} occupied={halfPartOf(a.shiftType, allTypes)!} />
                 )}
                 {!a && holiday && (
                   <div className="hidden text-[11px] leading-tight text-holiday-strong sm:block">

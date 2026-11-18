@@ -18,7 +18,14 @@ type Data = {
   emptyDays: string[];
 };
 type Selected = { assignmentId: string; dateISO: string; label: string };
-type DaySelected = { dateISO: string; label: string };
+/** occupied: bij een halve dienst (XI/IX) het dagdeel dat al bezet is; dan kan alleen het andere dagdeel worden doorgegeven. */
+type DaySelected = { dateISO: string; label: string; occupied?: "MORNING" | "AFTERNOON" };
+
+const OTHER_PART = { MORNING: "AFTERNOON", AFTERNOON: "MORNING" } as const;
+const HALF_TEXT = {
+  MORNING: { short: "+ ochtend", long: "Ook 's ochtends beschikbaar (8:00–12:30)" },
+  AFTERNOON: { short: "+ middag", long: "Ook 's middags beschikbaar (15:30–19:30)" },
+} as const;
 
 const Ctx = createContext<{
   open: (s: Selected) => void;
@@ -116,7 +123,30 @@ export function MyShiftActions({ data, children }: { data: Data; children: React
                 ×
               </button>
             </div>
-            <p className="mt-2 text-xs text-foreground-muted">Je hebt hier nog geen dienst. De planner ziet je keuze bij het inplannen.</p>
+            <p className="mt-2 text-xs text-foreground-muted">
+              {day.occupied
+                ? `Je hebt hier al een dienst in de ${day.occupied === "MORNING" ? "ochtend" : "middag"}. Ben je de ${day.occupied === "MORNING" ? "middag" : "ochtend"} ook beschikbaar? De planner ziet het bij het inplannen.`
+                : "Je hebt hier nog geen dienst. De planner ziet je keuze bij het inplannen."}
+            </p>
+            {day.occupied ? (
+              <div className="mt-3 grid gap-2">
+                {(() => {
+                  const status = OTHER_PART[day.occupied];
+                  const current = availability[day.dateISO] === status;
+                  return (
+                    <button
+                      type="button"
+                      autoFocus
+                      disabled={saving}
+                      onClick={() => chooseAvailability(day.dateISO, status)}
+                      className={`rounded-lg px-3 py-2.5 text-left text-sm font-medium disabled:opacity-60 ${AVAILABILITY_LABEL[status].className} ${current ? "ring-2 ring-accent ring-offset-2 ring-offset-surface" : ""}`}
+                    >
+                      {HALF_TEXT[status].long}
+                    </button>
+                  );
+                })()}
+              </div>
+            ) : (
             <div className="mt-3 grid grid-cols-2 gap-2">
               {AVAILABILITY_CHOICES.map((status, i) => {
                 const current = (availability[day.dateISO] ?? null) === status;
@@ -134,9 +164,10 @@ export function MyShiftActions({ data, children }: { data: Data; children: React
                 );
               })}
             </div>
+            )}
             {availability[day.dateISO] && (
               <button type="button" disabled={saving} onClick={() => chooseAvailability(day.dateISO, null)} className="mt-3 text-xs underline hover:no-underline">
-                Niets doorgeven (wissen)
+                {day.occupied ? "Niet extra beschikbaar (wissen)" : "Niets doorgeven (wissen)"}
               </button>
             )}
             {availError && <p className="mt-2 text-xs text-bad-text">{availError}</p>}
@@ -232,10 +263,22 @@ export function ShiftCellButton({ assignmentId, dateISO, label, children }: Sele
 }
 
 /** Lege dag in Mijn diensten: toont de doorgegeven beschikbaarheid en is aanklikbaar om die te wijzigen. */
-export function AvailabilityCellButton({ dateISO, label, clickable }: DaySelected & { clickable: boolean }) {
+export function AvailabilityCellButton({ dateISO, label, clickable, occupied }: DaySelected & { clickable: boolean }) {
   const ctx = useContext(Ctx);
-  const status = ctx?.availability[dateISO] ?? null;
-  const chip = status ? (
+  const raw = ctx?.availability[dateISO] ?? null;
+  // Bij een halve dienst telt alleen het andere dagdeel.
+  const status = occupied ? (raw === OTHER_PART[occupied] ? raw : null) : raw;
+  const chip = status && occupied ? (
+    <span className={`block rounded px-1 py-0.5 text-center text-[11px] font-medium leading-tight sm:text-left ${AVAILABILITY_LABEL[status].className}`}>
+      {HALF_TEXT[OTHER_PART[occupied]].short}
+    </span>
+  ) : occupied ? (
+    clickable ? (
+      <span className="block rounded border border-dashed border-border px-1 py-0.5 text-center text-[11px] leading-tight text-foreground-muted opacity-60 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 sm:text-left">
+        {HALF_TEXT[OTHER_PART[occupied]].short}?
+      </span>
+    ) : null
+  ) : status ? (
     <span className={`block rounded px-1 py-0.5 text-center text-[11px] font-medium leading-tight sm:text-left ${AVAILABILITY_LABEL[status].className}`}>
       {AVAILABILITY_LABEL[status].short}
     </span>
@@ -248,9 +291,9 @@ export function AvailabilityCellButton({ dateISO, label, clickable }: DaySelecte
   return (
     <button
       type="button"
-      onClick={() => ctx.openDay({ dateISO, label })}
-      title="Klik om je beschikbaarheid door te geven"
-      aria-label={`${label}: beschikbaarheid doorgeven${status ? ` (nu: ${AVAILABILITY_LABEL[status].short})` : ""}`}
+      onClick={() => ctx.openDay({ dateISO, label, occupied })}
+      title={occupied ? `Klik als je de ${occupied === "MORNING" ? "middag" : "ochtend"} ook beschikbaar bent` : "Klik om je beschikbaarheid door te geven"}
+      aria-label={`${label}: ${occupied ? `ook de ${occupied === "MORNING" ? "middag" : "ochtend"} beschikbaar` : "beschikbaarheid doorgeven"}${status ? ` (nu: ${occupied ? "ja" : AVAILABILITY_LABEL[status].short})` : ""}`}
       className="group block w-full flex-1 rounded text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
     >
       {chip}
