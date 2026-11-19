@@ -27,7 +27,7 @@ export default async function OverwerkPage() {
   ]);
   const employees = sortEmployees(employeesRaw, groups);
   const ids = employees.map((e) => e.id);
-  const [without, withOt] = await Promise.all([loadBalances(todayISO, ids, [], false), loadBalances(todayISO, ids, [], true)]);
+  const [without, withOt] = await Promise.all([loadBalances(todayISO, ids, { withOvertime: false }), loadBalances(todayISO, ids, { withOvertime: true })]);
 
   const rows = employees
     .map((e) => {
@@ -43,6 +43,7 @@ export default async function OverwerkPage() {
         pending,
         creditedHours: credited.reduce((s, w) => s + w.hours, 0),
         pendingHours: pending.reduce((s, w) => s + w.hours, 0),
+        plannedHours: after.overtime.filter((w) => w.status === "planned").reduce((s, w) => s + w.hours, 0),
         yearEndBefore: before.buckets.length ? balanceView(before, todayISO).yearEnd : 0,
         yearEndAfter: after.buckets.length ? balanceView(after, todayISO).yearEnd : 0,
       };
@@ -61,7 +62,9 @@ export default async function OverwerkPage() {
         <p className="text-sm text-foreground-muted">
           Werkt iemand in een week meer dan het contract, dan komen de extra uren als tegoed bij het verlof van het jaar van die week
           (en vervallen ze daarmee, op 30 juni van het jaar erna). Elke week telt apart, alleen voorbije weken waarvan de uren zijn
-          goedgekeurd (de week of de maand), en pas vanaf de peildatum van het tegoed.
+          goedgekeurd (de week of de maand), en pas vanaf de peildatum van het tegoed. Het contract is dat van die week
+          (contractperiodes). Weken die nog komen tonen het ingeplande overwerk volgens het rooster: dat telt alleen in de
+          verwachting, pas in het saldo als de uren zijn goedgekeurd.
         </p>
       </div>
 
@@ -84,6 +87,7 @@ export default async function OverwerkPage() {
                 <th className="px-3 py-2">Medewerker</th>
                 <th className="px-3 py-2 text-right">Erbij</th>
                 <th className="px-3 py-2 text-right" title="Overwerk in weken waarvan de uren nog niet zijn goedgekeurd">Wacht</th>
+                <th className="px-3 py-2 text-right" title="Ingepland overwerk in weken die nog komen (volgens het rooster); telt alleen in de verwachting">Ingepland</th>
                 <th className="px-3 py-2 text-right">Nu over</th>
                 <th className="px-3 py-2 text-right">31 dec</th>
                 <th className="px-3 py-2">Weken</th>
@@ -99,6 +103,7 @@ export default async function OverwerkPage() {
                   </td>
                   <td className={`${num} font-semibold text-good-text`}>{r.creditedHours > 0 ? `+${fmtHours(r.creditedHours)}` : "–"}</td>
                   <td className={`${num} text-foreground-muted`}>{r.pendingHours > 0 ? fmtHours(r.pendingHours) : "–"}</td>
+                  <td className={`${num} text-foreground-muted`}>{r.plannedHours > 0 ? `+${fmtHours(r.plannedHours)}` : "–"}</td>
                   <td className={num}>
                     {fmtHours(r.before.available)}
                     {r.after.available !== r.before.available && <span className="text-foreground-muted"> → {fmtHours(r.after.available)}</span>}
@@ -109,7 +114,7 @@ export default async function OverwerkPage() {
                   </td>
                   <td className="px-3 py-1.5 text-xs text-foreground-muted">
                     {r.after.overtime.map((w) => (
-                      <span key={w.dateISO} className={`mr-2 inline-block ${w.status === "credited" ? "text-good-text" : w.status === "ignored" ? "line-through" : ""}`} title={`${w.detail}${w.status === "pending" ? " · uren nog niet goedgekeurd" : w.status === "ignored" ? " · voor de peildatum" : ""}`}>
+                      <span key={w.dateISO} className={`mr-2 inline-block ${w.status === "credited" ? "text-good-text" : w.status === "ignored" ? "line-through" : w.status === "planned" ? "italic" : ""}`} title={`${w.detail}${w.status === "pending" ? " · uren nog niet goedgekeurd" : w.status === "ignored" ? " · voor de peildatum" : w.status === "planned" ? " · ingepland, voorlopig" : ""}`}>
                         {w.label.replace("Week ", "wk ")} ({week(w.dateISO)}) +{fmtHours(w.hours)}
                       </span>
                     ))}
@@ -121,8 +126,8 @@ export default async function OverwerkPage() {
         </div>
       )}
       <p className="text-xs text-foreground-muted">
-        Groen = wordt bijgeschreven; grijs = de uren van die week zijn nog niet goedgekeurd; doorgestreept = voor de peildatum, telt niet mee.
-        Nu over en 31 dec tonen het saldo zonder → met overwerk.
+        Groen = wordt bijgeschreven; grijs = de uren van die week zijn nog niet goedgekeurd; schuin = ingepland (week nog niet voorbij, voorlopig); doorgestreept = voor de peildatum, telt niet mee.
+        Nu over en 31 dec tonen het saldo zonder → met overwerk; ingepland overwerk telt alleen in 31 dec.
       </p>
     </div>
   );

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { formatRange, toISODate } from "@/lib/format";
+import { dateFromISO, formatDayMonth, formatRange, toISODate } from "@/lib/format";
 import { describePartRequest, isShiftRequest, leaveDates, partialLeaveShifts } from "@/lib/leave";
 import { isWorking, timesOf } from "@/lib/shift-swap";
 import { todayAmsterdam } from "@/lib/schedule";
@@ -53,6 +53,11 @@ export default async function VerlofPage() {
   const allTypes = await prisma.shiftType.findMany({ orderBy: { code: "asc" } });
   const swapOptions = sortShiftTypes(allTypes.filter((t) => t.active && t.employeeSelectable && isWorking(t))).map((t) => ({ id: t.id, label: `${t.code} · ${t.label} (${timesOf(t)})` }));
   const balance = await loadBalance(employeeId, todayISO);
+  const since = balance.contractSinceISO ? dateFromISO(balance.contractSinceISO) : null;
+  const contractText =
+    balance.weeklyHours && balance.weeklyHours > 0
+      ? `${String(balance.weeklyHours).replace(".", ",")} uur per week${since ? ` sinds ${formatDayMonth(since)} ${since.getUTCFullYear()}` : ""}`
+      : null;
 
   return (
     <div className="flex max-w-4xl flex-col gap-4">
@@ -116,8 +121,9 @@ export default async function VerlofPage() {
         <div id="per-week" className="flex scroll-mt-4 flex-col gap-1.5">
           <h2 className="text-sm font-semibold">Mijn verlof per week</h2>
           <p className="text-xs text-foreground-muted">
-            Verlof per week = je uren per week{balance.weeklyHours ? ` (${String(balance.weeklyHours).replace(".", ",")})` : ""} min wat je werkt of
-            volgens het rooster gaat werken. Alleen verlof dat in het rooster staat telt mee; een aanvraag die nog niet is goedgekeurd niet.
+            {contractText && <>Je contract: <span className="font-medium text-foreground">{contractText}</span>. </>}
+            Verlof per week = je contracturen van die week min wat je werkt of volgens het rooster gaat werken; werk je meer, dan is
+            dat overwerk. Alleen verlof dat in het rooster staat telt mee; een aanvraag die nog niet is goedgekeurd niet.
           </p>
           <LeaveWeekList balance={balance} todayISO={todayISO} />
         </div>

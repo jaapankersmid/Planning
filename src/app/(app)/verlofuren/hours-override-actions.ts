@@ -57,7 +57,7 @@ export async function previewHoursOverride(input: Input): Promise<OverrideResult
     // De week waarin de ingangsdatum valt telt mee: verlof wordt per week (vanaf maandag) berekend.
     const [before, after] = await Promise.all([
       loadBalances(todayISO, [rule.employeeId]),
-      loadBalances(todayISO, [rule.employeeId], [rule]),
+      loadBalances(todayISO, [rule.employeeId], { extraOverrides: [rule] }),
     ]);
     const b = before.get(rule.employeeId)!;
     const a = after.get(rule.employeeId)!;

@@ -3,6 +3,7 @@ import { addDays, dateFromISO, isoWeek, startOfWeek, toISODate } from "@/lib/for
 import { weekdayNumber } from "@/lib/schedule";
 import { buildOverrides, employeeShiftHours, loadOverrideRows, type HoursOverrides } from "@/lib/shift-hours-overrides";
 import { getStoredSettings } from "@/lib/settings";
+import { contractOn, currentContract, loadContractRules, sickDayHours, type ContractRule } from "@/lib/contract-hours";
 
 /** AppSetting-sleutel: overwerk bijschrijven bij het verlof staat aan als de waarde "on" is. */
 export const OVERTIME_SETTING = "leaveOvertime";
@@ -60,6 +61,8 @@ export type Bucket = BucketInput & {
   forecastRemaining: number;
   /** Verwachte rest als al het ingeplande verlof is opgenomen (ook na de verwachtingsdatum). */
   remainingAfterPlanned: number;
+  /** Ingepland overwerk (weken die nog niet voorbij zijn): telt in de verwachting, niet in "nu over". */
+  plannedOvertime: number;
   /** Verwachte rest op 31 december van dit jaar (alleen ingepland verlof t/m die dag). */
   remainingAtYearEnd: number;
   /** Gebruik van dit tegoed per kalenderjaar waarin het verlof valt: wat is opgenomen en wat staat nog gepland. */
@@ -87,8 +90,11 @@ export type OvertimeWeek = {
   hours: number;
   label: string;
   detail: string;
-  /** credited = bijgeschreven; pending = uren nog niet (helemaal) goedgekeurd; ignored = voor de peildatum. */
-  status: "credited" | "pending" | "ignored";
+  /**
+   * credited = bijgeschreven; pending = voorbij, maar de uren zijn nog niet (helemaal) goedgekeurd;
+   * planned = week nog niet voorbij (volgens het rooster), voorlopig; ignored = voor de peildatum.
+   */
+  status: "credited" | "pending" | "planned" | "ignored";
 };
 
 export type AdjustmentEntry = {
@@ -124,8 +130,9 @@ export type Balance = {
 };
 
 /**
- * Uitkomst van één week: verlof = contract − gewerkt (min 0); overwerk = gewerkt − contract, alleen voor voorbije
- * weken, en alleen bijgeschreven als alle dagen zijn goedgekeurd en de week niet voor een peildatum valt.
+ * Uitkomst van één week: verlof = contract − gewerkt (min 0); overwerk = gewerkt − contract. Voorbije weken: alleen
+ * bijgeschreven als alle dagen zijn goedgekeurd; weken die nog komen: ingepland overwerk volgens het rooster. Nooit voor
+ * een peildatum.
  */
 export function weekOutcome(w: {
   mondayISO: string;
@@ -142,9 +149,11 @@ export function weekOutcome(w: {
 }): { leave: number; overtime: { hours: number; status: OvertimeWeek["status"] } | null } {
   const leave = round(Math.max(0, w.contract - w.worked));
   const extra = round(w.worked - w.contract);
-  if (!w.overtimeOn || extra <= 0 || w.sundayISO >= w.todayISO) return { leave, overtime: null };
+  if (!w.overtimeOn || extra <= 0) return { leave, overtime: null };
   const ignored = (!!w.ownCountFromISO && w.mondayISO < w.ownCountFromISO) || (!!w.firstCountFromISO && w.mondayISO < w.firstCountFromISO);
-  return { leave, overtime: { hours: extra, status: ignored ? "ignored" : w.approved ? "credited" : "pending" } };
+  // Een week die nog niet voorbij is: ingepland overwerk volgens het rooster (voorlopig).
+  const future = w.sundayISO >= w.todayISO;
+  return { leave, overtime: { hours: extra, status: ignored ? "ignored" : future ? "planned" : w.approved ? "credited" : "pending" } };
 }
 
 /** Bepaalt welke tegoed-jaren verlof op deze datum mag gebruiken. */
@@ -186,6 +195,7 @@ export function computeBalance(
     plannedUntilYearEnd: 0,
     plannedUntilForecast: 0,
     remainingAfterPlanned: 0,
+    plannedOvertime: 0,
     byYear: new Map(),
     forecastRemaining: 0,
     remainingAtYearEnd: 0,
@@ -196,12 +206,22 @@ export function computeBalance(
   });
   for (const input of inputs) map.set(input.year, make(input));
   // Bijgeschreven overwerk hoort bij het tegoed van het jaar van die week en vervalt daarmee.
+  // Ingepland overwerk telt alleen in de verwachting (31 december, 30 juni, na al het ingeplande verlof).
+  const plannedOtUntil = new Map<number, { yearEnd: number; forecast: number }>();
   for (const week of overtime) {
-    if (week.status !== "credited" || week.hours <= 0) continue;
+    if ((week.status !== "credited" && week.status !== "planned") || week.hours <= 0) continue;
     const bucket = map.get(week.year) ?? make({ year: week.year, hours: 0 });
-    bucket.overtime = round((bucket.overtime ?? 0) + week.hours);
-    bucket.total += week.hours;
     map.set(week.year, bucket);
+    if (week.status === "credited") {
+      bucket.overtime = round((bucket.overtime ?? 0) + week.hours);
+      bucket.total += week.hours;
+    } else {
+      bucket.plannedOvertime += week.hours;
+      const until = plannedOtUntil.get(week.year) ?? { yearEnd: 0, forecast: 0 };
+      if (week.dateISO <= yearEndISO) until.yearEnd += week.hours;
+      if (week.dateISO <= forecastISO) until.forecast += week.hours;
+      plannedOtUntil.set(week.year, until);
+    }
   }
   const left = (b: Work) => b.total - b.used - b.plannedUsed;
 
@@ -261,9 +281,11 @@ export function computeBalance(
     bucket.used = round(bucket.used);
     bucket.plannedUsed = round(bucket.plannedUsed);
     bucket.remaining = round(bucket.total - bucket.used);
-    bucket.forecastRemaining = round(bucket.total - bucket.used - bucket.plannedUntilForecast);
-    bucket.remainingAfterPlanned = round(bucket.total - bucket.used - bucket.plannedUsed);
-    bucket.remainingAtYearEnd = round(bucket.total - bucket.used - bucket.plannedUntilYearEnd);
+    const otUntil = plannedOtUntil.get(bucket.year) ?? { yearEnd: 0, forecast: 0 };
+    bucket.plannedOvertime = round(bucket.plannedOvertime);
+    bucket.forecastRemaining = round(bucket.total - bucket.used - bucket.plannedUntilForecast + otUntil.forecast);
+    bucket.remainingAfterPlanned = round(bucket.total - bucket.used - bucket.plannedUsed + bucket.plannedOvertime);
+    bucket.remainingAtYearEnd = round(bucket.total - bucket.used - bucket.plannedUntilYearEnd + otUntil.yearEnd);
     bucket.usage = [...bucket.byYear.entries()]
       .sort((a, b) => a[0] - b[0])
       .map(([year, u]) => ({ year, taken: round(u.taken), planned: round(u.planned) }));
@@ -319,15 +341,18 @@ export function computeBalance(
  * uren zijn ingevuld, zodat ziekte nooit verlof kost.
  * Weken zonder enige dienst of registratie tellen niet mee: daar is nog niets gepland.
  */
-export async function loadBalances(
-  todayISO: string,
-  employeeIds?: string[],
+export type BalanceOptions = {
   /** Voorvertoning: extra afwijkende diensturen die nog niet zijn opgeslagen. */
-  extraOverrides: { employeeId: string; shiftTypeId: string; validFromISO: string; hours: number | null }[] = [],
+  extraOverrides?: { employeeId: string; shiftTypeId: string; validFromISO: string; hours: number | null }[];
   /** Overwerk bijschrijven: undefined = volgens de instelling; true/false voor de voorvertoning. */
-  withOvertime?: boolean,
-) {
-  const overtimeOn = withOvertime ?? (await overtimeEnabled());
+  withOvertime?: boolean;
+  /** Voorvertoning: de contractperiodes van één medewerker zoals ze na de wijziging zouden zijn. */
+  contractRules?: { employeeId: string; rules: ContractRule[] };
+};
+
+export async function loadBalances(todayISO: string, employeeIds?: string[], options: BalanceOptions = {}) {
+  const extraOverrides = options.extraOverrides ?? [];
+  const overtimeOn = options.withOvertime ?? (await overtimeEnabled());
   const filter = employeeIds ? { employeeId: { in: employeeIds } } : {};
   const [allowances, adjustmentRows, employees] = await Promise.all([
     prisma.leaveAllowance.findMany({ where: filter, include: { updatedBy: { select: { name: true, email: true } } } }),
@@ -388,6 +413,9 @@ export async function loadBalances(
     approvedWeekSet.has(`${employeeId}_${toISODate(monday)}`) || approvedMonthSet.has(`${employeeId}_${day.getUTCFullYear()}_${day.getUTCMonth() + 1}`);
 
   const overrides: HoursOverrides = buildOverrides([...(await loadOverrideRows(employeeIds)), ...extraOverrides]);
+  // Contract per week (periodes met een ingangsdatum); zonder periodes het vaste getal.
+  const contractRules = await loadContractRules(employeeIds);
+  if (options.contractRules) contractRules.set(options.contractRules.employeeId, options.contractRules.rules);
   // Vast rooster per weekdag; de uren hangen van de dag af (afwijkende diensturen met een ingangsdatum).
   const templateShift = new Map<string, (typeof templates)[number]["shiftType"]>();
   for (const t of templates) templateShift.set(`${t.employeeId}_${t.weekday}`, t.shiftType);
@@ -406,20 +434,27 @@ export async function loadBalances(
     if (e.sickReported) sickReportedBy.add(`${e.employeeId}_${toISODate(e.date)}`);
   }
 
-  const result = new Map<string, Balance & { weeklyHours: number | null }>();
+  const result = new Map<string, Balance & { weeklyHours: number | null; contractSinceISO: string | null }>();
   const ids = employeeIds ?? [...new Set([...byEmployee.keys(), ...adjustmentsByEmployee.keys()])];
   for (const id of ids) {
-    const contract = weeklyHours.get(id) ?? null;
+    const fallback = weeklyHours.get(id) ?? null;
+    const rules = contractRules.get(id);
+    const current = currentContract(rules, todayISO, fallback);
     const weeks: VacationDay[] = [];
     const overtime: OvertimeWeek[] = [];
     // Peildatums: overwerk telt pas vanaf de peildatum van het tegoed van dat jaar, en nooit voor de eerste peildatum.
     const inputs = byEmployee.get(id) ?? [];
     const firstInput = [...inputs].sort((a, b) => a.year - b.year)[0];
     const firstCountFrom = firstInput?.countFromISO ?? null;
-    if (contract !== null && contract > 0 && rangeStart && earliest !== null) {
+    if (rangeStart && earliest !== null) {
       for (let monday = rangeStart; toISODate(monday) <= lastISO; monday = addDays(monday, 7)) {
         const mondayISO = toISODate(monday);
         if (mondayISO < startISO(earliest)) continue;
+        // Contract van deze week; zonder contract (of 0 uur) wordt er voor die week niets berekend.
+        const contract = contractOn(rules, mondayISO, fallback);
+        if (contract === null || contract <= 0) continue;
+        // Ziekte-uren volgens het contract van die week, verdeeld naar het vaste rooster.
+        const templateWeek = Array.from({ length: 7 }, (_, i) => templateHoursOn(id, addDays(monday, i)));
         let worked = 0;
         let active = false;
         let approved = true;
@@ -430,10 +465,10 @@ export async function loadBalances(
           const assignment = assignmentsBy.get(key);
           const entry = entriesBy.get(key);
           if (assignment || entry !== undefined) active = true;
-          // Ziek (Z) telt altijd volgens het vaste rooster, ook als er voor die dag uren zijn ingevuld.
-          if (assignment?.shiftType.code === "Z") worked += templateHoursOn(id, day);
-          // Ziek gemeld in de uren (nog geen Z): kost ook geen verlof; minstens de uren uit het vaste rooster.
-          else if (sickReportedBy.has(key)) worked += Math.max(entry ?? 0, templateHoursOn(id, day));
+          // Ziek (Z) telt altijd als gewerkt volgens het contract van die week, ook als er uren zijn ingevuld.
+          if (assignment?.shiftType.code === "Z") worked += sickDayHours(templateWeek, i, contract);
+          // Ziek gemeld in de uren (nog geen Z): kost ook geen verlof; minstens de ziekte-uren van die dag.
+          else if (sickReportedBy.has(key)) worked += Math.max(entry ?? 0, sickDayHours(templateWeek, i, contract));
           else if (entry !== undefined) worked += entry;
           else if (assignment) worked += employeeShiftHours(overrides, id, assignment.shiftType, toISODate(day));
         }
@@ -474,7 +509,7 @@ export async function loadBalances(
       }
     }
     const balance = computeBalance(inputs, weeks, todayISO, adjustmentsByEmployee.get(id) ?? [], forecastISO, overtime);
-    result.set(id, { ...balance, weeklyHours: contract });
+    result.set(id, { ...balance, weeklyHours: current.hours, contractSinceISO: current.sinceISO });
   }
   return result;
 }

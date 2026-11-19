@@ -32,7 +32,8 @@ export function bucketView(b: Bucket): BucketView {
   const usage = (year: number) => b.usage.find((u) => u.year === year) ?? { year, taken: 0, planned: 0 };
   const own = usage(b.year);
   const next = usage(b.year + 1);
-  const endOfYear = b.future ? null : r2(total - own.taken - own.planned);
+  // Ingepland overwerk valt altijd in het eigen jaar van het tegoed en telt mee in de verwachting.
+  const endOfYear = b.future ? null : r2(total - own.taken - own.planned + (b.plannedOvertime ?? 0));
   const usedUp = endOfYear !== null && endOfYear <= 0;
   const nextYear = endOfYear !== null && endOfYear > 0 ? { year: b.year + 1, taken: next.taken, planned: next.planned, of: endOfYear } : null;
   const expires = usedUp || b.future ? 0 : b.expired ? r2(Math.max(0, b.lost)) : r2(Math.max(0, b.forecastRemaining));
@@ -60,6 +61,8 @@ export type BalanceView = {
   overtimeThisYear: number;
   /** Overwerk in voorbije weken van dit jaar waarvan de uren nog niet zijn goedgekeurd. */
   overtimePending: number;
+  /** Ingepland overwerk (weken van dit jaar die nog komen, volgens het rooster); alleen in de verwachting. */
+  overtimePlanned: number;
   buckets: BucketView[];
 };
 
@@ -92,6 +95,7 @@ export function balanceView(balance: Balance, todayISO: string): BalanceView {
     nextYearLine,
     overtimeThisYear: sumOf("credited"),
     overtimePending: sumOf("pending"),
+    overtimePlanned: sumOf("planned"),
     buckets,
   };
 }

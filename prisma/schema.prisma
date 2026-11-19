@@ -110,6 +110,8 @@ model Employee {
   swapsReceived       ShiftSwapRequest[] @relation("SwapTarget")
   hoursChanges        HoursChange[]
   shiftHoursOverrides ShiftHoursOverride[]
+  contractHours       ContractHours[]
+  contractHoursChanges ContractHoursChange[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -669,6 +671,40 @@ model AppSettingChange {
   createdAt     DateTime @default(now())
 
   @@index([createdAt])
+}
+
+// Contracturen per week met een ingangsdatum (altijd een maandag). Het contract van een week is de regel met de
+// laatste validFrom op of voor de maandag van die week; zonder regel geldt Employee.weeklyHours. Een regel met
+// validFrom 2000-01-03 betekent "vanaf het begin". Employee.weeklyHours wordt bij elke wijziging gelijkgezet aan het
+// contract dat vandaag geldt, zodat de andere schermen en exports blijven werken.
+model ContractHours {
+  id            String   @id @default(cuid())
+  employee      Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId    String
+  validFrom     DateTime @db.Date
+  hours         Float
+  createdById   String?
+  createdByName String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([employeeId, validFrom])
+  @@index([employeeId])
+}
+
+// Logboek van de contracturen: wie welke periode wanneer heeft ingesteld, gewijzigd of verwijderd.
+model ContractHoursChange {
+  id            String   @id @default(cuid())
+  employee      Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId    String
+  validFrom     DateTime @db.Date
+  oldHours      Float?
+  newHours      Float?
+  changedById   String?
+  changedByName String?
+  createdAt     DateTime @default(now())
+
+  @@index([employeeId, createdAt])
 }
 
 // Afwijkende diensturen per medewerker: deze dienst telt voor deze medewerker vanaf validFrom als `hours` uur

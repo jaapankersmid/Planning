@@ -11,7 +11,7 @@ export type WeekRow = {
   planned: boolean;
   /** Van welk tegoed het verlof afgaat, of bij welk tegoed het overwerk hoort. */
   from: string;
-  status?: "credited" | "pending";
+  status?: "credited" | "pending" | "planned";
 };
 
 /**
@@ -34,7 +34,7 @@ export function weekRows(balance: Balance): WeekRow[] {
   }
   for (const w of balance.overtime ?? []) {
     if (w.status === "ignored") continue;
-    rows.push({ dateISO: w.dateISO, label: w.label, detail: w.detail, kind: "overtime", hours: w.hours, planned: false, from: String(w.year), status: w.status });
+    rows.push({ dateISO: w.dateISO, label: w.label, detail: w.detail, kind: "overtime", hours: w.hours, planned: w.status === "planned", from: String(w.year), status: w.status });
   }
   return rows;
 }
@@ -59,7 +59,9 @@ function Row({ r }: { r: WeekRow }) {
         {overtime ? (
           <>
             <span className={r.status === "credited" ? "text-good-text" : ""}>
-              Overgewerkt +{fmtHours(r.hours)} u ({r.status === "credited" ? `bijgeschreven bij ${r.from}` : "wacht op goedkeuring van de uren"})
+              {r.status === "planned"
+                ? `Ingepland overwerk +${fmtHours(r.hours)} u (voorlopig: telt in de verwachting, pas in je saldo als de uren zijn goedgekeurd)`
+                : `Overgewerkt +${fmtHours(r.hours)} u (${r.status === "credited" ? `bijgeschreven bij ${r.from}` : "wacht op goedkeuring van de uren"})`}
             </span>
             {r.detail && ` · ${r.detail}`}
           </>

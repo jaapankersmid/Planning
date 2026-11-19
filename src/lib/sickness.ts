@@ -1,12 +1,14 @@
 import { prisma } from "@/lib/prisma";
-import { addDays, dateFromISO, toISODate } from "@/lib/format";
+import { addDays, dateFromISO, startOfWeek, toISODate } from "@/lib/format";
+import { contractOn, loadContractRules, sickDayHours } from "@/lib/contract-hours";
 import { weekdayNumber } from "@/lib/schedule";
 import { employeeShiftHours, loadHoursOverrides } from "@/lib/shift-hours-overrides";
 
 /*
  * Ziekte uit het rooster: een dag telt als ziek als de planner er Z (Ziek) heeft gezet. Er wordt niets apart
- * geregistreerd en er staat geen reden of diagnose bij. De uren van een ziektedag zijn de uren die de medewerker
- * op die weekdag volgens het vaste rooster werkt (zoals bij het verlofsaldo); zonder vaste dienst 0 uur.
+ * geregistreerd en er staat geen reden of diagnose bij. De uren van een ziektedag volgen het contract van die week
+ * (contractperiodes), verdeeld naar het vaste rooster, zoals bij het verlofsaldo (sickDayHours). Zonder contract: de
+ * uren van het vaste rooster op die weekdag; zonder vaste dienst 0 uur.
  *
  * Alleen voor planners en administratie (canManageHours): de totalen komen nergens anders in de app, de mails of
  * de agenda. Dat iemand ziek is, blijft in het rooster gewoon zichtbaar.
@@ -101,14 +103,24 @@ export async function loadSickness(employeeIds: string[], fromISO: string, toISO
   const windowStart = addDays(dateFromISO(startISO), -366);
   const windowEnd = addDays(dateFromISO(endISO), 60);
 
-  const [assignments, templates, overrides] = await Promise.all([
+  const [assignments, templates, overrides, contractRules, employees] = await Promise.all([
     prisma.shiftAssignment.findMany({
       where: { employeeId: { in: employeeIds }, date: { gte: windowStart, lt: windowEnd } },
       select: { employeeId: true, date: true, shiftType: { select: { code: true } } },
     }),
     prisma.weeklyScheduleEntry.findMany({ where: { employeeId: { in: employeeIds } }, include: { shiftType: true } }),
     loadHoursOverrides(employeeIds),
+    loadContractRules(employeeIds),
+    prisma.employee.findMany({ where: { id: { in: employeeIds } }, select: { id: true, weeklyHours: true } }),
   ]);
+  const weeklyHours = new Map(employees.map((e) => [e.id, e.weeklyHours]));
+  /** Uren van een ziektedag: het contract van die week, verdeeld naar het vaste rooster. */
+  const sickHoursOn = (employeeId: string, day: Date) => {
+    const monday = startOfWeek(day);
+    const templateWeek = Array.from({ length: 7 }, (_, i) => templateHoursOn(employeeId, addDays(monday, i)));
+    const contract = contractOn(contractRules.get(employeeId), toISODate(monday), weeklyHours.get(employeeId) ?? null);
+    return sickDayHours(templateWeek, (day.getUTCDay() + 6) % 7, contract);
+  };
   // Vast rooster per weekdag; de uren hangen van de dag af (afwijkende diensturen met een ingangsdatum).
   const templateShift = new Map<string, (typeof templates)[number]["shiftType"]>();
   for (const t of templates) templateShift.set(`${t.employeeId}_${t.weekday}`, t.shiftType);
@@ -125,7 +137,7 @@ export async function loadSickness(employeeIds: string[], fromISO: string, toISO
     codeBy.set(`${a.employeeId}_${iso}`, a.shiftType.code);
     if (a.shiftType.code !== SICK_CODE) continue;
     const list = sickBy.get(a.employeeId) ?? [];
-    list.push({ iso, hours: templateHoursOn(a.employeeId, a.date) });
+    list.push({ iso, hours: sickHoursOn(a.employeeId, a.date) });
     sickBy.set(a.employeeId, list);
   }
 

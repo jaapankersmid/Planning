@@ -107,23 +107,3 @@ export async function addAdjustment(input: {
     return { error: error instanceof Error ? error.message : "Opslaan is niet gelukt." };
   }
 }
-
-/** Stelt de standaard (contract)uren per week van een medewerker in; leeg haalt ze weg. Basis voor het berekenen van opgenomen verlof. */
-export async function setWeeklyHours(input: { employeeId: string; hours: string }): Promise<AllowanceResult> {
-  try {
-    await requireAdmin();
-    const text = input.hours.trim().replace(",", ".");
-    let hours: number | null = null;
-    if (text !== "") {
-      hours = Number(text);
-      if (!Number.isFinite(hours) || hours <= 0 || hours > 80) return { error: "Vul de uren per week in als getal tussen 0 en 80, bijvoorbeeld 32 of 38,5." };
-      hours = Math.round(hours * 100) / 100;
-    }
-    const result = await prisma.employee.updateMany({ where: { id: input.employeeId }, data: { weeklyHours: hours } });
-    if (result.count === 0) return { error: "Medewerker niet gevonden." };
-    revalidate();
-    return undefined;
-  } catch (error) {
-    return { error: error instanceof Error ? error.message : "Opslaan is niet gelukt." };
-  }
-}

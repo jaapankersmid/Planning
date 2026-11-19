@@ -99,7 +99,7 @@ function NextYearBlock({ view, cls, valueCls }: { view: BalanceView; cls: string
 function ExtraLines({ view, small, weeksHref }: { view: BalanceView; small?: boolean; weeksHref?: string }) {
   const size = small ? "text-xs" : "text-sm";
   const line = view.nextYearLine;
-  if (!line && view.overtimeThisYear <= 0 && view.overtimePending <= 0) return null;
+  if (!line && view.overtimeThisYear <= 0 && view.overtimePending <= 0 && view.overtimePlanned <= 0) return null;
   return (
     <div className={`flex flex-col gap-0.5 ${size}`}>
       {line && (
@@ -130,6 +130,11 @@ function ExtraLines({ view, small, weeksHref }: { view: BalanceView; small?: boo
       )}
       {view.overtimeThisYear > 0 && (
         <p className="tabular-nums text-good-text">Bijgeschreven overwerk {view.year}: +{fmtHours(view.overtimeThisYear)} uur</p>
+      )}
+      {view.overtimePlanned > 0 && (
+        <p className="tabular-nums text-foreground-muted">
+          Ingepland overwerk {view.year}: +{fmtHours(view.overtimePlanned)} uur (telt mee in de verwachting, in het saldo pas na goedkeuring van de uren)
+        </p>
       )}
       {view.overtimePending > 0 && (
         <p className="tabular-nums text-foreground-muted">

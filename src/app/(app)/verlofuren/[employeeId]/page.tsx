@@ -7,7 +7,8 @@ import { fmtHours, loadBalance } from "@/lib/leave-balance";
 import { canManageHours } from "@/lib/roles";
 import { todayAmsterdam } from "@/lib/schedule";
 import { AdjustmentForm } from "@/components/adjustment-form";
-import { WeeklyHoursEditor } from "@/components/weekly-hours-editor";
+import { ContractHoursEditor } from "@/components/contract-hours-editor";
+import { BEGIN_ISO } from "@/lib/contract-rules";
 import { AllowanceEditor } from "@/components/allowance-editor";
 import { LeaveBalanceCard } from "@/components/leave-balance-card";
 import { HoursOverrideEditor } from "@/components/hours-override-editor";
@@ -22,12 +23,12 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
   if (!session?.user || !canManageHours(session.user.role)) redirect("/rooster");
 
   const { employeeId } = await params;
-  const employee = await prisma.employee.findUnique({ where: { id: employeeId }, select: { name: true } });
+  const employee = await prisma.employee.findUnique({ where: { id: employeeId }, select: { name: true, weeklyHours: true } });
   if (!employee) notFound();
 
   const today = todayAmsterdam();
   const todayISO = toISODate(today);
-  const [balance, overrideRows, shiftTypes] = await Promise.all([
+  const [balance, overrideRows, shiftTypes, contractRows, contractLog] = await Promise.all([
     loadBalance(employeeId, todayISO),
     prisma.shiftHoursOverride.findMany({
       where: { employeeId },
@@ -35,7 +36,12 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
       orderBy: [{ validFrom: "desc" }, { createdAt: "desc" }],
     }),
     prisma.shiftType.findMany({ where: { active: true } }),
+    prisma.contractHours.findMany({ where: { employeeId }, orderBy: { validFrom: "asc" } }),
+    prisma.contractHoursChange.findMany({ where: { employeeId }, orderBy: { createdAt: "desc" }, take: 50 }),
   ]);
+  const contractPeriods = contractRows.map((r) => ({ fromISO: toISODate(r.validFrom), hours: r.hours, byName: r.createdByName }));
+  const logDate = new Intl.DateTimeFormat("nl-NL", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Amsterdam" });
+  const periodText = (d: Date) => (toISODate(d) === BEGIN_ISO ? "vanaf het begin" : `vanaf ${formatDayMonth(d)} ${d.getUTCFullYear()}`);
   const overrideShifts = sortShiftTypes(shiftTypes)
     .filter((t) => shiftHours(t) > 0)
     .map((t) => ({ id: t.id, label: `${t.code} · ${t.label} (gewoon ${fmtHours(shiftHours(t))} uur)`, standard: shiftHours(t) }));
@@ -58,7 +64,13 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
     ...overtimeOnly.map((w) => ({ kind: "overtime" as const, w })),
   ].sort((a, b) => (b.kind === "leave" ? b.d.dateISO : b.w.dateISO).localeCompare(a.kind === "leave" ? a.d.dateISO : a.w.dateISO));
   const overtimeText = (w: (typeof balance.overtime)[number]) =>
-    w.status === "credited" ? `bijgeschreven bij ${w.year}` : w.status === "pending" ? "wacht op goedkeuring van de uren" : "voor de peildatum, telt niet mee";
+    w.status === "credited"
+      ? `bijgeschreven bij ${w.year}`
+      : w.status === "pending"
+        ? "wacht op goedkeuring van de uren"
+        : w.status === "planned"
+          ? "ingepland, voorlopig (telt in de verwachting)"
+          : "voor de peildatum, telt niet mee";
 
   return (
     <div className="flex max-w-4xl flex-col gap-5">
@@ -71,14 +83,29 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
 
       <LeaveBalanceCard balance={balance} todayISO={todayISO} />
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-border bg-surface p-5">
+      <div id="contract" className="flex scroll-mt-4 flex-col gap-3 rounded-lg border border-border bg-surface p-5">
         <div>
-          <h2 className="text-sm font-semibold">Standaard uren per week</h2>
+          <h2 className="text-sm font-semibold">Contracturen per week</h2>
           <p className="text-xs text-foreground-muted">
-            Opgenomen verlof per week = deze uren min de uren die in die week zijn gewerkt (of gepland staan). Pas dit aan als het contract verandert.
+            Opgenomen verlof per week = het contract van die week min de uren die in die week zijn gewerkt (of gepland staan);
+            daarboven is het overwerk, en een ziektedag telt volgens het contract van die week. Verandert het contract, voeg dan een
+            periode toe met de datum waarop het ingaat: eerdere weken blijven met het oude contract rekenen.
           </p>
         </div>
-        <WeeklyHoursEditor key={`${employeeId}_${balance.weeklyHours}`} employeeId={employeeId} hours={balance.weeklyHours} label={`Standaard uren per week van ${employee.name}`} />
+        <ContractHoursEditor employeeId={employeeId} periods={contractPeriods} fallbackHours={employee.weeklyHours} todayISO={todayISO} />
+        {contractLog.length > 0 && (
+          <details className="text-xs">
+            <summary className="cursor-pointer text-foreground-muted">Logboek ({contractLog.length})</summary>
+            <ul className="mt-1 flex flex-col gap-0.5 text-foreground-muted">
+              {contractLog.map((c) => (
+                <li key={c.id}>
+                  {logDate.format(c.createdAt)} · {c.changedByName ?? "onbekend"} · {periodText(c.validFrom)}:{" "}
+                  {c.oldHours === null ? "nieuw" : `${fmtHours(c.oldHours)} uur`} → {c.newHours === null ? "verwijderd" : `${fmtHours(c.newHours)} uur`}
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
       </div>
 
       <div className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5">
@@ -185,7 +212,7 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
                       <div className="text-xs text-foreground-muted">{w.detail}</div>
                     </td>
                     <td className={`px-4 py-1.5 text-right tabular-nums ${w.status === "credited" ? "text-good-text" : "text-foreground-muted"}`}>
-                      Overgewerkt +{fmtHours(w.hours)}
+                      {w.status === "planned" ? "Ingepland overwerk" : "Overgewerkt"} +{fmtHours(w.hours)}
                     </td>
                     <td className="px-4 py-1.5 text-foreground-muted">{overtimeText(w)}</td>
                   </tr>
