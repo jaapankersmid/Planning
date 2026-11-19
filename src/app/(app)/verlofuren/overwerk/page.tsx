@@ -51,6 +51,30 @@ export default async function OverwerkPage() {
     .filter((r) => r.after.overtime.length > 0);
   const total = rows.reduce((s, r) => s + r.creditedHours, 0);
   const week = (iso: string) => formatDayMonth(dateFromISO(iso));
+  const weekList = (list: { label: string; dateISO: string }[]) => list.map((w) => `${w.label.replace("Week ", "wk ")} (${week(w.dateISO)})`).join(", ");
+
+  /** Waarom (een deel van) het overwerk van deze medewerker er niet bij komt. */
+  const whyNot = (r: (typeof rows)[number]) => {
+    const out: string[] = [];
+    if (!enabled && r.creditedHours > 0) out.push(`overwerk bijschrijven staat uit: +${fmtHours(r.creditedHours)} uur komt er pas bij als je het aanzet`);
+    if (r.pending.length) out.push(`${weekList(r.pending)}: uren nog niet goedgekeurd (keur de week of de maand goed bij Uren)`);
+    const ignored = r.after.overtime.filter((w) => w.status === "ignored");
+    if (ignored.length) out.push(`${weekList(ignored)}: voor de peildatum van het tegoed, telt niet mee`);
+    const planned = r.after.overtime.filter((w) => w.status === "planned");
+    if (planned.length) out.push(`${weekList(planned)}: week nog niet voorbij (ingepland, telt pas na goedkeuring)`);
+    return out;
+  };
+
+  // Bij deze medewerkers kan geen overwerk worden berekend (dan staat er ook niets in de tabel).
+  const notComputed = employees
+    .map((e) => {
+      const b = withOt.get(e.id)!;
+      const reasons: string[] = [];
+      if (b.buckets.length === 0) reasons.push("geen tegoed of correctie ingevuld");
+      if (!b.weeklyHours || b.weeklyHours <= 0) reasons.push("geen contracturen (of 0 uur)");
+      return { e, reasons };
+    })
+    .filter((x) => x.reasons.length > 0);
 
   return (
     <div className="flex max-w-4xl flex-col gap-3">
@@ -118,12 +142,34 @@ export default async function OverwerkPage() {
                         {w.label.replace("Week ", "wk ")} ({week(w.dateISO)}) +{fmtHours(w.hours)}
                       </span>
                     ))}
+                    {whyNot(r).length > 0 && (
+                      <div className="mt-1 text-amber-700 dark:text-amber-300">
+                        <span className="font-medium">Waarom niet?</span> {whyNot(r).join("; ")}.
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+      )}
+      {notComputed.length > 0 && (
+        <details className="text-sm">
+          <summary className="cursor-pointer text-foreground-muted">
+            Bij {notComputed.length} {notComputed.length === 1 ? "medewerker" : "medewerkers"} wordt geen overwerk berekend
+          </summary>
+          <ul className="mt-1 flex flex-col gap-0.5 text-xs">
+            {notComputed.map(({ e, reasons }) => (
+              <li key={e.id}>
+                <Link href={`/verlofuren/${e.id}`} className="font-medium hover:underline">
+                  {e.name}
+                </Link>
+                <span className="text-foreground-muted">: {reasons.join(" en ")}</span>
+              </li>
+            ))}
+          </ul>
+        </details>
       )}
       <p className="text-xs text-foreground-muted">
         Groen = wordt bijgeschreven; grijs = de uren van die week zijn nog niet goedgekeurd; schuin = ingepland (week nog niet voorbij, voorlopig); doorgestreept = voor de peildatum, telt niet mee.

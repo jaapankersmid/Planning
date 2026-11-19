@@ -11,7 +11,7 @@ export type WeekRow = {
   planned: boolean;
   /** Van welk tegoed het verlof afgaat, of bij welk tegoed het overwerk hoort. */
   from: string;
-  status?: "credited" | "pending" | "planned";
+  status?: "credited" | "pending" | "planned" | "off";
 };
 
 /**
@@ -61,7 +61,9 @@ function Row({ r }: { r: WeekRow }) {
             <span className={r.status === "credited" ? "text-good-text" : ""}>
               {r.status === "planned"
                 ? `Ingepland overwerk +${fmtHours(r.hours)} u (voorlopig: telt in de verwachting, pas in je saldo als de uren zijn goedgekeurd)`
-                : `Overgewerkt +${fmtHours(r.hours)} u (${r.status === "credited" ? `bijgeschreven bij ${r.from}` : "wacht op goedkeuring van de uren"})`}
+                : r.status === "off"
+                  ? `Overgewerkt +${fmtHours(r.hours)} u, nog niet bijgeschreven (overwerk bijschrijven staat uit)`
+                  : `Overgewerkt +${fmtHours(r.hours)} u (${r.status === "credited" ? `bijgeschreven bij ${r.from}` : "wacht op goedkeuring van de uren"})`}
             </span>
             {r.detail && ` · ${r.detail}`}
           </>

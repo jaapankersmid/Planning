@@ -92,9 +92,10 @@ export type OvertimeWeek = {
   detail: string;
   /**
    * credited = bijgeschreven; pending = voorbij, maar de uren zijn nog niet (helemaal) goedgekeurd;
-   * planned = week nog niet voorbij (volgens het rooster), voorlopig; ignored = voor de peildatum.
+   * planned = week nog niet voorbij (volgens het rooster), voorlopig; ignored = voor de peildatum;
+   * off = goedgekeurd en zou zijn bijgeschreven, maar overwerk bijschrijven staat uit (telt nergens mee).
    */
-  status: "credited" | "pending" | "planned" | "ignored";
+  status: "credited" | "pending" | "planned" | "ignored" | "off";
 };
 
 export type AdjustmentEntry = {
@@ -123,7 +124,7 @@ export type Balance = {
   /** Eerstvolgende datum waarop uren vervallen: nu nog over, en de verwachting als het ingeplande verlof is opgenomen. */
   expiring: { dateISO: string; hours: number; forecastHours: number } | null;
   days: DayAllocation[];
-  /** Weken met overwerk (alleen als overwerk bijschrijven aanstaat). */
+  /** Weken met overwerk. Staat bijschrijven uit, dan alleen de goedgekeurde weken, met status "off". */
   overtime: OvertimeWeek[];
   /** Alle correcties, nieuwste eerst. */
   adjustments: AdjustmentEntry[];
@@ -398,12 +399,8 @@ export async function loadBalances(todayISO: string, employeeIds?: string[], opt
         prisma.shiftAssignment.findMany({ where: { ...filter, date: { gte: rangeStart, lt: rangeEnd } }, include: { shiftType: true } }),
         prisma.timeEntry.findMany({ where: { ...filter, date: { gte: rangeStart, lt: rangeEnd } }, select: { employeeId: true, date: true, hours: true, sickReported: true } }),
         prisma.weeklyScheduleEntry.findMany({ where: filter, include: { shiftType: true } }),
-        overtimeOn
-          ? prisma.weekSubmission.findMany({ where: { ...filter, status: "APPROVED", weekStart: { gte: rangeStart, lt: rangeEnd } }, select: { employeeId: true, weekStart: true } })
-          : [],
-        overtimeOn
-          ? prisma.timesheet.findMany({ where: { ...filter, status: "APPROVED", year: { gte: rangeStart.getUTCFullYear() } }, select: { employeeId: true, year: true, month: true } })
-          : [],
+        prisma.weekSubmission.findMany({ where: { ...filter, status: "APPROVED", weekStart: { gte: rangeStart, lt: rangeEnd } }, select: { employeeId: true, weekStart: true } }),
+        prisma.timesheet.findMany({ where: { ...filter, status: "APPROVED", year: { gte: rangeStart.getUTCFullYear() } }, select: { employeeId: true, year: true, month: true } }),
       ])
     : [[], [], [], [], []];
   // Goedgekeurde uren: een dag telt als goedgekeurd als zijn week of zijn maand is goedgekeurd.
@@ -460,7 +457,7 @@ export async function loadBalances(todayISO: string, employeeIds?: string[], opt
         let approved = true;
         for (let i = 0; i < 7; i++) {
           const day = addDays(monday, i);
-          if (overtimeOn && !dayApproved(id, monday, day)) approved = false;
+          if (!dayApproved(id, monday, day)) approved = false;
           const key = `${id}_${toISODate(day)}`;
           const assignment = assignmentsBy.get(key);
           const entry = entriesBy.get(key);
@@ -485,16 +482,18 @@ export async function loadBalances(todayISO: string, employeeIds?: string[], opt
           approved,
           ownCountFromISO: inputs.find((b) => b.year === year)?.countFromISO ?? null,
           firstCountFromISO: firstCountFrom,
-          overtimeOn,
+          // Altijd berekenen; staat bijschrijven uit, dan tonen we alleen de goedgekeurde weken (status "off").
+          overtimeOn: true,
         });
-        if (outcome.overtime) {
+        const otStatus = outcome.overtime && (overtimeOn ? outcome.overtime.status : outcome.overtime.status === "credited" ? "off" : null);
+        if (outcome.overtime && otStatus) {
           overtime.push({
             dateISO: mondayISO,
             year,
             hours: outcome.overtime.hours,
             label: `Week ${isoWeek(monday)}`,
             detail: `${round(contract)} uur contract, ${round(worked)} uur gewerkt`,
-            status: outcome.overtime.status,
+            status: otStatus,
           });
         }
         const leave = outcome.leave;

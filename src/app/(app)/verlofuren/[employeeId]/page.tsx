@@ -70,7 +70,9 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
         ? "wacht op goedkeuring van de uren"
         : w.status === "planned"
           ? "ingepland, voorlopig (telt in de verwachting)"
-          : "voor de peildatum, telt niet mee";
+          : w.status === "off"
+            ? "nog niet bijgeschreven (overwerk bijschrijven staat uit)"
+            : "voor de peildatum, telt niet mee";
 
   return (
     <div className="flex max-w-4xl flex-col gap-5">
