@@ -50,6 +50,15 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
   const bucketByYear = new Map(balance.buckets.map((b) => [b.year, b]));
 
   const recentDays = [...balance.days].sort((a, b) => b.dateISO.localeCompare(a.dateISO));
+  const overtimeByDate = new Map(balance.overtime.map((w) => [w.dateISO, w]));
+  // Weken met alleen overwerk (geen verlof) komen er als eigen regel bij.
+  const overtimeOnly = balance.overtime.filter((w) => !balance.days.some((d) => d.dateISO === w.dateISO));
+  const tableRows = [
+    ...recentDays.map((d) => ({ kind: "leave" as const, d })),
+    ...overtimeOnly.map((w) => ({ kind: "overtime" as const, w })),
+  ].sort((a, b) => (b.kind === "leave" ? b.d.dateISO : b.w.dateISO).localeCompare(a.kind === "leave" ? a.d.dateISO : a.w.dateISO));
+  const overtimeText = (w: (typeof balance.overtime)[number]) =>
+    w.status === "credited" ? `bijgeschreven bij ${w.year}` : w.status === "pending" ? "wacht op goedkeuring van de uren" : "voor de peildatum, telt niet mee";
 
   return (
     <div className="flex max-w-4xl flex-col gap-5">
@@ -155,15 +164,36 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
             </tr>
           </thead>
           <tbody>
-            {recentDays.length === 0 && (
+            {tableRows.length === 0 && (
               <tr>
                 <td colSpan={3} className="px-4 py-6 text-center text-foreground-muted">
                   Nog geen verlof berekend. Vul de standaard uren per week in; weken waarin minder is gewerkt of gepland dan dat aantal tellen als verlof.
                 </td>
               </tr>
             )}
-            {recentDays.map((d) => {
+            {tableRows.map((row) => {
+              if (row.kind === "overtime") {
+                const w = row.w;
+                const date = dateFromISO(w.dateISO);
+                return (
+                  <tr key={`o-${w.dateISO}`} className="border-b border-border last:border-0">
+                    <td className="px-4 py-1.5">
+                      <span className="font-medium">{w.label}</span>{" "}
+                      <span className="text-foreground-muted">
+                        vanaf {weekdayShort(date)} {formatDayMonth(date)} {date.getUTCFullYear()}
+                      </span>
+                      <div className="text-xs text-foreground-muted">{w.detail}</div>
+                    </td>
+                    <td className={`px-4 py-1.5 text-right tabular-nums ${w.status === "credited" ? "text-good-text" : "text-foreground-muted"}`}>
+                      Overgewerkt +{fmtHours(w.hours)}
+                    </td>
+                    <td className="px-4 py-1.5 text-foreground-muted">{overtimeText(w)}</td>
+                  </tr>
+                );
+              }
+              const d = row.d;
               const date = dateFromISO(d.dateISO);
+              const ot = overtimeByDate.get(d.dateISO);
               return (
                 <tr key={d.dateISO} className="border-b border-border last:border-0">
                   <td className="px-4 py-1.5">
@@ -175,7 +205,10 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
                     {d.detail && <div className="text-xs text-foreground-muted">{d.detail}</div>}
                   </td>
                   <td className="px-4 py-1.5 text-right tabular-nums">{d.ignored ? <span className="text-foreground-muted">telt niet mee</span> : fmtHours(d.hours)}</td>
-                  <td className="px-4 py-1.5 text-foreground-muted">{d.ignored ? "voor de peildatum" : d.taken.map((t) => `${t.year}: ${fmtHours(t.hours)}`).join(", ") || "–"}</td>
+                  <td className="px-4 py-1.5 text-foreground-muted">
+                    {d.ignored ? "voor de peildatum" : d.taken.map((t) => `${t.year}: ${fmtHours(t.hours)}`).join(", ") || "–"}
+                    {ot && <div className="text-xs">Overgewerkt +{fmtHours(ot.hours)} ({overtimeText(ot)})</div>}
+                  </td>
                 </tr>
               );
             })}

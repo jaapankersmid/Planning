@@ -8,6 +8,7 @@ import { todayAmsterdam } from "@/lib/schedule";
 import { loadBalance } from "@/lib/leave-balance";
 import { LeaveBalanceCard } from "@/components/leave-balance-card";
 import { LeaveRequestForm } from "@/components/leave-request-form";
+import { LeaveWeekList } from "@/components/leave-week-list";
 import { LeaveStatusBadge } from "@/components/leave-status";
 import { cancelOwnRequest } from "./actions";
 import { sortShiftTypes } from "@/lib/shift-order";
@@ -63,7 +64,7 @@ export default async function VerlofPage() {
       <div className="grid items-start gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         <div className="flex flex-col gap-1.5">
           <h2 className="text-sm font-semibold">Mijn verlofuren</h2>
-          <LeaveBalanceCard balance={balance} todayISO={todayISO} compact />
+          <LeaveBalanceCard balance={balance} todayISO={todayISO} compact weeksHref="#per-week" />
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -110,6 +111,17 @@ export default async function VerlofPage() {
         )}
         <p className="text-xs text-foreground-muted">Goedgekeurd verlof wijzigen? Vraag een planner.</p>
       </div>
+
+      {balance.buckets.length > 0 && (
+        <div id="per-week" className="flex scroll-mt-4 flex-col gap-1.5">
+          <h2 className="text-sm font-semibold">Mijn verlof per week</h2>
+          <p className="text-xs text-foreground-muted">
+            Verlof per week = je uren per week{balance.weeklyHours ? ` (${String(balance.weeklyHours).replace(".", ",")})` : ""} min wat je werkt of
+            volgens het rooster gaat werken. Alleen verlof dat in het rooster staat telt mee; een aanvraag die nog niet is goedgekeurd niet.
+          </p>
+          <LeaveWeekList balance={balance} todayISO={todayISO} />
+        </div>
+      )}
     </div>
   );
 }

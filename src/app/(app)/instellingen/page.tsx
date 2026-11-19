@@ -13,7 +13,7 @@ export default async function InstellingenPage() {
   invalidateSettings();
   const stored = await getStoredSettings();
   const changes = await prisma.appSettingChange.findMany({ orderBy: { createdAt: "desc" }, take: 30 }).catch(() => []);
-  const labels = new Map<string, string>(SETTING_DEFS.map((d) => [d.key, d.label]));
+  const labels = new Map<string, string>([...SETTING_DEFS.map((d) => [d.key, d.label] as [string, string]), ["leaveOvertime", "Overwerk bijschrijven bij verlof (Verlofuren)"]]);
   const fmt = new Intl.DateTimeFormat("nl-NL", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Amsterdam" });
 
   const fields = SETTING_DEFS.map((d) => {

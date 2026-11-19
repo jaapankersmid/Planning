@@ -60,7 +60,12 @@ export default async function VerlofurenPage({ searchParams }: { searchParams: P
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-lg font-semibold">Verlofuren</h1>
-          <p className="text-xs text-foreground-muted">Klik op een medewerker voor het verlof per week.</p>
+          <p className="text-xs text-foreground-muted">
+            Klik op een medewerker voor het verlof per week. ·{" "}
+            <Link href="/verlofuren/overwerk" className="underline hover:no-underline">
+              Overwerk bijschrijven
+            </Link>
+          </p>
         </div>
         <form className="flex flex-wrap items-center gap-2 text-sm">
           <input type="date" name="van" defaultValue={fromISO} className={input} aria-label="Periode van" />

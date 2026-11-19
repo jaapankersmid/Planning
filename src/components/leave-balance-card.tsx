@@ -95,14 +95,62 @@ function NextYearBlock({ view, cls, valueCls }: { view: BalanceView; cls: string
   return null;
 }
 
+/** Regels onder de kerncijfers: volgend jaar (tegoed, ingepland, over) en bijgeschreven overwerk. */
+function ExtraLines({ view, small, weeksHref }: { view: BalanceView; small?: boolean; weeksHref?: string }) {
+  const size = small ? "text-xs" : "text-sm";
+  const line = view.nextYearLine;
+  if (!line && view.overtimeThisYear <= 0 && view.overtimePending <= 0) return null;
+  return (
+    <div className={`flex flex-col gap-0.5 ${size}`}>
+      {line && (
+        <p className="tabular-nums">
+          {line.total !== null ? (
+            <>
+              <span className="font-medium">{line.year}</span> <span className="text-foreground-muted">(vanaf 1 januari)</span>: {fmtHours(line.total)} uur
+              {" · "}
+              {fmtHours(line.planned)} uur ingepland
+              {line.left !== null && (
+                <>
+                  {" · "}
+                  <span className={neg(line.left)}>{fmtHours(line.left)} uur verwacht over</span>
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              Ingepland in {line.year}: {fmtHours(line.planned)} uur
+            </>
+          )}
+          {weeksHref && line.planned > 0 && (
+            <a href={weeksHref} className="ml-1.5 text-xs text-foreground-muted underline hover:no-underline">
+              per week
+            </a>
+          )}
+        </p>
+      )}
+      {view.overtimeThisYear > 0 && (
+        <p className="tabular-nums text-good-text">Bijgeschreven overwerk {view.year}: +{fmtHours(view.overtimeThisYear)} uur</p>
+      )}
+      {view.overtimePending > 0 && (
+        <p className="tabular-nums text-foreground-muted">
+          Overwerk {view.year} dat nog wacht op goedkeuring van de uren: {fmtHours(view.overtimePending)} uur
+        </p>
+      )}
+    </div>
+  );
+}
+
 /** Overzicht van verlofuren: wat er nog is, wat er is opgenomen en ingepland, en wat wanneer vervalt. Voor medewerker en administratie. */
 export function LeaveBalanceCard({
   balance,
   todayISO,
   compact = false,
+  weeksHref,
 }: {
   balance: Balance & { weeklyHours?: number | null };
   todayISO: string;
+  /** Link naar de lijst per week (Mijn verlof). */
+  weeksHref?: string;
   /** Mijn verlof: alleen de kern, de tabel per jaar en de uitleg ingeklapt. */
   compact?: boolean;
 }) {
@@ -135,6 +183,7 @@ export function LeaveBalanceCard({
           </div>
           <NextYearBlock view={view} cls="rounded-md bg-surface-muted px-2 py-1.5" valueCls="text-sm font-semibold" />
         </dl>
+        <ExtraLines view={view} small weeksHref={weeksHref} />
         <Notes balance={balance} view={view} todayISO={todayISO} small />
         <details className="text-xs">
           <summary className="cursor-pointer text-foreground-muted">Per jaar{balance.adjustments.length > 0 ? " en correcties" : ""}</summary>
@@ -152,7 +201,10 @@ export function LeaveBalanceCard({
               {visible.map((v) => (
                 <tr key={v.bucket.year} className="border-t border-border align-top">
                   <td className="py-1 pr-2 font-medium">{v.bucket.year}</td>
-                  <td className="py-1 pr-2 text-right tabular-nums">{fmtHours(v.total)}</td>
+                  <td className="py-1 pr-2 text-right tabular-nums">
+                    {fmtHours(v.total)}
+                    {!!v.bucket.overtime && <div className="text-good-text">+{fmtHours(v.bucket.overtime)} overwerk</div>}
+                  </td>
                   <td className={`py-1 pr-2 text-right tabular-nums ${neg(v.endOfYear ?? 0)}`}>{v.endOfYear === null ? "–" : fmtHours(v.endOfYear)}</td>
                   <td className="py-1 pr-2">
                     {v.nextYear ? (
@@ -217,6 +269,7 @@ export function LeaveBalanceCard({
         </dl>
       </div>
 
+      <ExtraLines view={view} />
       <Notes balance={balance} view={view} todayISO={todayISO} />
 
       <div className="overflow-x-auto">
@@ -241,9 +294,11 @@ export function LeaveBalanceCard({
                   <td className="py-1.5 pr-4 font-medium">{b.year}</td>
                   <td className="py-1.5 pr-4 text-right tabular-nums">
                     {fmtHours(v.total)}
-                    {!!b.adjustment && (
+                    {(!!b.adjustment || !!b.overtime) && (
                       <div className="text-xs text-foreground-muted">
-                        {fmtHours(b.hours)} {b.adjustment > 0 ? "+" : "−"} {fmtHours(Math.abs(b.adjustment))} correctie
+                        {fmtHours(b.hours)}
+                        {!!b.adjustment && ` ${b.adjustment > 0 ? "+" : "−"} ${fmtHours(Math.abs(b.adjustment))} correctie`}
+                        {!!b.overtime && ` + ${fmtHours(b.overtime)} overwerk`}
                       </div>
                     )}
                   </td>
