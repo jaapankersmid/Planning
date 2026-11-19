@@ -5,6 +5,7 @@ import { ensureColorGroups, sortEmployees, todayAmsterdam } from "@/lib/schedule
 import type { TimesheetStatus } from "@prisma/client";
 import { sortShiftTypes } from "@/lib/shift-order";
 import { employeeShiftHours, employeeShiftHoursInfo, loadHoursOverrides, rulesFor } from "@/lib/shift-hours-overrides";
+import { loadSickHours } from "@/lib/sick-hours";
 
 export { STATUS_LABEL, isLockedStatus } from "@/lib/timesheet-labels";
 
@@ -50,6 +51,11 @@ export type DayRow = {
   } | null;
   /** Valt de dag in de getoonde maand? Voor de dagen van een halve week uit de buurmaand is dit false. */
   inMonth: boolean;
+  /**
+   * Ziekte-uren van deze dag (contract van die week, verdeeld naar het vaste rooster, met afwijkende diensturen).
+   * Alleen bij Z in het rooster of "ziek gemeld"; 0 zonder contract. Berekend bij het tonen.
+   */
+  sickHours: number;
 };
 
 export type SheetInfo = {
@@ -92,10 +98,32 @@ export async function loadShiftOptions(employeeId?: string) {
   return sortShiftTypes(types).map((t) => ({ id: t.id, code: t.code, label: t.label, hours: shiftHours(t), rules: rules[t.id] }));
 }
 
-/** Effectieve uren van een dag: de bevestigde uren, anders de geplande uren (alleen voor dagen tot en met vandaag). */
-export function effectiveHours(row: DayRow, todayISO: string) {
+/** Ziek: Z in het rooster of door de medewerker ziek gemeld. */
+export const isSickDay = (row: Pick<DayRow, "code" | "entry">) => row.code === "Z" || !!row.entry?.sickReported;
+
+/** Gewerkte uren zonder ziekte: de bevestigde uren, anders de geplande uren (alleen voor dagen tot en met vandaag). */
+function baseHours(row: DayRow, todayISO: string) {
   if (row.entry) return row.entry.hours;
   return row.dateISO <= todayISO ? row.planned : 0;
+}
+
+/**
+ * Ziekte-uren die meetellen als gewerkt: aanvullen tot de ziekte-uren van die dag (bij een halve dag ziek telt wat
+ * er gewerkt is plus de rest tot de contracturen van die dag). Alleen voor dagen tot en met vandaag.
+ */
+export function sickPart(row: DayRow, todayISO: string) {
+  if (!isSickDay(row) || row.sickHours <= 0 || row.dateISO > todayISO) return 0;
+  return Math.max(0, Math.round((row.sickHours - (row.entry?.hours ?? 0)) * 100) / 100);
+}
+
+/** Effectieve uren van een dag: gewerkt (of gepland t/m vandaag) plus de ziekte-uren. */
+export function effectiveHours(row: DayRow, todayISO: string) {
+  return baseHours(row, todayISO) + sickPart(row, todayISO);
+}
+
+/** Geplande uren voor totalen en het verschil: een Z-dag telt als de ziekte-uren van die dag. */
+export function plannedHoursOf(row: Pick<DayRow, "code" | "planned" | "sickHours">) {
+  return row.code === "Z" ? row.sickHours : row.planned;
 }
 
 /** Eerste en laatste dag (inclusief) van de volledige weken die een maand raken. */
@@ -133,6 +161,7 @@ export async function loadEmployeeMonth(employeeId: string, year: number, month:
   const byDate = new Map(assignments.map((a) => [toISODate(a.date), a]));
   const entryByDate = new Map(entries.map((e) => [toISODate(e.date), e]));
   const todayISO = toISODate(todayAmsterdam());
+  const sickHoursOn = await loadSickHours([employeeId], overrides);
 
   const monthStartISO = toISODate(days[0]);
   const monthEndISO = toISODate(days[days.length - 1]);
@@ -149,6 +178,7 @@ export async function loadEmployeeMonth(employeeId: string, year: number, month:
       label: assignment?.shiftType.label ?? null,
       planned: plannedInfo?.hours ?? 0,
       plannedOverride: plannedInfo?.override ?? false,
+      sickHours: assignment?.shiftType.code === "Z" || entry?.sickReported ? sickHoursOn(employeeId, day) : 0,
       entry: entry
         ? {
             hours: entry.hours,
@@ -189,10 +219,10 @@ export async function loadEmployeeMonth(employeeId: string, year: number, month:
       const row = buildRow(addDays(monday, i));
       const inMonth = row.inMonth;
       const worked = effectiveHours(row, todayISO);
-      info.planned += row.planned;
+      info.planned += plannedHoursOf(row);
       info.worked += worked;
       if (inMonth) {
-        info.plannedInMonth += row.planned;
+        info.plannedInMonth += plannedHoursOf(row);
         info.workedInMonth += worked;
       } else {
         info.partial = true;
@@ -252,6 +282,8 @@ export type OverviewRow = {
   otherShiftDays: number;
   /** Ziek gemeld door de medewerker en nog geen Z in het rooster. */
   sickReportedDays: number;
+  /** Ziekte-uren die als gewerkt meetellen (in worked inbegrepen). */
+  sickHours: number;
   /** Goedgekeurde dagen (goedgekeurde weken of maand): gepland en gewerkt, en het aantal dagen. */
   approvedPlanned: number;
   approvedWorked: number;
@@ -285,27 +317,38 @@ export async function loadOverview(year: number, month: number): Promise<Overvie
 
   // Zelfde volgorde als in het rooster: kleurgroep, dan ervaring, dan naam.
   const employees = sortEmployees(employeesRaw, groups);
+  const sickHoursOn = await loadSickHours(employees.map((e) => e.id), overrides);
   const rows: OverviewRow[] = [];
   for (const employee of employees) {
     const mine = assignments.filter((a) => a.employeeId === employee.id);
     const myEntries = new Map(entries.filter((e) => e.employeeId === employee.id).map((e) => [toISODate(e.date), e]));
+    const byDate = new Map(mine.map((a) => [toISODate(a.date), a]));
     let planned = 0;
     let worked = 0;
+    let sickHours = 0;
     let unconfirmedDays = 0;
-    const plannedByDate = new Map<string, number>();
-    for (const a of mine) {
-      const hours = employeeShiftHours(overrides, employee.id, a.shiftType, toISODate(a.date));
-      plannedByDate.set(toISODate(a.date), hours);
-      planned += hours;
-    }
-    for (const day of days) {
+    // Per dag dezelfde regels als in Mijn uren (gepland, gewerkt, ziekte-uren).
+    const dayRow = (day: Date): DayRow => {
       const iso = toISODate(day);
-      const entry = myEntries.get(iso);
-      if (entry) worked += entry.hours;
-      else if (iso <= todayISO && (plannedByDate.get(iso) ?? 0) > 0) {
-        worked += plannedByDate.get(iso) ?? 0;
-        unconfirmedDays += 1;
-      }
+      const a = byDate.get(iso);
+      const e = myEntries.get(iso);
+      return {
+        dateISO: iso,
+        weekStartISO: toISODate(startOfWeek(day)),
+        inMonth: true,
+        code: a?.shiftType.code ?? null,
+        label: null,
+        planned: a ? employeeShiftHours(overrides, employee.id, a.shiftType, iso) : 0,
+        entry: e ? { hours: e.hours, note: null, editedByName: null, workedShiftTypeId: e.workedShiftTypeId, workedCode: null, workedLabel: null, sickReported: e.sickReported } : null,
+        sickHours: a?.shiftType.code === "Z" || e?.sickReported ? sickHoursOn(employee.id, day) : 0,
+      };
+    };
+    const dayRows = days.map(dayRow);
+    for (const r of dayRows) {
+      planned += plannedHoursOf(r);
+      worked += effectiveHours(r, todayISO);
+      sickHours += sickPart(r, todayISO);
+      if (!r.entry && r.dateISO <= todayISO && r.planned > 0) unconfirmedDays += 1;
     }
     const status = sheets.find((s) => s.employeeId === employee.id)?.status ?? "NONE";
     const myWeeks = weekSheets.filter((w) => w.employeeId === employee.id);
@@ -314,14 +357,11 @@ export async function loadOverview(year: number, month: number): Promise<Overvie
     let approvedPlanned = 0;
     let approvedWorked = 0;
     let approvedDays = 0;
-    for (const day of days) {
-      const iso = toISODate(day);
-      const approved = status === "APPROVED" || approvedWeekStarts.has(toISODate(startOfWeek(day)));
+    for (const r of dayRows) {
+      const approved = status === "APPROVED" || approvedWeekStarts.has(r.weekStartISO);
       if (!approved) continue;
-      const plannedHours = plannedByDate.get(iso) ?? 0;
-      const entry = myEntries.get(iso);
-      approvedPlanned += plannedHours;
-      approvedWorked += entry ? entry.hours : iso <= todayISO ? plannedHours : 0;
+      approvedPlanned += plannedHoursOf(r);
+      approvedWorked += effectiveHours(r, todayISO);
       approvedDays += 1;
     }
     // Inactieve medewerkers zonder uren of planning in deze maand laten we weg.
@@ -333,6 +373,7 @@ export async function loadOverview(year: number, month: number): Promise<Overvie
       colorGroup: employee.colorGroup,
       planned,
       worked,
+      sickHours: Math.round(sickHours * 100) / 100,
       status,
       unconfirmedDays,
       otherShiftDays: [...myEntries.values()].filter((e) => e.workedShiftTypeId).length,

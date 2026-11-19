@@ -462,8 +462,8 @@ export async function loadBalances(todayISO: string, employeeIds?: string[], opt
           const assignment = assignmentsBy.get(key);
           const entry = entriesBy.get(key);
           if (assignment || entry !== undefined) active = true;
-          // Ziek (Z) telt altijd als gewerkt volgens het contract van die week, ook als er uren zijn ingevuld.
-          if (assignment?.shiftType.code === "Z") worked += sickDayHours(templateWeek, i, contract);
+          // Ziek (Z) telt altijd als gewerkt: minstens de ziekte-uren van die dag (contract van die week), ook met ingevulde uren.
+          if (assignment?.shiftType.code === "Z") worked += Math.max(entry ?? 0, sickDayHours(templateWeek, i, contract));
           // Ziek gemeld in de uren (nog geen Z): kost ook geen verlof; minstens de ziekte-uren van die dag.
           else if (sickReportedBy.has(key)) worked += Math.max(entry ?? 0, sickDayHours(templateWeek, i, contract));
           else if (entry !== undefined) worked += entry;

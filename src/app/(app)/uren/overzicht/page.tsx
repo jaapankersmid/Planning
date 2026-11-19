@@ -95,6 +95,11 @@ export default async function UrenOverzichtPage({
                 <td className="px-4 py-2 text-right tabular-nums text-foreground-muted">{formatHours(r.planned)}</td>
                 <td className="px-4 py-2 text-right tabular-nums">
                   {formatHours(r.worked)}
+                  {r.sickHours > 0 && (
+                    <span className="ml-1 text-xs text-foreground-muted" title="Ziekte-uren volgens het contract, tellen mee als gewerkt">
+                      (waarvan {formatHours(r.sickHours)} ziek)
+                    </span>
+                  )}
                   {r.unconfirmedDays > 0 && r.status !== "APPROVED" && (
                     <span className="ml-1 text-xs text-foreground-muted" title="Dagen die de medewerker nog niet heeft bevestigd; hier tellen de geplande uren mee.">
                       ({r.unconfirmedDays} onbevestigd)
@@ -157,7 +162,7 @@ export default async function UrenOverzichtPage({
       </div>
       <p className="text-xs text-foreground-muted">
         Gepland is het hele rooster van de maand; gewerkt telt de bevestigde uren, en voor dagen tot en met vandaag die
-        nog niet bevestigd zijn de geplande uren. Verschil is gewerkt min gepland, alleen over wat is goedgekeurd (de
+        nog niet bevestigd zijn de geplande uren. Een ziektedag (Z of ziek gemeld) telt als de contracturen van die dag, als gepland én gewerkt. Verschil is gewerkt min gepland, alleen over wat is goedgekeurd (de
         goedgekeurde weken, of de hele maand). Uren zijn netto, zonder pauzes.
       </p>
     </div>

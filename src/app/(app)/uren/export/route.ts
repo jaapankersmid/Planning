@@ -3,13 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { monthName, toISODate } from "@/lib/format";
 import { canManageHours } from "@/lib/roles";
 import { todayAmsterdam } from "@/lib/schedule";
-import { STATUS_LABEL, effectiveHours, loadEmployeeMonth, loadOverview, parseMonth } from "@/lib/timesheets";
+import { STATUS_LABEL, effectiveHours, plannedHoursOf, sickPart, loadEmployeeMonth, loadOverview, parseMonth } from "@/lib/timesheets";
 
 // Excel in Nederland verwacht puntkomma's en decimale komma's.
 const num = (n: number) => String(Math.round(n * 100) / 100).replace(".", ",");
 const cell = (value: string) => `"${value.replace(/"/g, '""')}"`;
 
-type Target = { employeeId: string; name: string; colorGroup: string | null; planned: number; worked: number; status: keyof typeof STATUS_LABEL };
+type Target = { employeeId: string; name: string; colorGroup: string | null; planned: number; worked: number; sickHours: number; status: keyof typeof STATUS_LABEL };
 
 /** Eén medewerker, met dezelfde totalen als in het maandoverzicht. */
 async function singleTarget(employeeId: string, year: number, month: number, todayISO: string): Promise<Target | null> {
@@ -20,8 +20,9 @@ async function singleTarget(employeeId: string, year: number, month: number, tod
     employeeId,
     name: employee.name,
     colorGroup: employee.colorGroup,
-    planned: rows.reduce((sum, r) => sum + r.planned, 0),
+    planned: rows.reduce((sum, r) => sum + plannedHoursOf(r), 0),
     worked: rows.reduce((sum, r) => sum + effectiveHours(r, todayISO), 0),
+    sickHours: rows.reduce((sum, r) => sum + sickPart(r, todayISO), 0),
     status: sheet.status,
   };
 }
@@ -54,12 +55,12 @@ export async function GET(request: Request) {
 
   const lines: string[] = [];
   if (kind === "totalen") {
-    lines.push(["Medewerker", "Gepland (uur)", "Gewerkt (uur)", "Verschil (uur)", "Status", "Kleurgroep"].map(cell).join(";"));
+    lines.push(["Medewerker", "Gepland (uur)", "Gewerkt (uur)", "Waarvan ziekte-uren", "Verschil (uur)", "Status", "Kleurgroep"].map(cell).join(";"));
     for (const r of targets) {
-      lines.push([cell(r.name), num(r.planned), num(r.worked), num(r.worked - r.planned), cell(STATUS_LABEL[r.status]), cell(r.colorGroup ?? "")].join(";"));
+      lines.push([cell(r.name), num(r.planned), num(r.worked), num(r.sickHours), num(r.worked - r.planned), cell(STATUS_LABEL[r.status]), cell(r.colorGroup ?? "")].join(";"));
     }
   } else {
-    lines.push(["Medewerker", "Datum", "Dienst", "Gepland (uur)", "Gewerkt (uur)", "Opmerking", "Gewerkte dienst volgens medewerker", "Ziek gemeld door medewerker", "Status", "Kleurgroep", "Week", "Weekstatus"].map(cell).join(";"));
+    lines.push(["Medewerker", "Datum", "Dienst", "Gepland (uur)", "Gewerkt (uur)", "Ziekte-uren", "Opmerking", "Gewerkte dienst volgens medewerker", "Ziek gemeld door medewerker", "Status", "Kleurgroep", "Week", "Weekstatus"].map(cell).join(";"));
     for (const o of targets) {
       const { rows, sheet, weeks } = await loadEmployeeMonth(o.employeeId, year, month);
       const weekByStart = new Map(weeks.map((w) => [w.startISO, w]));
@@ -67,7 +68,7 @@ export async function GET(request: Request) {
         const worked = effectiveHours(r, todayISO);
         if (!r.code && !r.entry && worked === 0) continue;
         lines.push(
-          [cell(o.name), r.dateISO, cell(r.code ?? ""), num(r.planned), num(worked), cell(r.entry?.note ?? ""), cell(r.entry?.workedCode ?? ""), cell(r.entry?.sickReported ? (r.code === "Z" ? "ja, Z in rooster" : "ja") : ""), cell(STATUS_LABEL[sheet.status]), cell(o.colorGroup ?? ""), String(weekByStart.get(r.weekStartISO)?.weekNo ?? ""), cell(STATUS_LABEL[weekByStart.get(r.weekStartISO)?.status ?? "DRAFT"])].join(";"),
+          [cell(o.name), r.dateISO, cell(r.code ?? ""), num(plannedHoursOf(r)), num(worked), num(sickPart(r, todayISO)), cell(r.entry?.note ?? ""), cell(r.entry?.workedCode ?? ""), cell(r.entry?.sickReported ? (r.code === "Z" ? "ja, Z in rooster" : "ja") : ""), cell(STATUS_LABEL[sheet.status]), cell(o.colorGroup ?? ""), String(weekByStart.get(r.weekStartISO)?.weekNo ?? ""), cell(STATUS_LABEL[weekByStart.get(r.weekStartISO)?.status ?? "DRAFT"])].join(";"),
         );
       }
     }

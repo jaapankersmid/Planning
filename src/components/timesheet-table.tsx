@@ -20,6 +20,8 @@ export type TimesheetRow = {
   plannedOverride?: boolean;
   /** Dag valt in de getoonde maand; anders hoort hij bij de buurmaand (halve week). */
   inMonth?: boolean;
+  /** Ziekte-uren van deze dag volgens het contract (alleen bij Z of ziek gemeld; 0 zonder contract). */
+  sickHours?: number;
   entry: {
     hours: number;
     note: string | null;
@@ -121,10 +123,20 @@ export function TimesheetTable({
   const weekLocked = (r: TimesheetRow) => weekMode === "employee" && isLockedStatus(weekByStart.get(r.weekStartISO)?.status);
   const editableDay = (r: TimesheetRow) => editable && !weekLocked(r) && (allowFuture || r.dateISO <= todayISO);
 
-  const liveHours = (r: TimesheetRow) => {
+  const typedHours = (r: TimesheetRow) => {
     const value = Number((cells[r.dateISO]?.hours ?? "").replace(",", "."));
     return Number.isFinite(value) ? value : 0;
   };
+  /** Ziekte-uren die meetellen: aanvullen tot de contracturen van die dag (Z in het rooster of ziek gemeld). */
+  const sickExtra = (r: TimesheetRow) => {
+    const sick = r.code === "Z" || cells[r.dateISO]?.sick;
+    if (!sick || !r.sickHours || r.dateISO > todayISO) return 0;
+    return Math.max(0, Math.round((r.sickHours - typedHours(r)) * 100) / 100);
+  };
+  /** Gewerkt inclusief ziekte-uren. */
+  const liveHours = (r: TimesheetRow) => typedHours(r) + sickExtra(r);
+  /** Gepland: een Z-dag telt als de ziekte-uren van die dag. */
+  const plannedOf = (r: TimesheetRow) => (r.code === "Z" ? (r.sickHours ?? 0) : r.planned);
 
   function patch(iso: string, change: Partial<Cell>) {
     setCells((c) => ({ ...c, [iso]: { ...c[iso], ...change } }));
@@ -156,13 +168,9 @@ export function TimesheetTable({
   }
 
   // Het maandtotaal telt alleen de dagen van deze maand; de weekregels tellen de hele week.
-  const total = rows.reduce((sum, r) => {
-    if (r.inMonth === false) return sum;
-    const cell = cells[r.dateISO];
-    const value = Number((cell?.hours ?? "").replace(",", "."));
-    return sum + (Number.isFinite(value) ? value : 0);
-  }, 0);
-  const plannedTotal = rows.reduce((sum, r) => sum + (r.inMonth === false ? 0 : r.planned), 0);
+  const total = rows.reduce((sum, r) => (r.inMonth === false ? sum : sum + liveHours(r)), 0);
+  const sickTotal = rows.reduce((sum, r) => (r.inMonth === false ? sum : sum + sickExtra(r)), 0);
+  const plannedTotal = rows.reduce((sum, r) => sum + (r.inMonth === false ? 0 : plannedOf(r)), 0);
 
   return (
     <div className="overflow-x-auto rounded-lg border border-border bg-surface">
@@ -281,7 +289,12 @@ export function TimesheetTable({
                   )}
                 </td>
                 <td className={`${cx} text-right tabular-nums text-foreground-muted`}>
-                  {r.planned > 0 ? fmt(r.planned) : "–"}
+                  {plannedOf(r) > 0 ? fmt(plannedOf(r)) : "–"}
+                  {r.code === "Z" && (r.sickHours ?? 0) > 0 && (
+                    <span className="ml-1 text-[10px]" title="Ziektedag: telt als de contracturen van die dag">
+                      ziek
+                    </span>
+                  )}
                   {r.plannedOverride && r.planned > 0 && (
                     <span className="ml-1 text-[10px]" title="Afwijkende diensturen voor deze medewerker (ingesteld door de administratie)">
                       afw.
@@ -311,6 +324,11 @@ export function TimesheetTable({
                       {cell.editedByName}
                     </span>
                   )}
+                  {sickExtra(r) > 0 && (
+                    <div className="text-[11px] text-rose-800 dark:text-rose-200" title="Telt als gewerkt: aangevuld tot de contracturen van die dag">
+                      + ziek (contract) {fmt(sickExtra(r))} u
+                    </div>
+                  )}
                   {cell.sick && canEdit && weekMode === "employee" && r.code !== "Z" && (
                     <div className="text-[11px] text-foreground-muted">nog gewerkt? vul de uren in</div>
                   )}
@@ -334,7 +352,7 @@ export function TimesheetTable({
               </tr>
               {endOfWeek && week && (() => {
                 const liveWeek = weekRows.reduce((sum, x) => sum + liveHours(x), 0);
-                const plannedWeek = weekRows.reduce((sum, x) => sum + x.planned, 0);
+                const plannedWeek = weekRows.reduce((sum, x) => sum + plannedOf(x), 0);
                 const liveInMonth = weekRows.filter((x) => x.inMonth !== false).reduce((sum, x) => sum + liveHours(x), 0);
                 const start = new Date(`${week.startISO}T00:00:00Z`);
                 const end = new Date(`${week.endISO}T00:00:00Z`);
@@ -389,6 +407,7 @@ export function TimesheetTable({
             <td className="px-2 py-1.5 text-right tabular-nums">{formatHours(plannedTotal)}</td>
             <td className="px-2 py-1.5 tabular-nums" colSpan={2}>
               {formatHours(total)} uur
+              {sickTotal > 0 && <span className="ml-1.5 text-xs font-normal text-foreground-muted">(waarvan {formatHours(sickTotal)} ziek)</span>}
             </td>
           </tr>
         </tfoot>

@@ -6,7 +6,7 @@ import { dateFromISO, toISODate } from "@/lib/format";
 import { formatHours } from "@/lib/hours";
 import { canManageHours } from "@/lib/roles";
 import { todayAmsterdam } from "@/lib/schedule";
-import { effectiveHours, loadEmployeeMonth, loadShiftOptions, parseMonth } from "@/lib/timesheets";
+import { effectiveHours, loadEmployeeMonth, loadShiftOptions, parseMonth, plannedHoursOf } from "@/lib/timesheets";
 import { MonthNav } from "@/components/month-nav";
 import { TimesheetTable } from "@/components/timesheet-table";
 import { TimesheetDecision } from "@/components/timesheet-decision";
@@ -47,7 +47,7 @@ export default async function UrenDetailPage({
         : null;
   const todayISO = toISODate(todayAmsterdam());
   const worked = rows.reduce((sum, r) => sum + effectiveHours(r, todayISO), 0);
-  const planned = rows.reduce((sum, r) => sum + r.planned, 0);
+  const planned = rows.reduce((sum, r) => sum + plannedHoursOf(r), 0);
   const extra = "";
 
   return (
