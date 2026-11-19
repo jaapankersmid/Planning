@@ -8,6 +8,7 @@ import { canManageHours } from "@/lib/roles";
 import { ensureColorGroups, sortEmployees, todayAmsterdam } from "@/lib/schedule";
 import { loadSickness } from "@/lib/sickness";
 import { GroupHeaderRow } from "@/components/group-header-row";
+import { InfoTip } from "@/components/info-tip";
 
 const input = "rounded-md border border-border bg-surface px-3 py-2 text-sm";
 const fmtISO = (iso: string) => {
@@ -47,11 +48,19 @@ export default async function ZiektePage({ searchParams }: { searchParams: Promi
   return (
     <div className="flex max-w-5xl flex-col gap-4">
       <div>
-        <h1 className="text-lg font-semibold">Ziekte</h1>
-        <p className="text-sm text-foreground-muted">
-          Hoe vaak en wanneer iemand ziek is geweest, uit het rooster (dienst Z). Alleen zichtbaar voor planners en
-          administratie. Er staat geen reden of diagnose bij.
-        </p>
+        <h1 className="flex items-center gap-2 text-lg font-semibold">
+          Ziekte
+          <InfoTip>
+            <span className="flex flex-col gap-1.5">
+              <span>Uit het rooster (dienst Z), zonder reden of diagnose. Alleen voor planners en administratie.</span>
+              <span>
+                De uren van een ziektedag volgen het contract van die week, verdeeld naar het vaste rooster. Aaneengesloten
+                ziektedagen vormen één periode; vrije dagen ertussen (geen dienst of V, hooguit 4) onderbreken die niet.
+              </span>
+              <span>Een periode over de rand van de gekozen periode staat er met de echte datums; de totalen tellen alleen de dagen binnen de periode.</span>
+            </span>
+          </InfoTip>
+        </h1>
       </div>
 
       <form className="flex flex-wrap items-end gap-3 rounded-lg border border-border bg-surface p-4">
@@ -163,13 +172,6 @@ export default async function ZiektePage({ searchParams }: { searchParams: Promi
         })}
       </div>
 
-      <p className="text-xs text-foreground-muted">
-        Een dag telt als ziek als er in het rooster Z staat. De uren zijn de uren die de medewerker op die weekdag volgens het
-        vaste rooster werkt (zonder vaste dienst 0 uur). Aaneengesloten ziektedagen vormen één periode; vrije dagen ertussen
-        (geen dienst of V, hooguit 4 achter elkaar) onderbreken de periode niet maar tellen niet als ziektedag. Een periode die
-        over de rand van de gekozen periode loopt, staat met de echte begin- en einddatum in de lijst; de totalen tellen alleen
-        de dagen binnen de gekozen periode.
-      </p>
     </div>
   );
 }

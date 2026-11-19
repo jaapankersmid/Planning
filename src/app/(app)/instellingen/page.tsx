@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { SETTING_DEFS, fallbackValue, getStoredSettings, invalidateSettings, secretStatus } from "@/lib/settings";
 import { SettingsForm } from "@/components/settings-form";
+import { InfoTip } from "@/components/info-tip";
 
 export const dynamic = "force-dynamic";
 
@@ -34,17 +35,19 @@ export default async function InstellingenPage() {
   return (
     <div className="flex max-w-3xl flex-col gap-5">
       <div>
-        <h1 className="text-lg font-semibold">Instellingen</h1>
-        <p className="text-sm text-foreground-muted">
-          Bedrijfsgegevens en mailinstellingen. Een leeg veld gebruikt de waarde uit het .env-bestand op de server, of de standaard. Wachtwoorden en sleutels staan hier niet: die blijven in .env.
-        </p>
+<h1 className="flex items-center gap-2 text-lg font-semibold">
+          Instellingen
+          <InfoTip>Een leeg veld gebruikt de waarde uit het .env-bestand op de server, of de standaard. Wachtwoorden en sleutels staan hier niet: die blijven in .env.</InfoTip>
+        </h1>
       </div>
 
       <SettingsForm fields={fields} />
 
       <section className="rounded-lg border border-border bg-surface p-5">
-        <h2 className="text-sm font-semibold">Geheimen in .env</h2>
-        <p className="mb-2 text-xs text-foreground-muted">Deze waarden staan alleen in het .env-bestand op de server en zijn hier niet te zien of te wijzigen.</p>
+        <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold">
+          Geheimen in .env
+          <InfoTip>Deze waarden staan alleen in het .env-bestand op de server en zijn hier niet te zien of te wijzigen.</InfoTip>
+        </h2>
         <ul className="text-sm">
           {secretStatus().map((s) => (
             <li key={s.env} className="flex justify-between gap-3 border-b border-border py-1 last:border-b-0">
@@ -56,8 +59,10 @@ export default async function InstellingenPage() {
       </section>
 
       <section className="rounded-lg border border-border bg-surface p-5">
-        <h2 className="text-sm font-semibold">Logboek</h2>
-        <p className="mb-2 text-xs text-foreground-muted">De laatste 30 wijzigingen. Leeg = terug naar .env of de standaard.</p>
+        <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold">
+          Logboek
+          <InfoTip>De laatste 30 wijzigingen. Leeg = terug naar .env of de standaard.</InfoTip>
+        </h2>
         {changes.length === 0 ? (
           <p className="text-sm text-foreground-muted">Nog geen wijzigingen.</p>
         ) : (

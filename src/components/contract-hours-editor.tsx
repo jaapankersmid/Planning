@@ -165,7 +165,7 @@ export function ContractHoursEditor({
         <p className="text-xs text-foreground-muted">
           Geldt vanaf maandag {longDate(monday).replace(/^ma /, "")}
           {monday < thisMonday && <span className="text-amber-700 dark:text-amber-300"> · ligt in het verleden: het verlof en overwerk van die weken worden opnieuw berekend</span>}
-          . Een week heeft altijd één contract; ook ziekte-uren volgen het contract van die week.
+          .
         </p>
       )}
 

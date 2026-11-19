@@ -8,6 +8,7 @@ import { loadOverview, parseMonth } from "@/lib/timesheets";
 import { GroupHeaderRow } from "@/components/group-header-row";
 import { MonthNav } from "@/components/month-nav";
 import { TimesheetStatusBadge } from "@/components/timesheet-status";
+import { InfoTip } from "@/components/info-tip";
 
 export default async function UrenOverzichtPage({
   searchParams,
@@ -34,7 +35,14 @@ export default async function UrenOverzichtPage({
     <div className="flex max-w-5xl flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-lg font-semibold">Uren</h1>
+          <h1 className="flex items-center gap-2 text-lg font-semibold">
+            Uren
+            <InfoTip>
+              Gepland is het rooster van de maand; gewerkt zijn de bevestigde uren, en voor dagen t/m vandaag die nog niet bevestigd
+              zijn de geplande uren. Een ziektedag telt als de contracturen van die dag. Verschil is gewerkt min gepland, alleen over
+              wat is goedgekeurd. Uren zijn netto, zonder pauzes.
+            </InfoTip>
+          </h1>
           <p className="text-sm text-foreground-muted">
             {counts.SUBMITTED > 0 ? `${counts.SUBMITTED} maand${counts.SUBMITTED === 1 ? "" : "en"} wacht${counts.SUBMITTED === 1 ? "" : "en"} op beoordeling · ` : ""}
             {counts.WEEKS > 0 ? `${counts.WEEKS} ingediende we${counts.WEEKS === 1 ? "ek" : "ken"} te beoordelen · ` : ""}
@@ -160,11 +168,6 @@ export default async function UrenOverzichtPage({
           </tfoot>
         </table>
       </div>
-      <p className="text-xs text-foreground-muted">
-        Gepland is het hele rooster van de maand; gewerkt telt de bevestigde uren, en voor dagen tot en met vandaag die
-        nog niet bevestigd zijn de geplande uren. Een ziektedag (Z of ziek gemeld) telt als de contracturen van die dag, als gepland én gewerkt. Verschil is gewerkt min gepland, alleen over wat is goedgekeurd (de
-        goedgekeurde weken, of de hele maand). Uren zijn netto, zonder pauzes.
-      </p>
     </div>
   );
 }

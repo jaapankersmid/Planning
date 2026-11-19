@@ -5,6 +5,7 @@ import { addDays, dateFromISO, isoWeek, startOfWeek, toISODate } from "@/lib/for
 import { todayAmsterdam } from "@/lib/schedule";
 import { PlanProposal } from "@/components/plan-proposal";
 import { PlanSubnav } from "@/components/plan-subnav";
+import { InfoTip } from "@/components/info-tip";
 
 export const dynamic = "force-dynamic";
 const input = "rounded-md border border-border bg-surface px-3 py-2 text-sm";
@@ -22,8 +23,10 @@ export default async function PlanProposalPage({ searchParams }: { searchParams:
   return (
     <div className="flex max-w-5xl flex-col gap-5">
       <div>
-        <h1 className="text-lg font-semibold">Planvoorstel</h1>
-        <p className="text-sm text-foreground-muted">Alleen voor jou zichtbaar. Het voorstel verandert het rooster pas als je het toepast.</p>
+        <h1 className="flex items-center gap-2 text-lg font-semibold">
+          Planvoorstel
+          <InfoTip>Het voorstel verandert het rooster pas als je het toepast.</InfoTip>
+        </h1>
       </div>
       <PlanSubnav current="voorstel" />
 

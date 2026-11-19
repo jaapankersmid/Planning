@@ -9,6 +9,7 @@ import { TimesheetTable } from "@/components/timesheet-table";
 import { TimesheetActions } from "@/components/timesheet-actions";
 import { TimesheetStatusBadge } from "@/components/timesheet-status";
 import { saveOwnEntry } from "./actions";
+import { InfoTip } from "@/components/info-tip";
 
 export default async function MijnUrenPage({
   searchParams,
@@ -49,7 +50,17 @@ export default async function MijnUrenPage({
     <div className="flex max-w-4xl flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-lg font-semibold">Mijn uren</h1>
+          <h1 className="flex items-center gap-2 text-lg font-semibold">
+            Mijn uren
+            <InfoTip>
+              <span className="flex flex-col gap-1.5">
+                <span>Je uren staan voorgevuld met je rooster. Klopt een dag, dan hoef je niets te doen; anders pas je de uren aan. Cursieve uren zijn nog niet bevestigd.</span>
+                <span>Andere dienst gewerkt? Klik op de dienst en kies wat je echt hebt gewerkt. Je rooster zelf verandert daar niet door.</span>
+                <span>Ziek geweest? Klik op de dienst en kies Ziek geweest; heb je nog een deel gewerkt, vul die uren in. Vul geen klachten of reden in.</span>
+                <span>Indienen kan per week (vanaf de zondag, bij de weekregel) of per maand.</span>
+              </span>
+            </InfoTip>
+          </h1>
           <p className="text-sm text-foreground-muted">{employee?.name}</p>
         </div>
         <MonthNav basePath="/uren" year={year} month={month} />
@@ -75,18 +86,6 @@ export default async function MijnUrenPage({
           </span>
         )}
       </div>
-
-      <details className="text-xs text-foreground-muted">
-        <summary className="cursor-pointer">
-          Uren staan voorgevuld met je rooster. Andere dienst gewerkt? Klik op de dienst. <span className="underline">Meer uitleg</span>
-        </summary>
-        <ul className="mt-1.5 list-disc space-y-1 pl-5">
-          <li>Klopt een dag, dan hoef je niets te doen. Was je korter of langer aan het werk, pas dan de uren aan en zet er eventueel een opmerking bij. Cursieve uren zijn nog niet bevestigd.</li>
-          <li>Heb je een andere dienst gewerkt dan in het rooster staat, klik dan op de dienst en kies de dienst die je echt hebt gewerkt. De uren van die dienst worden ingevuld en de administratie ziet het. Je rooster zelf verandert daar niet door.</li>
-          <li>Was je ziek? Klik op de dienst en kies Ziek geweest. Heb je nog een deel gewerkt, vul dan die uren in. De planner verwerkt het in het rooster; tot dan kun je het zelf terugzetten. Vul geen klachten of reden in.</li>
-          <li>Je kunt per week indienen (vanaf de zondag, bij de weekregel) of de hele maand in één keer.</li>
-        </ul>
-      </details>
 
       <TimesheetTable
         key={`${year}-${month}-${sheet.status}-${weekRows.filter((r) => r.entry).length}-${weeks.map((w) => w.status).join("")}`}

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { shiftHours, formatHours, DEFAULT_PAID_HOURS } from "@/lib/hours";
 import { addShiftType, setShiftTypeActive, setShiftTypeSelectable, updateShiftType } from "./actions";
 import { sortShiftTypes } from "@/lib/shift-order";
+import { InfoTip } from "@/components/info-tip";
 
 const inputClass =
   "rounded-md border border-border bg-surface px-3 py-2 text-sm";
@@ -27,12 +28,13 @@ export default async function DienstenPage({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-lg font-semibold">Diensten</h1>
-        <p className="text-sm text-foreground-muted">
-          De shiftcodes en tijden die in het rooster te kiezen zijn — dit is
-          de digitale versie van de “Legenda uren” uit Planning V2.0. Met <em>Medewerkers kiezen</em> bepaal je welke diensten
-          medewerkers kunnen aanvragen (bv. een andere dienst); bij uren invullen kunnen ze altijd elke dienst kiezen.
-        </p>
+        <h1 className="flex items-center gap-2 text-lg font-semibold">
+          Diensten
+          <InfoTip>
+            De diensten en tijden die in het rooster te kiezen zijn. Met <em>Medewerkers kiezen</em> bepaal je welke diensten
+            medewerkers kunnen aanvragen; bij uren invullen kunnen ze altijd elke dienst kiezen.
+          </InfoTip>
+        </h1>
       </div>
 
       {editing && (

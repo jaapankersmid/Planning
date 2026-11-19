@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatDayMonth, toISODate } from "@/lib/format";
 import { addHoliday, deleteHoliday, updateHoliday } from "./actions";
+import { InfoTip } from "@/components/info-tip";
 
 const inputClass = "rounded-md border border-border bg-surface px-3 py-2 text-sm";
 
@@ -54,12 +55,13 @@ export default async function VakantiesPage({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-lg font-semibold">Vakanties</h1>
-        <p className="max-w-2xl text-sm text-foreground-muted">
-          Vakantieperiodes staan als balk bovenin het rooster. Geef je een wensaantal op, dan
-          kleurt de bezetting van die dagen groen als het aantal gehaald is en rood als het
-          eronder blijft.
-        </p>
+        <h1 className="flex items-center gap-2 text-lg font-semibold">
+          Vakanties
+          <InfoTip>
+            Vakantieperiodes staan als balk bovenin het rooster. Met een wensaantal kleurt de bezetting van die dagen groen als het
+            aantal gehaald is en rood als het eronder blijft.
+          </InfoTip>
+        </h1>
       </div>
 
       {editing && (

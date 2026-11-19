@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { addAdjustment } from "@/app/(app)/verlofuren/actions";
+import { InfoTip } from "@/components/info-tip";
 
 /** Correctie (+/− uren) op het tegoed van een jaar, met datum en reden. */
 export function AdjustmentForm({ employeeId, years, todayISO }: { employeeId: string; years: number[]; todayISO: string }) {
@@ -35,12 +36,13 @@ export function AdjustmentForm({ employeeId, years, todayISO }: { employeeId: st
   return (
     <form onSubmit={submit} className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5">
       <div>
-        <h2 className="text-sm font-semibold">Correctie boeken</h2>
-        <p className="text-xs text-foreground-muted">
-          Verreken uren anders: boek uren bij (bijvoorbeeld 8) of af (bijvoorbeeld -4) op het tegoed van een jaar. De datum
-          en reden blijven in het overzicht staan, ook voor de medewerker. Een correctie kun je niet wijzigen; boek bij een
-          vergissing een tegengestelde correctie.
-        </p>
+        <h2 className="flex items-center gap-2 text-sm font-semibold">
+          Correctie boeken
+          <InfoTip>
+            Boek uren bij (bv. 8) of af (bv. -4) op het tegoed van een jaar. Datum en reden blijven zichtbaar, ook voor de medewerker.
+            Een correctie kun je niet wijzigen; boek bij een vergissing een tegengestelde correctie.
+          </InfoTip>
+        </h2>
       </div>
       <div className="flex flex-wrap items-end gap-3">
         <label className="flex flex-col gap-1 text-xs text-foreground-muted">

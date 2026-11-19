@@ -12,6 +12,7 @@ import { LeaveWeekList } from "@/components/leave-week-list";
 import { LeaveStatusBadge } from "@/components/leave-status";
 import { cancelOwnRequest } from "./actions";
 import { sortShiftTypes } from "@/lib/shift-order";
+import { InfoTip } from "@/components/info-tip";
 
 export default async function VerlofPage() {
   const session = await auth();
@@ -63,7 +64,6 @@ export default async function VerlofPage() {
     <div className="flex max-w-4xl flex-col gap-4">
       <div>
         <h1 className="text-lg font-semibold">Mijn verlof</h1>
-        <p className="text-xs text-foreground-muted">Een planner keurt je aanvraag goed; daarna staat het in je rooster.</p>
       </div>
 
       <div className="grid items-start gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
@@ -73,7 +73,10 @@ export default async function VerlofPage() {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <h2 className="text-sm font-semibold">Vrij vragen</h2>
+          <h2 className="flex items-center gap-2 text-sm font-semibold">
+            Vrij vragen
+            <InfoTip>Een planner keurt je aanvraag goed; daarna staat het in je rooster. Goedgekeurd verlof wijzigen? Vraag een planner.</InfoTip>
+          </h2>
           <div className="rounded-lg border border-border bg-surface p-4">
             <LeaveRequestForm shifts={partShifts} swapOptions={swapOptions} minDate={todayISO} />
           </div>
@@ -114,17 +117,22 @@ export default async function VerlofPage() {
             })}
           </ul>
         )}
-        <p className="text-xs text-foreground-muted">Goedgekeurd verlof wijzigen? Vraag een planner.</p>
       </div>
 
       {balance.buckets.length > 0 && (
         <div id="per-week" className="flex scroll-mt-4 flex-col gap-1.5">
-          <h2 className="text-sm font-semibold">Mijn verlof per week</h2>
-          <p className="text-xs text-foreground-muted">
-            {contractText && <>Je contract: <span className="font-medium text-foreground">{contractText}</span>. </>}
-            Verlof per week = je contracturen van die week min wat je werkt of volgens het rooster gaat werken; werk je meer, dan is
-            dat overwerk. Alleen verlof dat in het rooster staat telt mee; een aanvraag die nog niet is goedgekeurd niet.
-          </p>
+          <h2 className="flex items-center gap-2 text-sm font-semibold">
+            Mijn verlof per week
+            <InfoTip>
+              Verlof per week = je contracturen van die week min wat je werkt of volgens het rooster gaat werken; werk je meer, dan is
+              dat overwerk. Alleen verlof dat in het rooster staat telt mee, een aanvraag die nog niet is goedgekeurd niet.
+            </InfoTip>
+          </h2>
+          {contractText && (
+            <p className="text-xs text-foreground-muted">
+              Je contract: <span className="font-medium text-foreground">{contractText}</span>
+            </p>
+          )}
           <LeaveWeekList balance={balance} todayISO={todayISO} />
         </div>
       )}

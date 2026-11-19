@@ -5,6 +5,7 @@ import { fillEmptyDays, setAvailability } from "@/app/(app)/rooster/mijn/availab
 import { AVAILABILITY_CHOICES, AVAILABILITY_LABEL, type AvailabilityValue } from "@/lib/availability-labels";
 import { SwapForm, type SwapShiftOption } from "@/components/swap-form";
 import { LeaveRequestForm, type PartShift, type SwapOption } from "@/components/leave-request-form";
+import { InfoTip } from "@/components/info-tip";
 
 type Data = {
   swap: { mine: SwapShiftOption[]; theirs: SwapShiftOption[]; colleagues: { id: string; name: string }[] };
@@ -116,7 +117,10 @@ export function MyShiftActions({ data, children }: { data: Data; children: React
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 id="day-dialog-title" className="text-sm font-semibold">Beschikbaarheid doorgeven</h2>
+                <h2 id="day-dialog-title" className="flex items-center gap-2 text-sm font-semibold">
+                  Beschikbaarheid doorgeven
+                  <InfoTip>De planner ziet je keuze bij het inplannen.</InfoTip>
+                </h2>
                 <p className="text-sm text-foreground-muted">{day.label}</p>
               </div>
               <button type="button" onClick={() => setDay(null)} aria-label="Sluiten" className="rounded-md px-2 py-1 text-lg leading-none hover:bg-surface-muted">
@@ -126,7 +130,7 @@ export function MyShiftActions({ data, children }: { data: Data; children: React
             <p className="mt-2 text-xs text-foreground-muted">
               {day.occupied
                 ? `Je hebt hier al een dienst in de ${day.occupied === "MORNING" ? "ochtend" : "middag"}. Ben je de ${day.occupied === "MORNING" ? "middag" : "ochtend"} ook beschikbaar? De planner ziet het bij het inplannen.`
-                : "Je hebt hier nog geen dienst. De planner ziet je keuze bij het inplannen."}
+                : "Je hebt hier nog geen dienst."}
             </p>
             {day.occupied ? (
               <div className="mt-3 grid gap-2">
@@ -185,8 +189,14 @@ export function MyShiftActions({ data, children }: { data: Data; children: React
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 id="shift-dialog-title" className="text-sm font-semibold">
+                <h2 id="shift-dialog-title" className="flex items-center gap-2 text-sm font-semibold">
                   {step === "swap" ? "Dienst ruilen" : step === "leave" ? "Vrij vragen" : "Wat wil je met deze dienst?"}
+                  {step === "swap" && (
+                    <InfoTip>
+                      De collega krijgt een mail en ziet het verzoek bij Mijn rooster. Pas als die accepteert wordt het rooster aangepast;
+                      de planner krijgt dan een mail. Bij een gebroken dienst kun je ook alleen de ochtend of de middag ruilen.
+                    </InfoTip>
+                  )}
                 </h2>
                 <p className="text-sm text-foreground-muted">{selected.label}</p>
               </div>
@@ -212,10 +222,6 @@ export function MyShiftActions({ data, children }: { data: Data; children: React
 
             {step === "swap" && (
               <div className="mt-3">
-                <p className="mb-3 text-xs text-foreground-muted">
-                  De collega krijgt een mail en ziet het verzoek bij Mijn rooster. Pas als die accepteert wordt het rooster aangepast;
-                  de planner krijgt dan een mail. Bij een gebroken dienst kun je ook alleen de ochtend of de middag ruilen.
-                </p>
                 <SwapForm key={selected.assignmentId} mine={data.swap.mine} theirs={data.swap.theirs} colleagues={data.swap.colleagues} initialMyId={selected.assignmentId} />
               </div>
             )}

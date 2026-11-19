@@ -14,6 +14,7 @@ import {
   setEmployeeColorGroup,
   unlinkEmployeeAccount,
 } from "./actions";
+import { InfoTip } from "@/components/info-tip";
 
 export default async function MedewerkersPage() {
   const session = await auth();
@@ -45,11 +46,14 @@ export default async function MedewerkersPage() {
       </div>
 
       <div className="max-w-2xl rounded-lg border border-border bg-surface p-5">
-        <h2 className="text-sm font-semibold">Volgorde van de kleurgroepen</h2>
-        <p className="mt-1 text-xs text-foreground-muted">
-          Zo staan de groepen onder elkaar in het rooster. Met de knop &ldquo;telt mee&rdquo; bepaal je of een groep meetelt in de bezetting bovenin het rooster, en met &ldquo;vast rooster&rdquo; of het vaste weekrooster voor die groep geldt. Een medewerker verplaats je
-          naar een andere groep in de kolom Kleurgroep hieronder.
-        </p>
+        <h2 className="flex items-center gap-2 text-sm font-semibold">
+          Volgorde van de kleurgroepen
+          <InfoTip>
+            Zo staan de groepen onder elkaar in het rooster. &ldquo;Telt mee&rdquo;: de groep telt mee in de bezetting bovenin het
+            rooster. &ldquo;Vast rooster&rdquo;: het vaste weekrooster geldt voor die groep. Een medewerker verplaats je in de kolom
+            Kleurgroep hieronder.
+          </InfoTip>
+        </h2>
         <ol className="mt-3 flex flex-col gap-1.5">
           {groups.map((g, i) => (
             <li key={g.id} className="flex items-center gap-3 text-sm">

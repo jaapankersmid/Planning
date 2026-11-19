@@ -1,6 +1,7 @@
 import { dateFromISO, formatDayMonth } from "@/lib/format";
 import { expiryISO, fmtHours, type Balance } from "@/lib/leave-balance";
 import { balanceView, type BalanceView, type BucketView } from "@/lib/leave-view";
+import { InfoTip } from "@/components/info-tip";
 
 /** "2027-07-01" -> "30 juni 2027": de laatste dag dat het tegoed geldt. */
 const dayBefore = (iso: string) => {
@@ -252,7 +253,14 @@ export function LeaveBalanceCard({
     <div className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5">
       <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
         <div>
-          <div className="text-xs font-medium uppercase tracking-wide text-foreground-muted">Nog op te nemen</div>
+          <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-foreground-muted">
+            Nog op te nemen
+            <InfoTip label="Hoe werkt het verlofsaldo?">
+              Verlofuren van een jaar gelden t/m 30 juni van het jaar erna. Verlof per week = het contract van die week min de gewerkte
+              uren; voor weken die nog komen de uren uit het rooster. Het oudste tegoed gaat eerst op. Is een tegoed eind december al
+              op, dan vervalt er op 30 juni ook niets meer.
+            </InfoTip>
+          </div>
           <div className={`text-3xl font-semibold tabular-nums ${neg(balance.available)}`}>
             {fmtHours(balance.available)} <span className="text-base font-normal text-foreground-muted">uur</span>
           </div>
@@ -377,13 +385,6 @@ export function LeaveBalanceCard({
           </table>
         </div>
       )}
-      <p className="text-xs text-foreground-muted">
-        Verlofuren van een jaar gelden van 1 januari tot en met 30 juni van het jaar erna: wat je in dat jaar niet opneemt, neem je mee
-        naar de eerste helft van het volgende jaar. Opgenomen verlof per week is de standaard uren per week
-        {balance.weeklyHours ? ` (${fmtHours(balance.weeklyHours)} uur)` : ""} min de uren die je die week hebt gewerkt; voor weken die nog
-        komen de uren uit het rooster. Het gaat eerst van het oudste tegoed af. Is een tegoed eind december al op, dan vervalt er
-        op 30 juni ook niets meer.
-      </p>
     </div>
   );
 }

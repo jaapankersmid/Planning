@@ -20,6 +20,7 @@ import { EmailNotificationsToggle } from "@/components/email-notifications-toggl
 import { ShiftSwaps, loadSwapOptions } from "@/components/shift-swaps";
 import { AvailabilityCellButton, AvailabilityTools, MyShiftActions, ShiftCellButton } from "@/components/my-shift-actions";
 import { sortShiftTypes } from "@/lib/shift-order";
+import { InfoTip } from "@/components/info-tip";
 
 const CALENDAR_MESSAGES: Record<string, string> = {
   verbonden: "Google Calendar gekoppeld — de sync staat aan.",
@@ -201,11 +202,15 @@ export default async function MijnRoosterPage({
 
       <div>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-sm font-semibold">
+          <h2 className="flex items-center gap-2 text-sm font-semibold">
             Mijn diensten
-            <span className="ml-2 font-normal text-foreground-muted">
+            <span className="font-normal text-foreground-muted">
               week {isoWeek(firstMonday)} t/m {isoWeek(addDays(rangeEnd, -1))}
             </span>
+            <InfoTip>
+              Klik op een komende dienst om te ruilen of vrij te vragen (hele dag, dagdeel of een andere dienst). Klik op een dag
+              zonder dienst om je beschikbaarheid door te geven. Een groene stip: de dienst staat in je Google-agenda.
+            </InfoTip>
           </h2>
           <div className="flex items-center gap-2 text-sm">
             <Link href={`/rooster/mijn?start=${prevStart}`} className="rounded-md border border-border px-3 py-1.5 hover:bg-surface-muted">
@@ -235,11 +240,6 @@ export default async function MijnRoosterPage({
                 Geen geplande diensten in deze weken.
               </p>
             )}
-            <p className="mt-2 text-xs text-foreground-muted">
-              Klik op een komende dienst om hem te ruilen met een collega of om vrij te vragen (hele dag, dagdeel of een andere
-              dienst). Op een dag zonder dienst klik je om je beschikbaarheid door te geven. Een groene stip bij een dag betekent dat de dienst in je Google-agenda staat. Vandaag heeft een gekleurde
-              rand, dagen die al geweest zijn zijn lichter.
-            </p>
           </>
         )}
       </div>
@@ -247,12 +247,12 @@ export default async function MijnRoosterPage({
       {employee && <ShiftSwaps employeeId={employee.id} />}
 
       <div className="max-w-2xl rounded-lg border border-border bg-surface p-5">
-        <h2 className="text-sm font-semibold">Google Calendar-koppeling</h2>
-        <p className="mt-1 text-sm text-foreground-muted">
-          Los van je inlog-account: geef hier apart toestemming zodat
-          wijzigingen in het rooster meteen in je agenda verschijnen, zonder
-          de vertraging die bij losse .ics-abonnementen hoort.
-        </p>
+        <h2 className="flex items-center gap-2 text-sm font-semibold">
+          Google Calendar-koppeling
+          <InfoTip>
+            Los van je inlog-account: geef hier apart toestemming, dan verschijnen wijzigingen in het rooster meteen in je agenda.
+          </InfoTip>
+        </h2>
         {calendarStatus && CALENDAR_MESSAGES[calendarStatus] && (
           <p className="mt-3 rounded-md bg-surface-muted px-3 py-2 text-xs">
             {CALENDAR_MESSAGES[calendarStatus]}
@@ -267,10 +267,10 @@ export default async function MijnRoosterPage({
       </div>
 
       <div className="max-w-2xl rounded-lg border border-border bg-surface p-5">
-        <h2 className="text-sm font-semibold">E-mailmeldingen</h2>
-        <p className="mt-1 mb-3 text-sm text-foreground-muted">
-          Je krijgt één mail met alle nieuwe of gewijzigde diensten, kort nadat de planner klaar is met inplannen.
-        </p>
+        <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold">
+          E-mailmeldingen
+          <InfoTip>Je krijgt één mail met alle nieuwe of gewijzigde diensten, kort nadat de planner klaar is met inplannen.</InfoTip>
+        </h2>
         <EmailNotificationsToggle
           initialEnabled={user?.emailNotifications ?? true}
           email={session.user.email ?? user?.email ?? ""}

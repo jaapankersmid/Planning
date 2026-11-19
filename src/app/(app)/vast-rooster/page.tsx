@@ -7,6 +7,7 @@ import { ensureColorGroups, sortEmployees } from "@/lib/schedule";
 import { setColorGroupTemplate } from "@/app/(app)/medewerkers/actions";
 import { TemplateCell } from "@/components/template-cell";
 import { sortShiftTypes } from "@/lib/shift-order";
+import { InfoTip } from "@/components/info-tip";
 
 const WEEKDAYS = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"];
 
@@ -28,14 +29,14 @@ export default async function VastRoosterPage() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h1 className="text-lg font-semibold">Vast rooster</h1>
-        <p className="max-w-2xl text-sm text-foreground-muted">
-          Het weekrooster dat elke week hetzelfde terugkomt. Een wijziging hier wordt
-          automatisch doorgevoerd in het rooster vanaf vandaag. Dagen die al geweest zijn
-          en dagen die je handmatig in het rooster hebt ingesteld blijven ongemoeid.
-          Per kleurgroep bepaal je met de knop bij de groepsnaam of het vaste rooster voor
-          die groep geldt.
-        </p>
+        <h1 className="flex items-center gap-2 text-lg font-semibold">
+          Vast rooster
+          <InfoTip>
+            Het weekrooster dat elke week terugkomt. Een wijziging hier gaat automatisch door in het rooster vanaf vandaag; dagen die
+            al geweest zijn en dagen die je handmatig hebt ingesteld blijven zoals ze zijn. Per kleurgroep bepaal je met de knop bij
+            de groepsnaam of het vaste rooster geldt.
+          </InfoTip>
+        </h1>
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-border bg-surface">

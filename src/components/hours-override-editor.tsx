@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { previewHoursOverride, saveHoursOverride, type OverridePreview } from "@/app/(app)/verlofuren/hours-override-actions";
+import { InfoTip } from "@/components/info-tip";
 
 const input = "rounded-md border border-border bg-surface px-2 py-1.5 text-sm";
 const fmt = (n: number) => String(Math.round(n * 100) / 100).replace(".", ",");
@@ -106,11 +107,11 @@ export function HoursOverrideEditor({
         >
           {pending && !preview ? "Bezig…" : "Bekijk gevolgen"}
         </button>
+        <InfoTip className="self-center">
+          Uren leeg laten = vanaf die dag weer de gewone uren van de dienst. Dagen voor de ingangsdatum blijven zoals ze waren; al
+          ingevulde uren veranderen niet. Ligt de ingangsdatum in het verleden, dan rekent het verlof vanaf die week opnieuw.
+        </InfoTip>
       </div>
-      <p className="text-xs text-foreground-muted">
-        Leeg laten = vanaf die dag weer de gewone uren van de dienst. Dagen voor de ingangsdatum blijven zoals ze waren; al
-        ingevulde uren veranderen niet. Ligt de ingangsdatum in het verleden, dan rekent het verlof vanaf die week opnieuw.
-      </p>
 
       {preview && (
         <div className="rounded-md border border-accent/40 bg-surface-muted/50 p-3 text-sm">

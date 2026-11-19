@@ -7,6 +7,7 @@ import { ensureColorGroups, sortEmployees, todayAmsterdam } from "@/lib/schedule
 import { LeaveForm } from "@/components/leave-form";
 import { LeaveStatusBadge } from "@/components/leave-status";
 import { addLeaveForEmployee, decideLeave, revokeLeave } from "./actions";
+import { InfoTip } from "@/components/info-tip";
 
 type Segment = { start: Date; end: Date; days: number; requestId: string | null };
 
@@ -116,9 +117,6 @@ export default async function VerlofOverzichtPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-lg font-semibold">Verlofoverzicht</h1>
-          <p className="text-sm text-foreground-muted">
-            Aanvragen beoordelen en de vrije dagen (V) vanaf vandaag per persoon, met welke planner het goedkeurde.
-          </p>
         </div>
       </div>
 
@@ -254,10 +252,10 @@ export default async function VerlofOverzichtPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="rounded-lg border border-border bg-surface p-5">
-          <h2 className="text-sm font-semibold">Verlof vastleggen voor een medewerker</h2>
-          <p className="mt-1 text-xs text-foreground-muted">
-            Is meteen goedgekeurd op jouw naam en komt als V in het rooster.
-          </p>
+          <h2 className="flex items-center gap-2 text-sm font-semibold">
+            Verlof vastleggen voor een medewerker
+            <InfoTip>Is meteen goedgekeurd op jouw naam en komt als V in het rooster.</InfoTip>
+          </h2>
           <LeaveForm action={addLeaveForEmployee} submitLabel="Vastleggen" employees={activeEmployees.sort((a, b) => a.name.localeCompare(b.name, "nl"))} />
         </section>
       </div>

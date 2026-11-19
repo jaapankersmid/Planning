@@ -64,10 +64,6 @@ export default async function BezettingPage({
           <h1 className="text-lg font-semibold">
             Bezetting — {monthName(month)} {year}
           </h1>
-          <p className="text-sm text-foreground-muted">
-            Automatisch geteld uit het rooster — vervangt de handmatige
-            “Telling”-rijen uit Planning V2.0.
-          </p>
         </div>
         <div className="flex items-center gap-2 text-sm">
           <Link
@@ -130,12 +126,6 @@ export default async function BezettingPage({
         </table>
       </div>
 
-      <p className="max-w-2xl text-xs text-foreground-muted">
-        Bezetting tegenover het aantal aanwezige honden (zoals in de
-        tabbladen “Bezetting” en “Verdeling”) zit hier bewust nog niet in —
-        dat vraagt een koppeling met het boekingssysteem van het pension, en
-        was in de eerdere vergelijking al benoemd als apart vervolgstuk.
-      </p>
     </div>
   );
 }

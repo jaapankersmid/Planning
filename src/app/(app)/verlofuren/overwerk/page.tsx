@@ -8,6 +8,7 @@ import { balanceView } from "@/lib/leave-view";
 import { canManageHours } from "@/lib/roles";
 import { ensureColorGroups, sortEmployees, todayAmsterdam } from "@/lib/schedule";
 import { setOvertime } from "./actions";
+import { InfoTip } from "@/components/info-tip";
 
 const num = "px-3 py-1.5 text-right tabular-nums";
 
@@ -82,14 +83,25 @@ export default async function OverwerkPage() {
         <Link href="/verlofuren" className="text-xs underline hover:no-underline">
           ← terug naar Verlofuren
         </Link>
-        <h1 className="mt-1 text-lg font-semibold">Overwerk bijschrijven bij het verlof</h1>
-        <p className="text-sm text-foreground-muted">
-          Werkt iemand in een week meer dan het contract, dan komen de extra uren als tegoed bij het verlof van het jaar van die week
-          (en vervallen ze daarmee, op 30 juni van het jaar erna). Elke week telt apart, alleen voorbije weken waarvan de uren zijn
-          goedgekeurd (de week of de maand), en pas vanaf de peildatum van het tegoed. Het contract is dat van die week
-          (contractperiodes). Weken die nog komen tonen het ingeplande overwerk volgens het rooster: dat telt alleen in de
-          verwachting, pas in het saldo als de uren zijn goedgekeurd.
-        </p>
+        <h1 className="mt-1 flex items-center gap-2 text-lg font-semibold">
+          Overwerk bijschrijven bij het verlof
+          <InfoTip>
+            <span className="flex flex-col gap-1.5">
+              <span>
+                Werkt iemand in een week meer dan het contract van die week, dan komen de extra uren bij het verlof van dat jaar (en
+                vervallen ze daarmee, op 30 juni van het jaar erna).
+              </span>
+              <span>
+                Elke week telt apart, alleen voorbije weken waarvan de uren zijn goedgekeurd (week of maand), en pas vanaf de
+                peildatum van het tegoed. Weken die nog komen tellen alleen in de verwachting.
+              </span>
+              <span>
+                Groen = wordt bijgeschreven; grijs = uren nog niet goedgekeurd; schuin = ingepland; doorgestreept = voor de
+                peildatum. Nu over en 31 dec: zonder → met overwerk.
+              </span>
+            </span>
+          </InfoTip>
+        </h1>
       </div>
 
       <div className={`flex flex-wrap items-center gap-3 rounded-lg border p-3 text-sm ${enabled ? "border-border bg-good text-good-text" : "border-border bg-surface"}`}>
@@ -171,10 +183,6 @@ export default async function OverwerkPage() {
           </ul>
         </details>
       )}
-      <p className="text-xs text-foreground-muted">
-        Groen = wordt bijgeschreven; grijs = de uren van die week zijn nog niet goedgekeurd; schuin = ingepland (week nog niet voorbij, voorlopig); doorgestreept = voor de peildatum, telt niet mee.
-        Nu over en 31 dec tonen het saldo zonder → met overwerk; ingepland overwerk telt alleen in 31 dec.
-      </p>
     </div>
   );
 }

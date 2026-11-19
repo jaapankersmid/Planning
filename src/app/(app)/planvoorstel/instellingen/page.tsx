@@ -4,6 +4,7 @@ import { ensureColorGroups, sortEmployees } from "@/lib/schedule";
 import { addTag, deleteTag, moveTag, saveParticipation, saveTag } from "../actions";
 import { PlanSubnav } from "@/components/plan-subnav";
 import { sortShiftTypes } from "@/lib/shift-order";
+import { InfoTip } from "@/components/info-tip";
 
 export const dynamic = "force-dynamic";
 const input = "rounded-md border border-border bg-surface px-3 py-2 text-sm";
@@ -25,13 +26,14 @@ export default async function PlanSettingsPage() {
     <div className="flex max-w-4xl flex-col gap-5">
       <div>
         <h1 className="text-lg font-semibold">Planvoorstel</h1>
-        <p className="text-sm text-foreground-muted">Alleen voor jou zichtbaar.</p>
       </div>
       <PlanSubnav current="instellingen" />
 
       <section className="rounded-lg border border-border bg-surface p-5">
-        <h2 className="text-sm font-semibold">Welke kleurgroepen doen mee?</h2>
-        <p className="mb-3 text-xs text-foreground-muted">Alleen medewerkers uit de aangevinkte groepen komen in het voorstel. De uren worden per groep eerlijk verdeeld.</p>
+        <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold">
+          Welke kleurgroepen doen mee?
+          <InfoTip>Alleen medewerkers uit de aangevinkte groepen komen in het voorstel. De uren worden per groep eerlijk verdeeld.</InfoTip>
+        </h2>
         <form action={saveParticipation} className="flex flex-wrap items-center gap-4">
           {groups.map((g) => (
             <label key={g.id} className="flex items-center gap-2 text-sm">
@@ -44,13 +46,21 @@ export default async function PlanSettingsPage() {
       </section>
 
       <section className="rounded-lg border border-border bg-surface p-5">
-        <h2 className="text-sm font-semibold">Tags (taken)</h2>
-        <p className="mb-3 text-xs text-foreground-muted">
-          Bijvoorbeeld Balie of Uitlaten. Kies per tag welke dienst bij het toepassen in het rooster komt voor alleen de ochtend, alleen de middag en voor ochtend en middag samen. Zonder &quot;samen&quot; krijgt iemand per dag maar één dagdeel met deze tag.
-        </p>
-        <p className="mb-3 text-xs text-foreground-muted">
-          <strong>Prioriteit:</strong> de bovenste tag wordt als eerste gevuld, daarna de volgende, ook als lagere tags daardoor leeg blijven. Verander de volgorde met ▲ en ▼. Nieuwe tags komen onderaan.
-        </p>
+        <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold">
+          Tags (taken)
+          <InfoTip>
+            <span className="flex flex-col gap-1.5">
+              <span>
+                Bijvoorbeeld Balie of Uitlaten. Kies per tag welke dienst in het rooster komt voor alleen de ochtend, alleen de middag
+                en voor ochtend en middag samen. Zonder &quot;samen&quot; krijgt iemand per dag maar één dagdeel met deze tag.
+              </span>
+              <span>
+                <strong>Prioriteit:</strong> de bovenste tag wordt als eerste gevuld, ook als lagere tags daardoor leeg blijven. Verander
+                de volgorde met ▲ en ▼.
+              </span>
+            </span>
+          </InfoTip>
+        </h2>
         <form action={addTag} className="mb-4 flex gap-2">
           <input name="name" required maxLength={40} placeholder="Nieuwe tag, bv. Balie" className={`${input} w-64`} />
           <button className="rounded-md border border-border px-3 py-2 text-sm font-medium hover:bg-surface-muted">Tag toevoegen</button>
@@ -78,12 +88,17 @@ export default async function PlanSettingsPage() {
                   );
                 })}
               </div>
-              <p className="mt-3 text-xs font-medium text-foreground-muted">Tijden van deze taak (voor het meetellen van bestaande diensten)</p>
+              <p className="mt-3 flex items-center gap-2 text-xs font-medium text-foreground-muted">
+                Tijden van deze taak
+                <InfoTip>
+                  Bijvoorbeeld uitlaten 08:00-10:00 en 15:30-17:00. Een bestaande dienst die deze tijden helemaal omvat, telt mee voor de
+                  behoefte. Leeg = de tijden van de ingestelde dienst.
+                </InfoTip>
+              </p>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-foreground-muted">
                 Ochtend <input type="time" name="morningStart" defaultValue={t.morningStart ?? ""} className={input} /> tot <input type="time" name="morningEnd" defaultValue={t.morningEnd ?? ""} className={input} />
                 <span className="ml-3">Middag</span> <input type="time" name="afternoonStart" defaultValue={t.afternoonStart ?? ""} className={input} /> tot <input type="time" name="afternoonEnd" defaultValue={t.afternoonEnd ?? ""} className={input} />
               </div>
-              <p className="mt-1 text-xs text-foreground-muted">Bijvoorbeeld uitlaten 08:00-10:00 en 15:30-17:00. Een bestaande dienst die deze tijden helemaal omvat, telt mee voor de behoefte. Leeg = de tijden van de ingestelde dienst.</p>
               <p className="mt-3 text-xs font-medium text-foreground-muted">Wie heeft deze tag?</p>
               <div className="mt-1 grid gap-x-4 gap-y-1 sm:grid-cols-3">
                 {employees.map((e) => (

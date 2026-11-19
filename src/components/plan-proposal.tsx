@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { applyProposal, showProposalInRoster } from "@/app/(app)/planvoorstel/actions";
+import { InfoTip } from "@/components/info-tip";
 
 type Part = "MORNING" | "AFTERNOON";
 type Row = { id: number; date: string; part: Part; tagId: string; employeeId: string; gap: boolean; reason?: string; extendsCode?: string };
@@ -142,8 +143,10 @@ export function PlanProposal({
 
       {shortTags.length > 0 ? (
         <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm">
-          <h3 className="font-semibold">Niet vol gekomen</h3>
-          <p className="mb-2 text-xs text-foreground-muted">Op volgorde van prioriteit. Hogere tags zijn eerst gevuld; wie daar is ingezet, is voor lagere tags die dag niet meer beschikbaar.</p>
+          <h3 className="mb-2 flex items-center gap-2 font-semibold">
+            Niet vol gekomen
+            <InfoTip>Op volgorde van prioriteit. Hogere tags zijn eerst gevuld; wie daar is ingezet, is voor lagere tags die dag niet meer beschikbaar.</InfoTip>
+          </h3>
           <ul className="flex flex-col gap-2">
             {shortTags.map((t) => (
               <li key={t.id}>
@@ -226,7 +229,10 @@ export function PlanProposal({
       </div>
 
       <div>
-        <h3 className="mb-2 text-sm font-semibold">Uren per persoon, bestaande diensten plus voorstel</h3>
+        <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold">
+          Uren per persoon, bestaande diensten plus voorstel
+          <InfoTip>Alleen diensten in de gekozen periode. Handmatige wijzigingen hierboven tellen mee als schatting.</InfoTip>
+        </h3>
         <div className="grid gap-4 sm:grid-cols-2">
           {groups.map((g) => (
             <div key={g} className="rounded-lg border border-border bg-surface p-3">
@@ -239,7 +245,6 @@ export function PlanProposal({
             </div>
           ))}
         </div>
-        <p className="mt-1 text-xs text-foreground-muted">Alleen diensten in de gekozen periode. Handmatige wijzigingen hierboven tellen mee als schatting.</p>
       </div>
     </div>
   );

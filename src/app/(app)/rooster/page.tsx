@@ -38,6 +38,7 @@ import {
 } from "@/lib/schedule";
 import { sortShiftTypes } from "@/lib/shift-order";
 import { employeeShiftHours, loadHoursOverrides } from "@/lib/shift-hours-overrides";
+import { InfoTip } from "@/components/info-tip";
 
 const NAME_COLUMN = 132;
 const NAME_COLUMN_PHONE = 84;
@@ -256,9 +257,37 @@ export default async function RoosterPage({
               <span className="ml-2 text-sm font-normal text-foreground-muted">{subtitle}</span>
             )}
           </h1>
-          <p className="text-sm text-foreground-muted">
-            {employees.length} actieve medewerkers
-            {isAdmin ? " · klik op een vakje om een dienst te wijzigen" : ""}
+          <p className="flex items-center gap-2 text-sm text-foreground-muted">
+            <span>
+              {employees.length} actieve medewerkers
+              {isAdmin ? " · klik op een vakje om een dienst te wijzigen" : ""}
+            </span>
+            {(holidays.length > 0 || showHours || isAdmin) && (
+              <InfoTip label="Uitleg bij het rooster">
+                <span className="flex flex-col gap-1.5">
+                  {holidays.length > 0 && <span>Lichtgroen is een vakantieperiode.</span>}
+                  {anyWish && <span>Bij een wensaantal is de bezetting groen als dat gehaald is en rood als het eronder blijft.</span>}
+                  {showHours && (
+                    <span>
+                      De uren rechts zijn het totaal van de getoonde {weekView ? "week" : "maand"}, uit de tijden van de diensten zonder
+                      de pauzes (10:00–10:30, 12:30–13:00 en 15:00–15:30). V en Z tellen niet mee.
+                    </span>
+                  )}
+                  {isAdmin && <span>Een oranje rand: de dag wijkt af van het vaste rooster; met ↺ zet je hem terug.</span>}
+                  {isAdmin && (
+                    <span className="flex flex-col gap-0.5">
+                      <span>Stipje linksonder = opgegeven beschikbaarheid:</span>
+                      <span className="flex flex-wrap gap-x-3 gap-y-0.5">
+                        <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full" style={{ background: "#16a34a" }} />hele dag</span>
+                        <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full" style={{ background: "#0ea5e9" }} />ochtend</span>
+                        <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full" style={{ background: "#f59e0b" }} />middag</span>
+                        <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full" style={{ background: "#dc2626" }} />niet beschikbaar (rode rand = toch ingepland)</span>
+                      </span>
+                    </span>
+                  )}
+                </span>
+              </InfoTip>
+            )}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -508,40 +537,6 @@ export default async function RoosterPage({
           </tbody>
         </table>
       </DualScroll>
-
-      {holidays.length > 0 && (
-        <p className="text-xs text-foreground-muted">
-          Lichtgroen is een vakantieperiode.
-          {anyWish && " Bij een wensaantal is de bezetting groen als dat gehaald is en rood als het eronder blijft."}
-        </p>
-      )}
-
-      {showHours && (
-        <p className="text-xs text-foreground-muted">
-          De uren rechts zijn het totaal van de getoonde {weekView ? "week" : "maand"}, berekend uit de tijden van de
-          diensten, zonder de pauzes van 10:00–10:30, 12:30–13:00 en 15:00–15:30. O en CrA tellen als 8 uur (aan te passen bij Diensten); V en Z tellen niet mee.
-        </p>
-      )}
-
-      {isAdmin && (
-        <p className="text-xs text-foreground-muted">
-          Een oranje rand betekent dat de dag afwijkt van het{" "}
-          <Link href="/vast-rooster" className="underline hover:no-underline">
-            vaste rooster
-          </Link>
-          ; met ↺ zet je de dag terug naar het vaste rooster.
-        </p>
-      )}
-
-      {isAdmin && (
-        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-foreground-muted">
-          <span>Opgegeven beschikbaarheid (stipje linksonder in het vakje):</span>
-          <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full" style={{ background: "#16a34a" }} />hele dag</span>
-          <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full" style={{ background: "#0ea5e9" }} />ochtend</span>
-          <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full" style={{ background: "#f59e0b" }} />middag</span>
-          <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full" style={{ background: "#dc2626" }} />niet beschikbaar (rode rand = toch ingepland)</span>
-        </p>
-      )}
 
       <div className="flex flex-wrap gap-2 text-xs">
         {shiftTypes.map((s) => (

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { sendPendingNow, sendTestMail, type MailActionState } from "@/app/(app)/gebruikers/actions";
+import { InfoTip } from "@/components/info-tip";
 
 export function MailStatusPanel({
   configured,
@@ -24,6 +25,12 @@ export function MailStatusPanel({
     <div className="rounded-lg border border-border bg-surface p-4">
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="text-sm font-semibold">E-mailmeldingen</h2>
+        {configured && (
+          <InfoTip>
+            Medewerkers krijgen één gebundelde mail zodra jij {delayMinutes} minuten niets meer hebt gewijzigd. Planners krijgen meteen
+            een mail bij een verlofaanvraag en gebundeld bij aangepaste beschikbaarheid.
+          </InfoTip>
+        )}
         <span
           className={`rounded-full px-2 py-0.5 text-xs font-medium ${
             configured ? "bg-good text-good-text" : "bg-bad text-bad-text"
@@ -32,12 +39,13 @@ export function MailStatusPanel({
           {configured ? "ingesteld" : "niet ingesteld"}
         </span>
       </div>
-      <p className="mt-1 text-sm text-foreground-muted">
-        {configured
-          ? `Medewerkers krijgen één gebundelde mail zodra jij ${delayMinutes} minuten niets meer hebt gewijzigd. Planners krijgen meteen een mail bij een verlofaanvraag en gebundeld bij aangepaste beschikbaarheid.`
-          : "Vul de SMTP-server en gebruikersnaam in bij Instellingen, en SMTP_PASSWORD in het .env-bestand op de server (daarna de app herstarten). Zie de README."}
-        {configured && pending > 0 && ` Nu ${pending === 1 ? "wacht" : "wachten"} er ${pending} ${pending === 1 ? "melding" : "meldingen"} om verstuurd te worden.`}
-      </p>
+      {(!configured || pending > 0) && (
+        <p className="mt-1 text-sm text-foreground-muted">
+          {!configured
+            ? "Vul de SMTP-server en gebruikersnaam in bij Instellingen, en SMTP_PASSWORD in het .env-bestand op de server (daarna de app herstarten). Zie de README."
+            : `Nu ${pending === 1 ? "wacht" : "wachten"} er ${pending} ${pending === 1 ? "melding" : "meldingen"} om verstuurd te worden.`}
+        </p>
+      )}
       {configured && (
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <button

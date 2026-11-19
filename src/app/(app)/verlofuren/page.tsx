@@ -10,6 +10,7 @@ import { ensureColorGroups, sortEmployees, todayAmsterdam } from "@/lib/schedule
 import { GroupHeaderRow } from "@/components/group-header-row";
 import { ExpandableRow } from "@/components/expandable-row";
 import { balanceView } from "@/lib/leave-view";
+import { InfoTip } from "@/components/info-tip";
 
 const input = "rounded-md border border-border bg-surface px-2 py-1 text-sm";
 const COLS = 7; // pijltje + 6 kolommen
@@ -59,9 +60,19 @@ export default async function VerlofurenPage({ searchParams }: { searchParams: P
     <div className="flex max-w-4xl flex-col gap-3">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-lg font-semibold">Verlofuren</h1>
+          <h1 className="flex items-center gap-2 text-lg font-semibold">
+            Verlofuren
+            <InfoTip label="Hoe wordt dit berekend?">
+              <span className="flex flex-col gap-1.5">
+                <span>Het tegoed van een jaar geldt t/m 30 juni van het jaar erna. Klik op een naam om het tegoed of het contract aan te passen.</span>
+                <span>Verlof per week = het contract van die week min de gewerkte (of geplande) uren. Een ziektedag telt als gewerkt, dus ziekte kost geen verlof.</span>
+                <span>In periode: weken waarvan de maandag in de periode valt; tussen haakjes het deel dat nog ingepland is.</span>
+                <span>31-12 / in volgend jaar: verwacht over eind december, en hoeveel daarvan in het volgende jaar wordt gebruikt. Vervalt: alleen als er echt iets vervalt.</span>
+                <span>Klik op een rij voor de weken: gestippeld = ingepland, doorgestreept = voor de peildatum.</span>
+              </span>
+            </InfoTip>
+          </h1>
           <p className="text-xs text-foreground-muted">
-            Klik op een medewerker voor het verlof per week. ·{" "}
             <Link href="/verlofuren/overwerk" className="underline hover:no-underline">
               Overwerk bijschrijven
             </Link>
@@ -208,17 +219,6 @@ export default async function VerlofurenPage({ searchParams }: { searchParams: P
         </table>
       </div>
 
-      <details className="text-xs text-foreground-muted">
-        <summary className="cursor-pointer">Hoe wordt dit berekend?</summary>
-        <ul className="mt-2 list-disc space-y-1 pl-5">
-          <li>Het tegoed van een jaar geldt van 1 januari tot en met 30 juni van het jaar erna. Klik op een naam om het tegoed in te vullen of aan te passen.</li>
-          <li>Opgenomen verlof per week is de standaard uren per week min de gewerkte uren; voor komende weken de geplande uren. Een ziektedag telt altijd voor de uren uit het vaste rooster (ook als er uren zijn ingevuld), dus ziekte kost geen verlof.</li>
-          <li>In periode: de weken waarvan de maandag in de gekozen periode valt. Tussen haakjes het deel dat nog ingepland is.</li>
-          <li>31-12 / in volgend jaar: wat er eind december naar verwachting over is, en hoeveel daarvan in het volgende jaar (t/m 30 juni) wordt opgenomen of is ingepland. Is het tegoed eind december op, dan staat er op en vervalt er niets meer.</li>
-          <li>Vervalt: alleen als er na aftrek van ingepland verlof echt iets vervalt, met de datum.</li>
-          <li>In de weken: een gestippeld blokje is ingepland, doorgestreept telt niet mee (voor de peildatum).</li>
-        </ul>
-      </details>
     </div>
   );
 }

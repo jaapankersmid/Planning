@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { saveSettings } from "@/app/(app)/instellingen/actions";
 import { sendTestMail, type MailActionState } from "@/app/(app)/gebruikers/actions";
+import { InfoTip } from "@/components/info-tip";
 
 export type SettingField = {
   key: string;
@@ -79,8 +80,10 @@ export function SettingsForm({ fields }: { fields: SettingField[] }) {
 
       {GROUPS.map((g) => (
         <section key={g.id} className="rounded-lg border border-border bg-surface p-5">
-          <h2 className="text-sm font-semibold">{g.title}</h2>
-          <p className="mb-3 text-xs text-foreground-muted">{g.intro}</p>
+          <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold">
+            {g.title}
+            <InfoTip>{g.intro}</InfoTip>
+          </h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {fields.filter((f) => f.group === g.id).map((f) => (
               <label key={f.key} className="flex flex-col gap-1 text-xs text-foreground-muted">

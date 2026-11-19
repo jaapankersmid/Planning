@@ -5,6 +5,7 @@ import { addDays, dateFromISO, isoWeek, startOfWeek, toISODate, weekdayShort } f
 import { todayAmsterdam } from "@/lib/schedule";
 import { copyPreviousWeek, saveNeeds } from "../actions";
 import { PlanSubnav } from "@/components/plan-subnav";
+import { InfoTip } from "@/components/info-tip";
 
 export const dynamic = "force-dynamic";
 
@@ -24,11 +25,13 @@ export default async function PlanNeedsPage({ searchParams }: { searchParams: Pr
     <div className="flex max-w-5xl flex-col gap-5">
       <div>
         <h1 className="text-lg font-semibold">Planvoorstel</h1>
-        <p className="text-sm text-foreground-muted">Alleen voor jou zichtbaar.</p>
       </div>
       <PlanSubnav current="behoefte" />
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-sm font-semibold">Hoeveel mensen zijn er nodig? <span className="ml-1 font-normal text-foreground-muted">week {isoWeek(monday)}</span></h2>
+        <h2 className="flex items-center gap-2 text-sm font-semibold">
+          Hoeveel mensen zijn er nodig? <span className="font-normal text-foreground-muted">week {isoWeek(monday)}</span>
+          <InfoTip>Leeg of 0 betekent: niemand nodig.</InfoTip>
+        </h2>
         <div className="flex items-center gap-2 text-sm">
           <Link href={`/planvoorstel/behoefte?start=${toISODate(addDays(monday, -7))}`} className="rounded-md border border-border px-3 py-1.5 hover:bg-surface-muted">← vorige week</Link>
           <Link href="/planvoorstel/behoefte" className="rounded-md border border-border px-3 py-1.5 hover:bg-surface-muted">deze week</Link>
@@ -73,7 +76,6 @@ export default async function PlanNeedsPage({ searchParams }: { searchParams: Pr
             <button className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground">Opslaan</button>
             <button formAction={copyPreviousWeek} formNoValidate className="rounded-md border border-border px-3 py-2 text-sm hover:bg-surface-muted" title="Alleen als deze week nog leeg is">Overnemen van vorige week</button>
           </div>
-          <p className="text-xs text-foreground-muted">Leeg of 0 betekent: niemand nodig. Later kan dit automatisch uit het boekingsprogramma komen.</p>
         </form>
       )}
     </div>

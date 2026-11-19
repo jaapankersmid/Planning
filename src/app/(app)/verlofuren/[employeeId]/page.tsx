@@ -14,6 +14,7 @@ import { LeaveBalanceCard } from "@/components/leave-balance-card";
 import { HoursOverrideEditor } from "@/components/hours-override-editor";
 import { shiftHours } from "@/lib/hours";
 import { sortShiftTypes } from "@/lib/shift-order";
+import { InfoTip } from "@/components/info-tip";
 
 /** De planning is pas ingevuld vanaf augustus 2026: voor 2026 geldt het tegoed als stand per 1 november. */
 const defaultCountFrom = (year: number) => (year === 2026 ? "2026-11-01" : null);
@@ -86,14 +87,14 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
       <LeaveBalanceCard balance={balance} todayISO={todayISO} />
 
       <div id="contract" className="flex scroll-mt-4 flex-col gap-3 rounded-lg border border-border bg-surface p-5">
-        <div>
-          <h2 className="text-sm font-semibold">Contracturen per week</h2>
-          <p className="text-xs text-foreground-muted">
-            Opgenomen verlof per week = het contract van die week min de uren die in die week zijn gewerkt (of gepland staan);
-            daarboven is het overwerk, en een ziektedag telt volgens het contract van die week. Verandert het contract, voeg dan een
-            periode toe met de datum waarop het ingaat: eerdere weken blijven met het oude contract rekenen.
-          </p>
-        </div>
+<h2 className="flex items-center gap-2 text-sm font-semibold">
+          Contracturen per week
+          <InfoTip>
+            Verlof per week = het contract van die week min wat er is gewerkt (of gepland staat); daarboven is het overwerk. Een
+            ziektedag telt volgens het contract van die week. Verandert het contract, voeg dan een periode toe met de datum waarop het
+            ingaat: eerdere weken blijven met het oude contract rekenen.
+          </InfoTip>
+        </h2>
         <ContractHoursEditor employeeId={employeeId} periods={contractPeriods} fallbackHours={employee.weeklyHours} todayISO={todayISO} />
         {contractLog.length > 0 && (
           <details className="text-xs">
@@ -111,14 +112,14 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
       </div>
 
       <div className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5">
-        <div>
-          <h2 className="text-sm font-semibold">Afwijkende diensturen</h2>
-          <p className="text-xs text-foreground-muted">
+<h2 className="flex items-center gap-2 text-sm font-semibold">
+          Afwijkende diensturen
+          <InfoTip>
             Telt een dienst voor {employee.name} als een ander aantal uren dan normaal (bv. A en O als 9 uur bij 3 dagen van 9 uur)?
-            Stel het hier in met een ingangsdatum. Het geldt voor de uren, het verlof en de overzichten; de tijden en de
-            bezetting in het rooster blijven gelijk. Een wijziging later is een nieuwe regel met een nieuwe ingangsdatum.
-          </p>
-        </div>
+            Stel het hier in met een ingangsdatum. Het geldt voor de uren, het verlof en de overzichten; de tijden en de bezetting in
+            het rooster blijven gelijk. Een latere wijziging is een nieuwe regel.
+          </InfoTip>
+        </h2>
         {overrideRows.length > 0 && (
           <table className="w-full max-w-2xl text-sm">
             <thead>
@@ -155,13 +156,10 @@ export default async function VerlofurenDetailPage({ params }: { params: Promise
       </div>
 
       <div className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5">
-        <div>
-          <h2 className="text-sm font-semibold">Tegoed per jaar invullen of aanpassen</h2>
-          <p className="text-xs text-foreground-muted">
-            Verandert er iets in het contract of de uren, pas dan het aantal uren van het betreffende jaar aan en zet er een
-            opmerking bij. Het saldo wordt direct opnieuw berekend.
-          </p>
-        </div>
+<h2 className="flex items-center gap-2 text-sm font-semibold">
+          Tegoed per jaar invullen of aanpassen
+          <InfoTip>Pas het aantal uren van het jaar aan en zet er een opmerking bij. Het saldo wordt direct opnieuw berekend.</InfoTip>
+        </h2>
         {years.map((year) => {
           const b = bucketByYear.get(year);
           return (

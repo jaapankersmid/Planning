@@ -12,6 +12,7 @@ import { AutoSelect } from "@/components/auto-select";
 import { RoleSelect } from "@/components/role-select";
 import { ROLE_OPTIONS } from "@/lib/roles";
 import { linkEmployee, setHubAccess, setUserActive } from "./actions";
+import { InfoTip } from "@/components/info-tip";
 
 export default async function GebruikersPage() {
   const session = await auth();
@@ -40,18 +41,17 @@ export default async function GebruikersPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-lg font-semibold">Gebruikers</h1>
-        <p className="text-sm text-foreground-muted">
-          Inlogaccounts voor de app — los van de medewerkerslijst die in het
-          rooster staat. Alleen mensen met een account hier kunnen inloggen.
-        </p>
+        <h1 className="flex items-center gap-2 text-lg font-semibold">
+          Gebruikers
+          <InfoTip>Inlogaccounts voor de app, los van de medewerkerslijst in het rooster. Alleen mensen met een account hier kunnen inloggen.</InfoTip>
+        </h1>
       </div>
 
       <div className="rounded-lg border border-border bg-surface p-4">
-        <h2 className="text-sm font-semibold">Rechten per rol</h2>
-        <p className="mt-1 text-sm text-foreground-muted">
-          Alleen planners kunnen hier rollen wijzigen en gebruikers beheren.
-        </p>
+        <h2 className="flex items-center gap-2 text-sm font-semibold">
+          Rechten per rol
+          <InfoTip>Alleen planners kunnen hier rollen wijzigen en gebruikers beheren.</InfoTip>
+        </h2>
         <dl className="mt-2 grid gap-x-4 gap-y-1 text-sm sm:grid-cols-[8rem_1fr]">
           {ROLE_OPTIONS.map((r) => (
             <div key={r.value} className="contents">

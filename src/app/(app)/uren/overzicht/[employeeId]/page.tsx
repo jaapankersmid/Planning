@@ -14,6 +14,7 @@ import { TimesheetStatusBadge } from "@/components/timesheet-status";
 import { employeeAddress, pendingHoursChanges } from "@/lib/hours-mail";
 import { isMailConfigured } from "@/lib/mail";
 import { confirmSickReport, saveEntryForEmployee } from "../actions";
+import { InfoTip } from "@/components/info-tip";
 
 export default async function UrenDetailPage({
   params,
@@ -57,7 +58,16 @@ export default async function UrenDetailPage({
           <Link href={`/uren/overzicht?year=${year}&month=${month}`} className="text-xs underline hover:no-underline">
             ← terug naar het overzicht
           </Link>
-          <h1 className="mt-1 text-lg font-semibold">{employee.name}</h1>
+          <h1 className="mt-1 flex items-center gap-2 text-lg font-semibold">
+            {employee.name}
+            <InfoTip>
+              <span className="flex flex-col gap-1.5">
+                <span>Je kunt de uren van elke dag aanpassen, ook in een ingediende of goedgekeurde maand. Cursieve uren zijn nog niet door de medewerker bevestigd.</span>
+                <span>Bij elke weekregel keur je de week goed of stuur je hem terug. Bij goedkeuren krijgt de medewerker een mail met de uren; pas je daarna nog uren aan, dan volgt één mail per week met oud → nieuw.</span>
+                <span>Oranje: de medewerker zegt een andere dienst te hebben gewerkt dan in het rooster. Rood: ziek gemeld.</span>
+              </span>
+            </InfoTip>
+          </h1>
         </div>
         <MonthNav basePath={`/uren/overzicht/${employeeId}`} year={year} month={month} extra={extra} />
       </div>
@@ -91,11 +101,6 @@ export default async function UrenDetailPage({
       </div>
 
       <TimesheetDecision key={`${year}-${month}-${sheet.status}`} employeeId={employeeId} year={year} month={month} status={sheet.status} />
-
-      <p className="text-sm text-foreground-muted">
-        Je kunt de uren van een dag aanpassen; dat is ook mogelijk in een ingediende of goedgekeurde maand. Cursieve uren
-        zijn nog niet door de medewerker bevestigd. Bij elke weekregel zie je het weektotaal en keur je de week goed of stuur je hem terug. Bij goedkeuren krijgt de medewerker een mail met de uren (en je opmerking); pas je daarna nog uren aan, dan volgt na de wachttijd één mail per week met oud → nieuw. Een oranje gemarkeerde dag betekent dat de medewerker aangeeft een andere dienst te hebben gewerkt dan in het rooster staat: controleer dan het rooster.
-      </p>
 
       <TimesheetTable
         key={`${year}-${month}-${sheet.status}-${weekRows.filter((r) => r.entry).length}-${weeks.map((w) => w.status).join("")}`}
