@@ -322,6 +322,8 @@ export default async function RoosterPage({
         </form>
       )}
 
+      <TodayWorking />
+
       <DualScroll stickyHeader>
         <table
           className="w-full min-w-(--min-phone) table-fixed border-collapse text-sm sm:min-w-(--min-desktop)"
@@ -553,8 +555,6 @@ export default async function RoosterPage({
           </span>
         ))}
       </div>
-
-      <TodayWorking />
     </div>
   );
 }

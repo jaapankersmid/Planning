@@ -10,6 +10,7 @@ const rank = (g: string | null) => {
 };
 
 // "Vandaag aan het werk": per dienst, daarbinnen op kleurgroep en naam. Voor alle gebruikers.
+// Staat boven het rooster, standaard ingeklapt (de kop met het aantal blijft zichtbaar).
 export async function TodayWorking() {
   const today = todayAmsterdam();
   const rows = await prisma.shiftAssignment.findMany({
@@ -35,12 +36,15 @@ export async function TodayWorking() {
     g.people.push(a);
   }
   return (
-    <section className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-4">
-      <h2 className="text-sm font-semibold">Vandaag aan het werk ({working.length})</h2>
+    <details className="group rounded-lg border border-border bg-surface">
+      <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-2.5 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+        <span aria-hidden className="text-xs text-foreground-muted transition-transform group-open:rotate-90">▸</span>
+        Vandaag aan het werk ({working.length})
+      </summary>
       {groups.length === 0 ? (
-        <p className="text-xs text-foreground-muted">Niemand ingepland.</p>
+        <p className="px-4 pb-3 text-xs text-foreground-muted">Niemand ingepland.</p>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 px-4 pb-4 sm:grid-cols-2 lg:grid-cols-3">
           {groups.map((g) => (
             <div key={g.code} className="rounded-md border border-border p-2.5">
               <div className="flex items-center gap-2 text-xs font-medium">
@@ -60,6 +64,6 @@ export async function TodayWorking() {
           ))}
         </div>
       )}
-    </section>
+    </details>
   );
 }
