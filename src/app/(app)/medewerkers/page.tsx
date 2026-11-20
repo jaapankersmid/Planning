@@ -15,6 +15,7 @@ import {
   unlinkEmployeeAccount,
 } from "./actions";
 import { InfoTip } from "@/components/info-tip";
+import { DeleteEmployeeButton } from "@/components/delete-employee-button";
 
 export default async function MedewerkersPage() {
   const session = await auth();
@@ -182,11 +183,14 @@ export default async function MedewerkersPage() {
                   </span>
                 </td>
                 <td className="px-4 py-2 text-right">
-                  <form action={setEmployeeActive.bind(null, e.id, !e.active)}>
-                    <button className="text-xs underline hover:no-underline">
-                      {e.active ? "op inactief zetten" : "activeren"}
-                    </button>
-                  </form>
+                  <div className="flex flex-col items-end gap-1">
+                    <form action={setEmployeeActive.bind(null, e.id, !e.active)}>
+                      <button className="text-xs underline hover:no-underline">
+                        {e.active ? "op inactief zetten" : "activeren"}
+                      </button>
+                    </form>
+                    <DeleteEmployeeButton employeeId={e.id} name={e.name} />
+                  </div>
                 </td>
               </tr>
             ))}

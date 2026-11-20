@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { removeFromCalendar } from "@/lib/assignments";
+import { todayAmsterdam } from "@/lib/schedule";
 
 async function requireAdmin() {
   const session = await auth();
@@ -42,6 +44,73 @@ export async function unlinkEmployeeAccount(employeeId: string) {
     });
   }
   revalidatePath("/medewerkers");
+}
+
+export type DeleteInfo = {
+  name: string;
+  accountEmail: string | null;
+  counts: { label: string; n: number }[];
+};
+
+/** Wat er verdwijnt als deze medewerker definitief wordt verwijderd (voor de eerste bevestiging). */
+export async function employeeDeleteInfo(employeeId: string): Promise<DeleteInfo | { error: string }> {
+  await requireAdmin();
+  const employee = await prisma.employee.findUnique({ where: { id: employeeId }, include: { user: { select: { email: true } } } });
+  if (!employee) return { error: "Medewerker niet gevonden." };
+  const where = { employeeId };
+  const [assignments, entries, leave, allowances, adjustments, availability, contracts, swaps] = await Promise.all([
+    prisma.shiftAssignment.count({ where }),
+    prisma.timeEntry.count({ where }),
+    prisma.leaveRequest.count({ where }),
+    prisma.leaveAllowance.count({ where }),
+    prisma.leaveAdjustment.count({ where }),
+    prisma.availability.count({ where }),
+    prisma.contractHours.count({ where }),
+    prisma.shiftSwapRequest.count({ where: { OR: [{ requesterId: employeeId }, { targetId: employeeId }] } }),
+  ]);
+  return {
+    name: employee.name,
+    accountEmail: employee.user?.email ?? null,
+    counts: [
+      { label: "diensten in het rooster", n: assignments },
+      { label: "dagen met geregistreerde uren", n: entries },
+      { label: "verlofaanvragen", n: leave },
+      { label: "verloftegoeden", n: allowances },
+      { label: "verlofcorrecties", n: adjustments },
+      { label: "dagen met beschikbaarheid", n: availability },
+      { label: "contractperiodes", n: contracts },
+      { label: "ruilverzoeken", n: swaps },
+    ].filter((c) => c.n > 0),
+  };
+}
+
+/**
+ * Verwijdert een medewerker definitief, met alles wat erbij hoort (rooster, uren, verlof, beschikbaarheid ...).
+ * Tweede bevestiging: de naam moet worden ingetypt; dat wordt hier op de server opnieuw gecontroleerd.
+ * Een gekoppeld account blijft bestaan (zonder medewerker). Komende diensten worden eerst uit de Google-agenda gehaald.
+ */
+export async function deleteEmployee(employeeId: string, typedName: string): Promise<{ error: string } | { ok: string }> {
+  await requireAdmin();
+  const employee = await prisma.employee.findUnique({ where: { id: employeeId }, select: { id: true, name: true } });
+  if (!employee) return { error: "Medewerker niet gevonden." };
+  if (typedName.trim().toLowerCase() !== employee.name.trim().toLowerCase()) {
+    return { error: "De ingetypte naam klopt niet. Er is niets verwijderd." };
+  }
+  // Best effort: komende diensten uit de agenda van het gekoppelde account halen.
+  const synced = await prisma.shiftAssignment.findMany({
+    where: { employeeId, date: { gte: todayAmsterdam() }, OR: [{ googleEventId: { not: null } }, { googleEventId2: { not: null } }] },
+    select: { id: true, googleEventId: true, googleEventId2: true, employeeId: true },
+  });
+  for (const a of synced) await removeFromCalendar(a);
+
+  await prisma.$transaction([
+    prisma.user.updateMany({ where: { employeeId }, data: { employeeId: null } }),
+    prisma.employee.delete({ where: { id: employeeId } }),
+  ]);
+  for (const path of ["/medewerkers", "/rooster", "/vast-rooster", "/gebruikers", "/verlofuren", "/uren/overzicht", "/ziekte", "/verlof/overzicht", "/bezetting"]) {
+    revalidatePath(path);
+  }
+  return { ok: `${employee.name} is definitief verwijderd.` };
 }
 
 export async function setEmployeeColorGroup(employeeId: string, colorGroup: string | null) {

@@ -155,6 +155,28 @@ export async function setUserRole(userId: string, role: Role): Promise<{ error: 
   revalidatePath("/gebruikers");
 }
 
+/** Past naam en e-mailadres van een gebruiker aan. Een nieuw e-mailadres moet uniek zijn; de Hub gaat mee. */
+export async function updateUser(userId: string, input: { name: string; email: string }): Promise<{ error: string } | { ok: string }> {
+  await requireAdmin();
+  const name = input.name.trim().slice(0, 100);
+  const email = input.email.trim().toLowerCase();
+  if (!name) return { error: "Naam is verplicht." };
+  if (!/^[^\s@<>"',;]+@[^\s@<>"',;]+\.[^\s@<>"',;]+$/.test(email) || email.length > 200) return { error: "Vul een geldig e-mailadres in." };
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return { error: "Gebruiker niet gevonden." };
+  if (email !== user.email) {
+    const taken = await prisma.user.findUnique({ where: { email } });
+    if (taken) return { error: "Er bestaat al een account met dit e-mailadres." };
+  }
+  const updated = await prisma.user.update({ where: { id: userId }, data: { name, email } });
+  // De Hub kent het account aan het e-mailadres: zet het oude adres daar uit en meld het nieuwe aan.
+  if (email !== user.email) await syncHubAccess({ ...user, active: false });
+  await syncHubAccess(updated);
+  revalidatePath("/gebruikers");
+  revalidatePath("/medewerkers");
+  return { ok: email !== user.email ? "Opgeslagen. Voortaan logt deze gebruiker in met het nieuwe e-mailadres." : "Opgeslagen." };
+}
+
 const HUB_ROLES = ["STAFF", "ACCOUNTING", "ADMIN"];
 
 /** Geeft een gebruiker toegang tot het crematorium-programma (met een rol daar) of haalt die weg (lege waarde). */

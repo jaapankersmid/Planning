@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { CreateUserForm } from "@/components/create-user-form";
 import { ResetPasswordButton } from "@/components/reset-password-button";
+import { EditUserButton } from "@/components/edit-user-button";
 import { MailStatusPanel } from "@/components/mail-status-panel";
 import { isMailConfigured } from "@/lib/mail";
 import { pendingNotificationCount } from "@/lib/notifications";
@@ -138,6 +139,7 @@ export default async function GebruikersPage() {
                 </td>
                 <td className="px-4 py-2">
                   <div className="flex flex-col items-end gap-1.5">
+                    <EditUserButton userId={u.id} name={u.name ?? ""} email={u.email} />
                     <ResetPasswordButton userId={u.id} />
                     <form action={setUserActive.bind(null, u.id, !u.active)}>
                       <button className="text-xs underline hover:no-underline">
